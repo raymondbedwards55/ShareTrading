@@ -16,7 +16,7 @@ using System.Data.OleDb;
 
 
     // ***************************
-    //  Let's document ray 7       
+    //  Let's document alice 1      
     // ***************************
 
 namespace ShareTrading
