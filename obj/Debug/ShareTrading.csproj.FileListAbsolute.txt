@@ -12,3 +12,17 @@ C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTradi
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.csproj.GenerateResource.Cache
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.exe
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.pdb
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\ShareTrading.exe.config
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.exe
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.pdb
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\ShareAnalV2.accdb
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\ShareTrading.exe
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\ShareTrading.pdb
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.csprojResolveAssemblyReference.cache
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.DividendImport.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.Form1.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.Form2.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.ImportDailyPrices.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.ImportRecentPrices.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.Properties.Resources.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.csproj.GenerateResource.Cache
