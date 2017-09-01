@@ -7,7 +7,10 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Data.OleDb;
+//using System.Data.OleDb;
+using Devart.Data.PostgreSql;
+
+
 
 
 namespace ShareTrading
@@ -37,133 +40,132 @@ namespace ShareTrading
         public Decimal MarginLendingBarrier = (Decimal)3;
 
 
-        public void CheckAllCompanies()
-        {
-            DBAccess.ASXPriceDate ASXPriceDate;
-            DBAccess.TransRecords TransRecords;
-            DB = new DBAccess();
-            DB.connection.Open();
-            DB.GetAllPrices(null, DateTime.Today);
-            DateTime lastDate = StartDate;
-            //  Set up the starting Account Bal
-            DBAccess.BankBal bankBal = new DBAccess.BankBal();
-            bankBal.BalDate = lastDate;
-            bankBal.AcctBal = StartBal;
-            DB.BankBalInsert(bankBal);
-            Decimal DayDivTotal = (Decimal)0.0;
+    public void CheckAllCompanies(bool runningSimulation)
+    {
+      DBAccess.TransRecords TransRecords;
+      List<DBAccess.TransRecords> transList = null;
 
-            while ((ASXPriceDate = DB.GetNextPriceDate()) != null)
-            {
-                if (ASXPriceDate.ASXCode == null)
-                    return;
-                DBAccess.DividendHistory dividendHistory = null;
-                bool didSell = false;
-                if (!DB.GetTransRecords(ASXPriceDate.ASXCode, new DateTime(1900, 1, 1)))
-                    continue;
-                else
-                {
-                    // Sellls  ------------------------------------------------------------
-                    while ((TransRecords = DB.GetNextTransRecords()) != null)  // get transaction where we bought these
-                    {
-                        Decimal SellPrice = 0;
-                        DateTime TransDate = TransRecords.TranDate;
-                        // Difference in days, hours, and minutes.
-                        TimeSpan ts = lastDate - TransDate;
-                        // Difference in days.
-                        Double DaysHeld = (Double)ts.Days;
+      List<DBAccess.ASXPriceDate> allPrices = new List<DBAccess.ASXPriceDate>();
+      DBAccess.GetAllPrices(null, DateTime.Today, out allPrices, DBAccess.ASXPriceDateFieldList);
+      DateTime lastDate = StartDate;
+      //  Set up the starting Account Bal
+      DBAccess.BankBal bankBal = new DBAccess.BankBal();
+      bankBal.BalDate = lastDate;
+      bankBal.AcctBal = StartBal;
+      DBAccess.BankBalInsert(bankBal, runningSimulation);
+      Decimal DayDivTotal = (Decimal)0.0;
 
-                        Decimal TargetPrice = 0;
-                        TargetPrice = TransRecords.UnitPrice * (Decimal)(1.005 + ((Double)TargetSellReturn * Math.Sqrt(DaysHeld)));
-                        DBAccess.TransRecords SellTrn = SellSuggestion(ASXPriceDate.ASXCode, TransRecords.TransQty, TargetPrice, lastDate, TransRecords, "SellOnOpen4Return", ASXPriceDate);
-                    }
-                }
-                if (didSell)
-                    continue;
+      foreach(DBAccess.ASXPriceDate rec in allPrices)
+      {
+         DBAccess.DividendHistory dividendHistory = null;
+         if (!DBAccess.GetAllTransRecords(rec.ASXCode, DateTime.MinValue, out transList, DBAccess.TransRecordsFieldList, " AND SOH > 0 ", runningSimulation))
+           continue;
+        if (transList.Count <= 0)
+          continue;
+        DBAccess.TransRecords transRec = transList[0];
+          // Sellls  ------------------------------------------------------------
+         Decimal SellPrice = 0;
+         DateTime TransDate = transRec.TranDate;
+         // Difference in days, hours, and minutes.
+         TimeSpan ts = lastDate - TransDate;
+         // Difference in days.
+         Double DaysHeld = (Double)ts.Days;
+
+         Decimal TargetPrice = 0;
+         TargetPrice = transRec.UnitPrice * (Decimal)(1.005 + ((Double)TargetSellReturn * Math.Sqrt(DaysHeld)));
+         DBAccess.TransRecords SellTrn = SellSuggestion(rec.ASXCode, transRec.TransQty, TargetPrice, lastDate, transRec, "SellOnOpen4Return", rec);
+         
+         if (runningSimulation)
+           continue;
 
                 // Buys ------------------------------------
 
                 //  Buy on margin below last sell - 
-                if (DB.SetupLastSellRecords(ASXPriceDate.ASXCode))
+                if (DBAccess.SetupLastSellRecords(rec.ASXCode, runningSimulation, out transList))
                 {
-                    if ((TransRecords = DB.GetLastTransRecords()) != null)
+                    if (transList.Count > 0)
                     {
-                        if (TransRecords.BuySell == "Sell")
+                        if (transList[0].BuySell == "Sell")
                         {
-                            DateTime TransDate = TransRecords.TranDate;
+                            TransDate = transList[0].TranDate;
                             // Difference in days, hours, and minutes.
-                            TimeSpan ts = lastDate - TransDate;
+                            ts = lastDate - TransDate;
                             // Difference in days.
-                            Double DaysHeld = (Double)ts.Days;
+                            DaysHeld = (Double)ts.Days;
                             Decimal BuyPrice = 0;
-                            Decimal TargetPrice = 0;
+                            TargetPrice = 0;
                             int BuyQty = 0;
-                            TargetPrice = TransRecords.UnitPrice * (Decimal)(1.0 - ((Double)TargetBuyReturn * Math.Sqrt(DaysHeld)) + (.15 * (Double)DaysHeld / 365.0));
+                            TargetPrice = transList[0].UnitPrice * (Decimal)(1.0 - ((Double)TargetBuyReturn * Math.Sqrt(DaysHeld)) + (.15 * (Double)DaysHeld / 365.0));
 
                             BuyQty = CommonFunctions.GetBuyQty(bankBal, TargetPrice, MarginLendingBarrier);
-                            BuySuggestion(ASXPriceDate.ASXCode, BuyQty, TargetPrice, lastDate, "BuyOnOpenBelowSell");
+                            BuySuggestion(rec.ASXCode, BuyQty, TargetPrice, lastDate, "BuyOnOpenBelowSell");
                         }
                     }
-                }
+          continue;
+         }
 
                 // We don't have any so lets buy on a 5 day low or if very close to a Dividend
-                if (DB.GetTransRecords(ASXPriceDate.ASXCode, new DateTime(1900, 1, 1)))
-                {
+        if (DBAccess.GetAllTransRecords(rec.ASXCode, DateTime.MinValue, out transList, DBAccess.TransRecordsFieldList, " AND SOH > 0 ", runningSimulation))
+        {
                     Decimal BuyPrice = 0;
-                    if ((TransRecords = DB.GetNextTransRecords()) == null)
+                    if ((transList.Count > 0))
                     {
+            transRec = transList[0];
                         //  Buy within 10 days of Dividend - 
                         DBAccess.DividendHistory DivHis = new DBAccess.DividendHistory();
-                        if (DB.GetNextDividend(ASXPriceDate.ASXCode, ASXPriceDate.PriceDate))
+            List<DBAccess.DividendHistory> list = new List<DBAccess.DividendHistory>();
+                        if (DBAccess.GetDividends(rec.ASXCode, rec.PriceDate, out list, DBAccess.dirn.greaterThanEquals))
                         {
-                            if ((DivHis = DB.GetNextDividendHistory()) != null && ChaseDividends)  // Only do this is chasing Dividends
+              DivHis = list[0];
+                            if (DivHis != null && ChaseDividends)  // Only do this is chasing Dividends
                             {
-                                if (DateTime.Compare(DivHis.ExDividend, ASXPriceDate.PriceDate.AddDays(10)) < 0)
+                                if (DateTime.Compare(DivHis.ExDividend, rec.PriceDate.AddDays(10)) < 0)
                                 {
                                     //Transaction Size
-                                    BuyPrice = ASXPriceDate.PrcOpen;
+                                    BuyPrice = rec.PrcOpen;
                                     int BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
-                                    BuySuggestion(ASXPriceDate.ASXCode, BuyQty, BuyPrice, lastDate, "BuyNearDividend");
+                                    BuySuggestion(rec.ASXCode, BuyQty, BuyPrice, lastDate, "BuyNearDividend");
                                     continue;
                                 }
                             }
                         }
 
-                        if (ASXPriceDate.PrcLow <= ASXPriceDate.Day5Min * AddBuyMrgn &&
-                            ASXPriceDate.Day5Min > ASXPriceDate.Day90Min)  // This is an attempt to make sure the price is not just diving
+                        if (rec.PrcLow <= rec.Day5Min * AddBuyMrgn &&
+                            rec.Day5Min > rec.Day90Min)  // This is an attempt to make sure the price is not just diving
                         {
                             if (bankBal.MarginLoan / bankBal.TtlDlrSOH > (Decimal)MarginLoanRebuyLimit)
                                 continue;
                             int BuyQty = 0;
-                            if (ASXPriceDate.PrcOpen <= ASXPriceDate.Day5Min * AddBuyMrgn)
+                            if (rec.PrcOpen <= rec.Day5Min * AddBuyMrgn)
                             {
-                                BuyPrice = ASXPriceDate.PrcOpen;
+                                BuyPrice = rec.PrcOpen;
                                 BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
-                                BuySuggestion(ASXPriceDate.ASXCode, BuyQty, BuyPrice, lastDate, "BuyOnOpenDayMin");
+                                BuySuggestion(rec.ASXCode, BuyQty, BuyPrice, lastDate, "BuyOnOpenDayMin");
                             }
-                            else if (ASXPriceDate.PrcLow <= ASXPriceDate.Day5Min * AddBuyMrgn && bankBal.TtlDlrSOH > 0)
+                            else if (rec.PrcLow <= rec.Day5Min * AddBuyMrgn && bankBal.TtlDlrSOH > 0)
                             {
-                                BuyPrice = ASXPriceDate.Day5Min * AddBuyMrgn;
+                                BuyPrice = rec.Day5Min * AddBuyMrgn;
                                 //Transaction Size
                                 BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
-                                BuySuggestion(ASXPriceDate.ASXCode, BuyQty, BuyPrice, lastDate, "BuyOnDayMin");
+                                BuySuggestion(rec.ASXCode, BuyQty, BuyPrice, lastDate, "BuyOnDayMin");
                             }
                         }
                     }
                     else  // already have some - doing rebuy
                     {
-                        if (ASXPriceDate.PrcLow <= ASXPriceDate.Day5Min * AddBuyMrgn &&
-                            ASXPriceDate.Day5Min > ASXPriceDate.Day90Min)  // This is an attempt to make sure the price is not just diving
+                        if (rec.PrcLow <= rec.Day5Min * AddBuyMrgn &&
+                            rec.Day5Min > rec.Day90Min)  // This is an attempt to make sure the price is not just diving
                         {
-                            if (ASXPriceDate.PrcOpen <= ASXPriceDate.Day5Min * AddBuyMrgn)
-                                BuyPrice = ASXPriceDate.PrcOpen;
+                            if (rec.PrcOpen <= rec.Day5Min * AddBuyMrgn)
+                                BuyPrice = rec.PrcOpen;
                             else
-                                BuyPrice = ASXPriceDate.Day5Min * AddBuyMrgn;
-                            if (BuyPrice < (Decimal)RebuyMargin * TransRecords.UnitPrice && bankBal.TtlDlrSOH > 0)
+                                BuyPrice = rec.Day5Min * AddBuyMrgn;
+                            if (BuyPrice < (Decimal)RebuyMargin * transRec.UnitPrice && bankBal.TtlDlrSOH > 0)
                             {
                                 if (bankBal.MarginLoan / bankBal.TtlDlrSOH > (Decimal)MarginLoanRebuyLimit)
                                     continue;
                                 int BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
-                                BuySuggestion(ASXPriceDate.ASXCode, BuyQty, BuyPrice, lastDate, "Rebuy");
+                                BuySuggestion(rec.ASXCode, BuyQty, BuyPrice, lastDate, "Rebuy");
                             }
                         }
                     }

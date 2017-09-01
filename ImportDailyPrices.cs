@@ -19,11 +19,11 @@ namespace ShareTrading
         {
             InitializeComponent();
         }
-
         private void button1_Click(object sender, EventArgs e)
         {
-            DBAccess DB = new DBAccess();
-            if (!DB.GetAllCodes())
+      //DBAccess DB = new DBAccess();
+      List<DBAccess.CompanyDetails> list = null;
+            if (!DBAccess.GetCompanyDetails(null, out  list))
                 return;
             String ASXCode = "";
             String PrevClose = "";
@@ -51,9 +51,10 @@ namespace ShareTrading
             String DivYeild = "";
             
 
-            while ((ASXCode = DB.GetNextCode()) != null)
+            foreach (DBAccess.CompanyDetails rec in list)
             {
-                String response = GetPage(ASXCode);
+        ASXCode = rec.ASXCode;
+                String response = GetPage(rec.ASXCode);
                 String x = @".*time_rtq_ticker.*>" + @"([0-9\-\.]+)" + "<";
                 Match matchSect1 = Regex.Match(response, x);
                 if (matchSect1.Success)
@@ -142,12 +143,18 @@ namespace ShareTrading
                 if (dow == 0)
                     dt = dt.AddDays(-2);
                 ASXPriceDate.PriceDate = dt;
-                Decimal.TryParse(ClosePrc ,out ASXPriceDate.PrcClose);
-                Decimal.TryParse(PrcHigh,out ASXPriceDate.PrcHigh);
-                Decimal.TryParse(PrcLow, out ASXPriceDate.PrcLow);
-                Decimal.TryParse(OpenPrc, out ASXPriceDate.PrcOpen);
-                int.TryParse(Volume, out ASXPriceDate.Volume);
-                DB.ASXprcInsert(ASXPriceDate);
+        Decimal prcClose = ASXPriceDate.PrcClose;
+        decimal prcOpen = ASXPriceDate.PrcOpen;
+        decimal prcHigh = ASXPriceDate.PrcHigh;
+        decimal prcLow = ASXPriceDate.PrcLow;
+        int vol = ASXPriceDate.Volume;
+
+        Decimal.TryParse(ClosePrc ,out prcClose);
+                Decimal.TryParse(PrcHigh,out prcHigh);
+                Decimal.TryParse(PrcLow, out prcLow);
+                Decimal.TryParse(OpenPrc, out prcOpen);
+                int.TryParse(Volume, out vol);
+                DBAccess.ASXprcInsert(ASXPriceDate);
             }
         }
 

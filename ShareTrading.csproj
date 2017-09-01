@@ -12,6 +12,21 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,6 +48,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Devart.Data, Version=5.0.1441.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\Devart.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Devart.Data.PostgreSql, Version=7.5.649.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\Devart.Data.PostgreSql.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
@@ -56,6 +79,18 @@
     <Compile Include="DividendImport.Designer.cs">
       <DependentUpon>DividendImport.cs</DependentUpon>
     </Compile>
+    <Compile Include="EditGeneralLedger.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditGeneralLedger.Designer.cs">
+      <DependentUpon>EditGeneralLedger.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ExportBuysSellsToMYOB.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExportBuysSellsToMYOB.Designer.cs">
+      <DependentUpon>ExportBuysSellsToMYOB.cs</DependentUpon>
+    </Compile>
     <Compile Include="FindSuggestions.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -68,6 +103,12 @@
     </Compile>
     <Compile Include="Form2.Designer.cs">
       <DependentUpon>Form2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmSuggestions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmSuggestions.Designer.cs">
+      <DependentUpon>FrmSuggestions.cs</DependentUpon>
     </Compile>
     <Compile Include="ImportDailyPrices.cs">
       <SubType>Form</SubType>
@@ -95,11 +136,20 @@
       <DependentUpon>DividendImport.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="EditGeneralLedger.resx">
+      <DependentUpon>EditGeneralLedger.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExportBuysSellsToMYOB.resx">
+      <DependentUpon>ExportBuysSellsToMYOB.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form2.resx">
       <DependentUpon>Form2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmSuggestions.resx">
+      <DependentUpon>FrmSuggestions.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ImportDailyPrices.resx">
       <DependentUpon>ImportDailyPrices.cs</DependentUpon>
@@ -115,7 +165,12 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="Properties\DataSources\DBAccess.datasource" />
+    <None Include="Properties\DataSources\DBAccess.GLCodes.datasource" />
+    <None Include="Properties\DataSources\DBAccess.GLType.datasource" />
+    <None Include="Properties\DataSources\FrmSuggestions.Suggestions.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -141,9 +196,33 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\Add.ico" />
+    <None Include="Resources\AddTableHS.png" />
+    <None Include="Resources\DeleteHS.png" />
+    <None Include="Resources\EditInformationHS.png" />
+    <None Include="Resources\NavBack.png" />
+    <None Include="Resources\NavForward.png" />
+    <None Include="Resources\door_out.png" />
+    <None Include="Resources\Edit_UndoHS.png" />
+    <None Include="Resources\cancel.png" />
+    <None Include="Resources\saveHS.png" />
+    <Content Include="Resources\gear_in.png" />
+    <None Include="Resources\gear_in1.png" />
     <Content Include="ShareAnalV2.accdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5.2 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

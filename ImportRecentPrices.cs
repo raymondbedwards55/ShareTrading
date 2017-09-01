@@ -11,6 +11,7 @@ using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
 
+
 namespace ShareTrading
 {
     public partial class ImportRecentPrices : Form
@@ -23,23 +24,23 @@ namespace ShareTrading
 
         private void button1_Click(object sender, EventArgs e)
         {
-            DBAccess DB = new DBAccess();
-            if (!DB.GetAllCodes())
+      //DBAccess DB = new DBAccess();
+      List<DBAccess.CompanyDetails> list = null;
+      if (!DBAccess.GetCompanyDetails(null, out  list))
                 return;
-            String ASXCode = "";
 
 
             DBAccess.DividendHistory Dividend = new DBAccess.DividendHistory();
-            while ((ASXCode = DB.GetNextCode()) != null)
+            foreach (DBAccess.CompanyDetails rec in list)
             {
                 DBAccess.ASXPriceDate ASXPriceDate = new DBAccess.ASXPriceDate();
-                ASXPriceDate.ASXCode = ASXCode;
+                ASXPriceDate.ASXCode = rec.ASXCode;
                 string key = "";
                 String DateFld = @".*>([0-9]+ [a-zA-Z]+ [0-9]+)</td><td";
                 String DlrsFld = @">\$([0-9\-\.]+)</td>";
                 String QtyFld = @"([0-9\,N\/A]+)";
                 String PrcFld = @"([0-9\.]+)";
-                String response = GetPage(ASXCode);
+                String response = GetPage(rec.ASXCode);
                 // Here we check the Match instance.
                 Match match = Regex.Match(response, @"yfnc_tabledata1(.*)");
                 if (match.Success)
@@ -57,7 +58,8 @@ namespace ShareTrading
                     {
                         key = yrDataMatch.Groups[1].Value;
                         String Fld1 = yrDataMatch.Groups[2].Value;
-                        DateTime.TryParse(Fld1, out ASXPriceDate.PriceDate);
+            DateTime priceDate = ASXPriceDate.PriceDate;
+                        DateTime.TryParse(Fld1, out priceDate);
                         key1 = yrDataMatch.Groups[3].Value;
                     }
                     else
@@ -72,14 +74,21 @@ namespace ShareTrading
 
                     if (yrDataMatch.Success)
                     {
-                        Decimal.TryParse(yrDataMatch.Groups[1].Value, out ASXPriceDate.PrcOpen);
-                        Decimal.TryParse(yrDataMatch.Groups[2].Value, out ASXPriceDate.PrcHigh);
-                        Decimal.TryParse(yrDataMatch.Groups[3].Value, out ASXPriceDate.PrcLow);
-                        Decimal.TryParse(yrDataMatch.Groups[4].Value, out ASXPriceDate.PrcClose);
+            Decimal prcClose = ASXPriceDate.PrcClose;
+            decimal prcOpen = ASXPriceDate.PrcOpen;
+            decimal prcHigh = ASXPriceDate.PrcHigh;
+            decimal prcLow = ASXPriceDate.PrcLow;
+            int vol = ASXPriceDate.Volume;
+            decimal adjClose = ASXPriceDate.AdjClose;
+
+            Decimal.TryParse(yrDataMatch.Groups[1].Value, out prcOpen);
+                        Decimal.TryParse(yrDataMatch.Groups[2].Value, out prcHigh);
+                        Decimal.TryParse(yrDataMatch.Groups[3].Value, out prcLow);
+                        Decimal.TryParse(yrDataMatch.Groups[4].Value, out prcClose);
                         String x = yrDataMatch.Groups[5].Value.Replace(",", "");
-                        int.TryParse(x, out ASXPriceDate.Volume);
-                        Decimal.TryParse(yrDataMatch.Groups[6].Value, out ASXPriceDate.AdjClose);
-                        DB.ASXprcInsert(ASXPriceDate);
+                        int.TryParse(x, out vol);
+                        Decimal.TryParse(yrDataMatch.Groups[6].Value, out adjClose);
+                        DBAccess.ASXprcInsert(ASXPriceDate);
                     }
                     else
                         break;

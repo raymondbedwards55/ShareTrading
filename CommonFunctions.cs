@@ -13,15 +13,16 @@ namespace ShareTrading
     class CommonFunctions
     {
         // Check for the Qty of Stock that is applicable to this stock and date
-        public static DBAccess.DivPaid CheckForDividends(String ASXCode, DateTime dt)
+        public static DBAccess.DivPaid CheckForDividends(String ASXCode, DateTime dt, bool runningSimulation)
         {
-            DBAccess DB = new DBAccess();
+            //DBAccess DB = new DBAccess();
             DBAccess.DividendHistory dividendHistory = null;
-            if (DB.GetDividendHistory(ASXCode, dt))
-                dividendHistory = DB.GetNextDividendHistory();
+      List<DBAccess.DividendHistory> list = new List<DBAccess.DividendHistory>();
+            if (DBAccess.GetDividends(ASXCode, dt, out list, DBAccess.dirn.equals))
+                dividendHistory = list[0];
             if (dividendHistory == null)
                 return null;
-            int TtlASXCodeSOH = DB.GetASXCodeSOH(ASXCode, dt);
+            int TtlASXCodeSOH = DBAccess.GetASXCodeSOH(ASXCode, dt, runningSimulation);
             if (TtlASXCodeSOH == 0)
                 return null;
             DBAccess.DivPaid divPaid = new DBAccess.DivPaid();
@@ -30,7 +31,7 @@ namespace ShareTrading
             divPaid.DividendPerShare = dividendHistory.Amount;
             divPaid.QtyShares = TtlASXCodeSOH;
             divPaid.TtlDividend = TtlASXCodeSOH * dividendHistory.Amount;
-            DB.DivPaidInsert(divPaid);
+            DBAccess.DivPaidInsert(divPaid);
             return divPaid;
         }
 
@@ -45,7 +46,7 @@ namespace ShareTrading
             return BuyQty;
         }
 
-        public static void ImportTransactions()
+        public static void ImportTransactions(bool runningSimulation)
         {
             string[] fileEntries = Directory.GetFiles(@"C:\Users\Ray\Downloads\");
             string line;    
@@ -85,9 +86,9 @@ namespace ShareTrading
                             if (Y[6].Contains("CANCEL"))
                                 continue;
                             if (Y[1].Contains("Buy"))
-                                Form1.BuyTransaction(ASXCode,Qty , UnitPrice, dt,"", Y[8]);
+                                Form1.BuyTransaction(ASXCode,Qty , UnitPrice, dt, Y[8], runningSimulation);
                             else
-                                Form1.SellTransaction(ASXCode,Qty,UnitPrice, dt, null,"", Y[8]);
+                                Form1.SellTransaction(ASXCode,Qty,UnitPrice, dt, null,Y[8], runningSimulation);
 
                             /* Do something with X */
                         }
@@ -121,12 +122,17 @@ namespace ShareTrading
                             DBAccess.ASXPriceDate ASXPriceDate = new DBAccess.ASXPriceDate();
                             ASXPriceDate.PriceDate = DateTime.Now;
                             ASXPriceDate.ASXCode = X[0];
-                            Decimal.TryParse(X[5],out ASXPriceDate.PrcClose);
-                            Decimal.TryParse(X[9], out ASXPriceDate.PrcOpen);
-                            Decimal.TryParse(X[11], out ASXPriceDate.PrcHigh);
-                            Decimal.TryParse(X[10], out ASXPriceDate.PrcLow);
-                            int.TryParse(X[12], out ASXPriceDate.Volume);
-                            DB.ASXprcInsert(ASXPriceDate);
+              Decimal prcClose = ASXPriceDate.PrcClose;
+              decimal prcOpen = ASXPriceDate.PrcOpen;
+              decimal prcHigh = ASXPriceDate.PrcHigh;
+              decimal prcLow = ASXPriceDate.PrcLow;
+              int vol = ASXPriceDate.Volume;
+                            Decimal.TryParse(X[5],out prcClose);
+                            Decimal.TryParse(X[9], out prcOpen);
+                            Decimal.TryParse(X[11], out prcHigh);
+                            Decimal.TryParse(X[10], out prcLow);
+                            int.TryParse(X[12], out vol);
+                            DBAccess.ASXprcInsert(ASXPriceDate);
                             /* Do something with X */
 
                         }
@@ -135,5 +141,7 @@ namespace ShareTrading
                 }
             }
         }
-    }
+
+  
+  }
 }

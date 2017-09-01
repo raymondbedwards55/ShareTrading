@@ -26,3 +26,10 @@ C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.ImportDailyPri
 C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.ImportRecentPrices.resources
 C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.Properties.Resources.resources
 C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.csproj.GenerateResource.Cache
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Devart.Data.dll
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Devart.Data.PostgreSql.dll
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Devart.Data.xml
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Devart.Data.PostgreSql.xml
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.EditGeneralLedger.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.ExportBuysSellsToMYOB.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.FrmSuggestions.resources

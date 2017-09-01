@@ -28,18 +28,18 @@ namespace ShareTrading
 
         private void button1_Click(object sender, EventArgs e)
         {
-            DBAccess DB = new DBAccess();
-            if (!DB.GetAllCodes())
+             //String ASXCode = null;
+     List<DBAccess.CompanyDetails> list = null;
+            if (!DBAccess.GetCompanyDetails(null, out  list))
                 return;
-            String ASXCode = null;
             DBAccess.DividendHistory Dividend = new DBAccess.DividendHistory();
-            while ((ASXCode = DB.GetNextCode()) != null)
+            foreach (DBAccess.CompanyDetails rec in list)
             {
                 String DateFld = @"<td>([0-9\-]+)</td>";
                 String DlrsFld = @"<td>\$([0-9\-\.]+)</td>";
                 String PctFld = @"<td>([0-9\-\.]+)\%</td>";
-                String response = GetPage(ASXCode);
-                Dividend.ASXCode = ASXCode;
+                String response = GetPage(rec.ASXCode);
+                Dividend.ASXCode = rec.ASXCode;
                 while (true)
                 {
                     Match match = Regex.Match(response, "<tr   style='background-color:#...;(.*)");
@@ -65,11 +65,16 @@ namespace ShareTrading
                             Dividend.ExDividend = ConvertToDate(Fld1);
                             Dividend.BooksClose = ConvertToDate(Fld2);
                             Dividend.DatePayable = ConvertToDate(Fld3);
-                            Decimal.TryParse(Fld4, out Dividend.Amount);
-                            Decimal.TryParse(Fld5, out Dividend.Franking);
-                            Decimal.TryParse(Fld6, out Dividend.FrankingCredit);
-                            Decimal.TryParse(Fld7, out Dividend.GrossDividend);
-                            DB.DividendHistoryInsert(Dividend);
+              Decimal val = 0M;
+              Decimal.TryParse(Fld4, out val);
+              Dividend.Amount = val;
+              Decimal.TryParse(Fld5, out val);
+              Dividend.Franking = val;
+              Decimal.TryParse(Fld6, out val);
+              Dividend.FrankingCredit = val;
+              Decimal.TryParse(Fld7, out val);
+              Dividend.GrossDividend = val;
+                            DBAccess.DividendHistoryInsert(Dividend);
                             response = yrDataMatch.Groups[11].Value;
                         }
                         else
