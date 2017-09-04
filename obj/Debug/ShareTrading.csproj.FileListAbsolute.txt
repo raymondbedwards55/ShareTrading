@@ -33,3 +33,10 @@ C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Devart.Data.PostgreSql.xml
 C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.EditGeneralLedger.resources
 C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.ExportBuysSellsToMYOB.resources
 C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.FrmSuggestions.resources
+C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\bin\Debug\Devart.Data.dll
+C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\bin\Debug\Devart.Data.PostgreSql.dll
+C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\bin\Debug\Devart.Data.xml
+C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\bin\Debug\Devart.Data.PostgreSql.xml
+C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.EditGeneralLedger.resources
+C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.ExportBuysSellsToMYOB.resources
+C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.FrmSuggestions.resources
