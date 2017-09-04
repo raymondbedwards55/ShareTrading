@@ -165,6 +165,13 @@ namespace ShareTrading
       {
         List<DBAccess.TransRecords> codeList = transList.FindAll(delegate (DBAccess.TransRecords r1) { return r1.ASXCode == code; });
         codeList = codeList.OrderByDescending(x => x.TranDate).ToList();
+        // Check if stock has been bought again since this sell
+        paramList = new List<PgSqlParameter>();
+        paramList.Add(new PgSqlParameter("@P1", codeList[0].ASXCode));
+        paramList.Add(new PgSqlParameter("@P2", codeList[0].TranDate));
+        List<DBAccess.TransRecords> buyList = new List<DBAccess.TransRecords>();
+        if (DBAccess.GetTransRecords(paramList, out buyList, DBAccess.TransRecordsFieldList, " AND trn_asxcode = @P1 AND trn_transdate >= @P2 AND trn_soh > 0 AND trn_buysell = 'Buy' ", string.Empty, false))
+          continue;
         // For each ASXCode, get todays price and work out the percentages
         List<DBAccess.ASXPriceDate> todaysPrice = null;
         DateTime dt = DateTime.MinValue;
