@@ -22,6 +22,7 @@ namespace ShareTrading
     {
       populateSellGrid();
       populateBuyGrid();
+            int a = 0;
     }
 
     private void populateSellGrid()
