@@ -20,12 +20,13 @@ namespace ShareTrading
 
     private void FrmSuggestions_Load(object sender, EventArgs e)
     {
-      populateGrid();
+      populateSellGrid();
+      populateBuyGrid();
     }
 
-    private void populateGrid()
+    private void populateSellGrid()
     {
-      List<Suggestions> suggestList = new List<Suggestions>();
+      List<SellSuggestions> suggestList = new List<SellSuggestions>();
       // Get all the shares we have stock of
       List<DBAccess.TransRecords> transList = null;
       List<PgSqlParameter> paramList = new List<PgSqlParameter>();
@@ -61,13 +62,15 @@ namespace ShareTrading
           int daysHeld = (DateTime.Today - transRec.TranDate.Date).Days;
           if (daysHeld < 3)
             daysHeld = 3;         // takes 3 days for the transaction to be finalised
-          Suggestions sug = new Suggestions();
+          SellSuggestions sug = new SellSuggestions();
           sug.ASXCode = transRec.ASXCode;
           sug.SOH = transRec.SOH;
           sug.UnitBuyPrice = transRec.UnitPrice;
           sug.TodaysUnitPrice = prc;
           sug.PctGain = 0M;
           sug.PctYear = 0M;
+          sug.DaysHeld = daysHeld;
+          sug.BuyDate = transRec.TranDate;
           if (prc != 0 && sug.UnitBuyPrice != 0)
           {
             sug.PctGain = Decimal.Round((sug.TodaysUnitPrice - sug.UnitBuyPrice) * 100 / sug.UnitBuyPrice, 2);
@@ -79,21 +82,23 @@ namespace ShareTrading
       }
       suggestList = suggestList.OrderByDescending(x => x.PctGain).ToList();
       // 
-      dgvSuggestions.DataSource = null;
-      SuggestionsBindingSource.DataSource = suggestList;
-      dgvSuggestions.DataSource = SuggestionsBindingSource;
-      dgvSuggestions.Refresh();
+      dgvToSell.DataSource = null;
+      ToSellBindingSource.DataSource = suggestList;
+      dgvToSell.DataSource = ToSellBindingSource;
+      dgvToSell.Refresh();
 
     }
 
-    public class Suggestions
+    public class SellSuggestions
     {
       public string ASXCode { get; set; }
       public int SOH { get; set; }
       public decimal UnitBuyPrice { get; set; }
+      public DateTime BuyDate { get; set; }
       public decimal TodaysUnitPrice { get; set; }
       public decimal PctGain { get; set; }
       public decimal PctYear { get; set; }
+      public decimal DaysHeld { get; set; }
     }
 
     private void toolStripButtonClose_Click(object sender, EventArgs e)
@@ -103,24 +108,25 @@ namespace ShareTrading
 
     private void toolStripButtonUpdate_Click(object sender, EventArgs e)
     {
-      populateGrid();
+      populateSellGrid();
+      populateBuyGrid();
     }
 
     private int _previousIndex;
     private bool _sortDirection;
 
-    private void dgvSuggestions_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+    private void dgvToSell_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
     {
       if (e.ColumnIndex == _previousIndex)
         _sortDirection ^= true; // toggle direction
 
-      dgvSuggestions.DataSource = SortData(
-          (List<Suggestions>)SuggestionsBindingSource.DataSource, dgvSuggestions.Columns[e.ColumnIndex].Name, _sortDirection);
+      dgvToSell.DataSource = SortData(
+          (List<SellSuggestions>)ToSellBindingSource.DataSource, dgvToSell.Columns[e.ColumnIndex].Name, _sortDirection);
 
       _previousIndex = e.ColumnIndex;
     }
 
-    public List<Suggestions> SortData(List<Suggestions> list, string column, bool ascending)
+    public List<SellSuggestions> SortData(List<SellSuggestions> list, string column, bool ascending)
     {
       try
       {
@@ -133,12 +139,128 @@ namespace ShareTrading
       return list;
     }
 
-    private void dgvSuggestions_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+    private void dgvToSell_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
     {
       DataGridView dgv = sender as DataGridView;
       if (dgv.Columns[e.ColumnIndex].ValueType == typeof(decimal))
         if ((decimal)dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value < 0M)
           dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+    }
+
+    private void populateBuyGrid()
+    {
+      List<BuySuggestions> suggestList = new List<BuySuggestions>();
+      // Get all the shares we have stock of
+      List<DBAccess.TransRecords> transList = null;
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+
+      if (!DBAccess.GetTransRecords(null, out transList, DBAccess.TransRecordsFieldList, " AND trn_soh  = 0 ", " ORDER BY trn_ASXCode, trn_transdate DESC", false))
+      {
+        MessageBox.Show("No transactions found", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        return;
+      }
+      var uCode = transList.Select(x => x.ASXCode).Distinct().ToList();
+      foreach (string code in uCode)
+      {
+        List<DBAccess.TransRecords> codeList = transList.FindAll(delegate (DBAccess.TransRecords r1) { return r1.ASXCode == code; });
+        codeList = codeList.OrderByDescending(x => x.TranDate).ToList();
+        // For each ASXCode, get todays price and work out the percentages
+        List<DBAccess.ASXPriceDate> todaysPrice = null;
+        DateTime dt = DateTime.MinValue;
+        Decimal prc = 0M;
+        paramList = new List<PgSqlParameter>();
+        paramList.Add(new PgSqlParameter("@P1", code));
+        if (DBAccess.GetPriceRecords(paramList, out todaysPrice, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P1 ", "ORDER BY apd_pricedate DESC ", false))
+        {
+          // no prices for this ASX Code so we'll pretend
+
+        }
+        if (todaysPrice != null && todaysPrice.Count > 0)
+        {
+          prc = todaysPrice[0].PrcClose;
+          dt = todaysPrice[0].PriceDate;
+        }
+        // create records to display
+        //foreach (DBAccess.TransRecords transRec in codeList)
+        //{
+        DBAccess.TransRecords transRec = codeList[0];
+          decimal daysHeld = (DateTime.Today - transRec.TranDate.Date).Days;
+          if (daysHeld < 3)
+            daysHeld = 3;         // takes 3 days for the transaction to be finalised
+          BuySuggestions sug = new BuySuggestions();
+          sug.BuyASXCode = transRec.ASXCode;
+          sug.BuySOH = transRec.TransQty;
+          sug.UnitSellPrice = transRec.UnitPrice;
+          sug.BuyTodaysUnitPrice = prc;
+          sug.BuyPctGain = 0M;
+          sug.BuyPctYear = 0M;
+          sug.BuyDaysHeld = daysHeld;
+          sug.SellDate = transRec.TranDate;
+          if (prc != 0 && sug.UnitSellPrice != 0)
+          {
+            sug.BuyPctGain = Decimal.Round((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) * 100 / sug.UnitSellPrice, 2);
+            sug.BuyPctYear = Decimal.Round((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) / sug.UnitSellPrice * 365 * 100 / daysHeld, 2);
+          }
+          suggestList.Add(sug);
+        //}
+
+      }
+      suggestList = suggestList.OrderByDescending(x => x.BuyPctGain).ToList();
+      // 
+      dgvToBuy.DataSource = null;
+      ToBuyBindingSource.DataSource = suggestList;
+      dgvToBuy.DataSource = ToBuyBindingSource;
+      dgvToBuy.Refresh();
+
+    }
+
+    public class BuySuggestions
+    {
+      public string BuyASXCode { get; set; }
+      public int BuySOH { get; set; }
+      public DateTime SellDate { get; set; }
+      public decimal BuyDaysHeld { get; set; }
+      public decimal UnitSellPrice { get; set; }
+      public decimal BuyTodaysUnitPrice { get; set; }
+      public decimal BuyPctGain { get; set; }
+      public decimal BuyPctYear { get; set; }
+    }
+
+    private void dgvToBuy_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+    {
+      try
+      {
+        DataGridView dgv = sender as DataGridView;
+        if (dgv.Columns[e.ColumnIndex].ValueType == typeof(decimal))
+          if ((decimal)dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value < 0M)
+            dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+      }
+      catch
+      { }
+    }
+
+    private void dgvToBuy_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+    {
+      if (e.ColumnIndex == _previousIndex)
+        _sortDirection ^= true; // toggle direction
+
+      dgvToBuy.DataSource = SortToBuyData(
+          (List<BuySuggestions>)ToBuyBindingSource.DataSource, dgvToBuy.Columns[e.ColumnIndex].Name, _sortDirection);
+
+      _previousIndex = e.ColumnIndex;
+    }
+
+    public List<BuySuggestions> SortToBuyData(List<BuySuggestions> list, string column, bool ascending)
+    {
+      try
+      {
+        return ascending ?
+           /* RefreshId( */ list.OrderBy(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /* ) */ :
+           /* RefreshId( */ list.OrderByDescending(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /*) */;
+      }
+      catch
+      { }
+      return list;
     }
   }
 }

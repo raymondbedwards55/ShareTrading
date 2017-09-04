@@ -1055,7 +1055,7 @@ namespace ShareTrading
             if (String.IsNullOrEmpty(inputLine) || inputLine.Length < 2)
               continue;
             string[] flds = inputLine.Split(',');
-
+            
             DBAccess.ASXPriceDate tx = DBAccess.GetSpecificASXPriceRecord(flds[0], DateTime.Today);
             if (tx == null)
               tx = new DBAccess.ASXPriceDate();
