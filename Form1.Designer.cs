@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
       this.components = new System.ComponentModel.Container();
-      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-      System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-      System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+      System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+      System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
       this.button5 = new System.Windows.Forms.Button();
       this.dataGridView2 = new System.Windows.Forms.DataGridView();
       this.dataGridView1 = new System.Windows.Forms.DataGridView();
@@ -47,6 +47,7 @@
       this.importNABTransactionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.importNABDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.homeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.suggestionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.BtnImportTransactions = new System.Windows.Forms.Button();
       this.lblSuggested = new System.Windows.Forms.Label();
       this.DgvSuggestedBuys = new System.Windows.Forms.DataGridView();
@@ -62,13 +63,15 @@
       this.menuStrip1 = new System.Windows.Forms.MenuStrip();
       this.Edits = new System.Windows.Forms.ToolStripMenuItem();
       this.GLCodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.exportsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.toMYOBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.DgvSuggestedSells = new System.Windows.Forms.DataGridView();
       this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
       this.CSVopenFileDialog = new System.Windows.Forms.OpenFileDialog();
-      this.exportsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.toMYOBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.suggestionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.shareAnalV2DataSetBindingSource = new System.Windows.Forms.BindingSource(this.components);
+      this.progressBar = new System.Windows.Forms.ProgressBar();
+      this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+      this.toolStripMenuItem_importDivHistory = new System.Windows.Forms.ToolStripMenuItem();
       ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.DgvSuggestedBuys)).BeginInit();
@@ -149,21 +152,22 @@
       // importRecentPricesToolStripMenuItem1
       // 
       this.importRecentPricesToolStripMenuItem1.Name = "importRecentPricesToolStripMenuItem1";
-      this.importRecentPricesToolStripMenuItem1.Size = new System.Drawing.Size(183, 22);
+      this.importRecentPricesToolStripMenuItem1.Size = new System.Drawing.Size(201, 22);
       this.importRecentPricesToolStripMenuItem1.Text = "Import Recent Prices";
       this.importRecentPricesToolStripMenuItem1.Click += new System.EventHandler(this.importRecentPricesToolStripMenuItem1_Click);
       // 
       // importRecentPricesToolStripMenuItem
       // 
       this.importRecentPricesToolStripMenuItem.Name = "importRecentPricesToolStripMenuItem";
-      this.importRecentPricesToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+      this.importRecentPricesToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
       this.importRecentPricesToolStripMenuItem.Text = "Import TodaysPrices";
       // 
       // importYahooDataToolStripMenuItem
       // 
       this.importYahooDataToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.importRecentPricesToolStripMenuItem,
-            this.importRecentPricesToolStripMenuItem1});
+            this.importRecentPricesToolStripMenuItem1,
+            this.toolStripMenuItem_importDivHistory});
       this.importYahooDataToolStripMenuItem.Name = "importYahooDataToolStripMenuItem";
       this.importYahooDataToolStripMenuItem.Size = new System.Drawing.Size(119, 20);
       this.importYahooDataToolStripMenuItem.Text = "Import Yahoo Data";
@@ -198,6 +202,13 @@
       this.homeToolStripMenuItem.Name = "homeToolStripMenuItem";
       this.homeToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
       this.homeToolStripMenuItem.Text = "Home";
+      // 
+      // suggestionsToolStripMenuItem
+      // 
+      this.suggestionsToolStripMenuItem.Name = "suggestionsToolStripMenuItem";
+      this.suggestionsToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+      this.suggestionsToolStripMenuItem.Text = "Suggestions";
+      this.suggestionsToolStripMenuItem.Click += new System.EventHandler(this.suggestionsToolStripMenuItem_Click);
       // 
       // BtnImportTransactions
       // 
@@ -294,7 +305,7 @@
       this.button2.TabIndex = 29;
       this.button2.Text = "GetDividends";
       this.button2.UseVisualStyleBackColor = true;
-      this.button2.Click += new System.EventHandler(this.button2_Click);
+      this.button2.Click += new System.EventHandler(this.button2_Click_1);
       // 
       // button1
       // 
@@ -345,39 +356,6 @@
       this.GLCodeToolStripMenuItem.Text = "Edit General Ledger Codes";
       this.GLCodeToolStripMenuItem.Click += new System.EventHandler(this.GLCodeToolStripMenuItem_Click);
       // 
-      // DgvSuggestedSells
-      // 
-      this.DgvSuggestedSells.AllowUserToAddRows = false;
-      this.DgvSuggestedSells.AllowUserToDeleteRows = false;
-      this.DgvSuggestedSells.AllowUserToOrderColumns = true;
-      this.DgvSuggestedSells.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-      this.DgvSuggestedSells.Location = new System.Drawing.Point(-440, -71);
-      this.DgvSuggestedSells.Name = "DgvSuggestedSells";
-      this.DgvSuggestedSells.Size = new System.Drawing.Size(738, 216);
-      this.DgvSuggestedSells.TabIndex = 26;
-      this.DgvSuggestedSells.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DgvSuggestedSells_CellContentClick);
-      // 
-      // chart1
-      // 
-      chartArea1.Name = "ChartArea1";
-      this.chart1.ChartAreas.Add(chartArea1);
-      legend1.Name = "Legend1";
-      this.chart1.Legends.Add(legend1);
-      this.chart1.Location = new System.Drawing.Point(12, 162);
-      this.chart1.Name = "chart1";
-      series1.ChartArea = "ChartArea1";
-      series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-      series1.Legend = "Legend1";
-      series1.Name = "Series1";
-      this.chart1.Series.Add(series1);
-      this.chart1.Size = new System.Drawing.Size(797, 350);
-      this.chart1.TabIndex = 47;
-      this.chart1.Text = "Suggested Sells";
-      // 
-      // CSVopenFileDialog
-      // 
-      this.CSVopenFileDialog.FileName = "CSVopenFileDialog";
-      // 
       // exportsToolStripMenuItem
       // 
       this.exportsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -393,18 +371,66 @@
       this.toMYOBToolStripMenuItem.Text = "ToMYOB";
       this.toMYOBToolStripMenuItem.Click += new System.EventHandler(this.toMYOBToolStripMenuItem_Click);
       // 
-      // suggestionsToolStripMenuItem
+      // DgvSuggestedSells
       // 
-      this.suggestionsToolStripMenuItem.Name = "suggestionsToolStripMenuItem";
-      this.suggestionsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-      this.suggestionsToolStripMenuItem.Text = "Suggestions";
-      this.suggestionsToolStripMenuItem.Click += new System.EventHandler(this.suggestionsToolStripMenuItem_Click);
+      this.DgvSuggestedSells.AllowUserToAddRows = false;
+      this.DgvSuggestedSells.AllowUserToDeleteRows = false;
+      this.DgvSuggestedSells.AllowUserToOrderColumns = true;
+      this.DgvSuggestedSells.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+      this.DgvSuggestedSells.Location = new System.Drawing.Point(-440, -71);
+      this.DgvSuggestedSells.Name = "DgvSuggestedSells";
+      this.DgvSuggestedSells.Size = new System.Drawing.Size(738, 216);
+      this.DgvSuggestedSells.TabIndex = 26;
+      this.DgvSuggestedSells.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DgvSuggestedSells_CellContentClick);
+      // 
+      // chart1
+      // 
+      chartArea2.Name = "ChartArea1";
+      this.chart1.ChartAreas.Add(chartArea2);
+      legend2.Name = "Legend1";
+      this.chart1.Legends.Add(legend2);
+      this.chart1.Location = new System.Drawing.Point(12, 162);
+      this.chart1.Name = "chart1";
+      series2.ChartArea = "ChartArea1";
+      series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+      series2.Legend = "Legend1";
+      series2.Name = "Series1";
+      this.chart1.Series.Add(series2);
+      this.chart1.Size = new System.Drawing.Size(797, 350);
+      this.chart1.TabIndex = 47;
+      this.chart1.Text = "Suggested Sells";
+      // 
+      // CSVopenFileDialog
+      // 
+      this.CSVopenFileDialog.FileName = "CSVopenFileDialog";
+      // 
+      // progressBar
+      // 
+      this.progressBar.Location = new System.Drawing.Point(30, 596);
+      this.progressBar.Name = "progressBar";
+      this.progressBar.Size = new System.Drawing.Size(237, 23);
+      this.progressBar.TabIndex = 48;
+      // 
+      // backgroundWorker1
+      // 
+      this.backgroundWorker1.WorkerReportsProgress = true;
+      this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+      this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+      this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+      // 
+      // toolStripMenuItem_importDivHistory
+      // 
+      this.toolStripMenuItem_importDivHistory.Name = "toolStripMenuItem_importDivHistory";
+      this.toolStripMenuItem_importDivHistory.Size = new System.Drawing.Size(201, 22);
+      this.toolStripMenuItem_importDivHistory.Text = "Import Dividend History";
+      this.toolStripMenuItem_importDivHistory.Click += new System.EventHandler(this.toolStripMenuItemImportDivHistory_Click);
       // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(1384, 670);
+      this.Controls.Add(this.progressBar);
       this.Controls.Add(this.chart1);
       this.Controls.Add(this.button5);
       this.Controls.Add(this.dataGridView2);
@@ -482,6 +508,9 @@
     private System.Windows.Forms.ToolStripMenuItem exportsToolStripMenuItem;
     private System.Windows.Forms.ToolStripMenuItem toMYOBToolStripMenuItem;
     private System.Windows.Forms.ToolStripMenuItem suggestionsToolStripMenuItem;
+    private System.Windows.Forms.ProgressBar progressBar;
+    private System.ComponentModel.BackgroundWorker backgroundWorker1;
+    private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_importDivHistory;
   }
 }
 

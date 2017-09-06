@@ -26,20 +26,24 @@ namespace ShareTrading
 
             }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
+    private void button1_Click(object sender, EventArgs e)
+    {
+    }
+
+    public static void ImportDividends(string ASXCode)
+    { 
              //String ASXCode = null;
-     List<DBAccess.CompanyDetails> list = null;
-            if (!DBAccess.GetCompanyDetails(null, out  list))
-                return;
+     //List<DBAccess.CompanyDetails> list = null;
+     //       if (!DBAccess.GetCompanyDetails(null, out  list))
+     //           return;
             DBAccess.DividendHistory Dividend = new DBAccess.DividendHistory();
-            foreach (DBAccess.CompanyDetails rec in list)
-            {
+            //foreach (DBAccess.CompanyDetails rec in list)
+            //{
                 String DateFld = @"<td>([0-9\-]+)</td>";
                 String DlrsFld = @"<td>\$([0-9\-\.]+)</td>";
                 String PctFld = @"<td>([0-9\-\.]+)\%</td>";
-                String response = GetPage(rec.ASXCode);
-                Dividend.ASXCode = rec.ASXCode;
+                String response = GetPage(ASXCode);
+                Dividend.ASXCode = ASXCode;
                 while (true)
                 {
                     Match match = Regex.Match(response, "<tr   style='background-color:#...;(.*)");
@@ -83,10 +87,10 @@ namespace ShareTrading
                     else
                         break;
                 }
-            }
+            //}
         }
 
-        public DateTime ConvertToDate(String Stringddmmyyyy)
+        public static DateTime ConvertToDate(String Stringddmmyyyy)
         {
             int yyyy = 0;
             int mm = 0;
@@ -99,7 +103,7 @@ namespace ShareTrading
             return x;
         }
 
-            public String GetPage(String ThisASXCode)
+            public static String GetPage(String ThisASXCode)
             {
                 // Create a request for the URL. 
                 WebRequest request = WebRequest.Create(

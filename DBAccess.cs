@@ -146,7 +146,7 @@ namespace ShareTrading
           command.Connection = conn;
           command.CommandText = buildInsertList(tableName, classType, memberList);
           for (int i = 1; i < memberList.Count + 1; i++)                                         // Field zero is ID which is system generated
-            command.Parameters.Add(memberList[i - 1].paramName, memberList[i-1].memberName.Contains("DateCreated") || memberList[i - 1].memberName.Contains("DateModified") ? DateTime.Today : memberList[i - 1].memberValue);
+            command.Parameters.Add(memberList[i - 1].paramName, memberList[i-1].memberName.Contains("DateCreated") || memberList[i - 1].memberName.Contains("DateModified") ? DateTime.Now : memberList[i - 1].memberValue);
 
           command.Prepare();
           try
@@ -386,8 +386,8 @@ namespace ShareTrading
 
     // **********************************
     public class DividendHistory
-        {
-            public int ID { get; set; }
+    {
+      public int ID { get; set; }
       public String ASXCode { get; set; }
       public DateTime ExDividend { get; set; }
       public DateTime BooksClose { get; set; }
@@ -396,6 +396,7 @@ namespace ShareTrading
       public Decimal Franking { get; set; }
       public Decimal FrankingCredit { get; set; }
       public Decimal GrossDividend { get; set; }
+      public Decimal WithholdingTax { get; set; }
       public DateTime DateCreated { get; set; }
       public DateTime DateModified { get; set; }
       public DateTime DateDeleted { get; set; }
@@ -485,8 +486,27 @@ namespace ShareTrading
           return string.Empty;
       }
     }
-    public static Boolean GetDividends(String ASXCode, DateTime thsdte, out List<DividendHistory> list,  dirn op)
+    public static Boolean GetDividends(String ASXCode, DateTime thsdte, out List<DividendHistory> list, dirn op)
     {
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      string extraWhere = string.Empty;
+      string orderBy = " ORDER BY dvh_exdivdate DESC, dvh_ASXCode ";
+
+      if (DateTime.Compare(thsdte, DateTime.MinValue) != 0)
+      {
+        paramList.Add(new PgSqlParameter("@P1", thsdte));
+        extraWhere += string.Format(" AND dvh_exdivdate {0} @P1 ", getMathOp(op));
+      }
+      if (ASXCode != null)
+      {
+        paramList.Add(new PgSqlParameter("@P2", ASXCode));
+        extraWhere += " AND dvh_asxcode = @P2 ";
+      }
+      return GetDividends(paramList, out list, extraWhere, orderBy);
+    }
+
+    public static Boolean GetDividends(List<PgSqlParameter> paramList, out List<DividendHistory> list, string extraWhere, string orderBy)
+    { 
       list = new List<DividendHistory>();
       using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
       {
@@ -495,24 +515,16 @@ namespace ShareTrading
           conn.Open();
           PgSqlCommand command = new PgSqlCommand();
           command.Connection = conn;
-          command.Parameters.Add("@P1", DateTime.MinValue);
-          string whereString = string.Empty;
-          if (DateTime.Compare(DateTime.MinValue, thsdte) != 0)
-          {
-            command.Parameters.Add("@P2", thsdte);
-            whereString += string.Format("AND dvh_exdivdate {0} @P2", getMathOp(op));
-          }
-          if (ASXCode != null)
-          {
-            command.Parameters.Add("@P3", ASXCode);
-            whereString += string.Format(" AND dvh_ASXCode = @P3 ");
-          }
-          command.CommandText = string.Format("SELECT {0} FROM {2} WHERE dvh_datedeleted = @P1  {1} ORDER BY dvh_exdivdate , dvh_ASXCode ", DividendHistoryFieldList, whereString, "dividendhistory");
+          command.Parameters.Add("@P0", DateTime.MinValue);
+          string whereString = extraWhere;
+          command.Parameters.AddRange(paramList.ToArray());
+          command.CommandText = string.Format("SELECT {0} FROM {2} WHERE dvh_datedeleted = @P0  {1} {3} ", DividendHistoryFieldList, whereString, "dividendhistory", orderBy);
           command.Prepare();
           try
           {
             PgSqlDataReader reader = command.ExecuteReader();
             list = GetDividendHistory(reader);
+            return list.Count() > 0;
           }
           catch (Exception ex)
           {
@@ -547,9 +559,10 @@ namespace ShareTrading
         dividendRecord.Franking = reader.GetDecimal(6);
         dividendRecord.FrankingCredit = reader.GetDecimal(7);
         dividendRecord.GrossDividend = reader.GetDecimal(8);
-        dividendRecord.DateCreated = reader.GetDateTime(9);
-        dividendRecord.DateModified = reader.GetDateTime(10);
-        dividendRecord.DateDeleted = reader.GetDateTime(11);
+        dividendRecord.WithholdingTax = reader.GetDecimal(9);
+        dividendRecord.DateCreated = reader.GetDateTime(10);
+        dividendRecord.DateModified = reader.GetDateTime(11);
+        dividendRecord.DateDeleted = reader.GetDateTime(12);
         list.Add(dividendRecord);
       }
       return list;
@@ -1542,6 +1555,22 @@ namespace ShareTrading
     }
     public static Boolean GetAllPrices(String ASXCode, DateTime thsdte, out List<ASXPriceDate> list, string reqdFields)
     {
+      string orderBy = " ORDER BY apd_PriceDate, apd_ASXCode ";
+      string extraWhere = "  AND apd_PriceDate >= @P1 ";
+      
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", thsdte));
+      if (ASXCode != null)
+      {
+        paramList.Add(new PgSqlParameter("@P2", ASXCode));
+        extraWhere += string.Format(" AND apd_ASXCode = @P2 ", ASXCode);
+      }
+
+      return GetAllPrices(paramList, out list, reqdFields, extraWhere, orderBy);
+    }
+
+    public static Boolean GetAllPrices(List<PgSqlParameter> paramList, out List<ASXPriceDate> list, string reqdFields, string extraWhere, string orderBy)
+    { 
       list = new List<ASXPriceDate>();
       using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
       {
@@ -1550,15 +1579,10 @@ namespace ShareTrading
           conn.Open();
           PgSqlCommand command = new PgSqlCommand();
           command.Connection = conn;
-          command.Parameters.Add("@P1", DateTime.MinValue);
-          command.Parameters.Add("@P2", thsdte);
+          command.Parameters.Add("@P0", DateTime.MinValue);
+          command.Parameters.AddRange(paramList.ToArray());
           string ASXCodeString = string.Empty;
-          if (ASXCode != null)
-          {
-            command.Parameters.Add("@P3", ASXCode);
-            ASXCodeString = string.Format(" AND apd_ASXCode = @P3 ", ASXCode);
-          }
-          command.CommandText = string.Format("SELECT {0} FROM asxpricedate WHERE apd_datedeleted = @P1 AND apd_PriceDate >= @P2 {1} ORDER BY apd_PriceDate, apd_ASXCode ", reqdFields, ASXCodeString);
+          command.CommandText = string.Format("SELECT {0} FROM asxpricedate WHERE apd_datedeleted = @P0  {1} {2} ", reqdFields, extraWhere, orderBy);
           command.Prepare();
           try
           {
@@ -1592,30 +1616,36 @@ namespace ShareTrading
       while (priceReader.Read())
       { 
         ASXPriceDate PrcDte = new ASXPriceDate();
-                PrcDte.ID = priceReader.GetInt32(0);
-                PrcDte.PriceDate = priceReader.GetDateTime(1);
-                PrcDte.ASXCode = priceReader.GetString(2); ;
-                PrcDte.PrcOpen = priceReader.GetDecimal(3);
-                PrcDte.PrcHigh = priceReader.GetDecimal(4);
-                PrcDte.PrcLow = priceReader.GetDecimal(5);
-                PrcDte.PrcClose = priceReader.GetDecimal(6);
-                PrcDte.Volume = priceReader.GetInt32(7);
-                PrcDte.AdjClose = priceReader.GetDecimal(8);
-                PrcDte.Day5Min = priceReader.GetDecimal(9);
-                PrcDte.Day5Max = priceReader.GetDecimal(10);
-                PrcDte.Day5Pct = priceReader.GetDecimal(11);
-                PrcDte.Day30Min = priceReader.GetDecimal(12);
-                PrcDte.Day30Max = priceReader.GetDecimal(13);
-                PrcDte.Day30Pct = priceReader.GetDecimal(14);
-                PrcDte.Day60Min = priceReader.GetDecimal(15);
-                PrcDte.Day60Max = priceReader.GetDecimal(16);
-                PrcDte.Day60Pct = priceReader.GetDecimal(17);
-                PrcDte.Day90Min = priceReader.GetDecimal(18);
-                PrcDte.Day90Max = priceReader.GetDecimal(19);
-                PrcDte.Day90Pct = priceReader.GetDecimal(20);
-                PrcDte.DateCreated = priceReader.GetDateTime(21);
-                PrcDte.DateModified = priceReader.GetDateTime(22);
-                PrcDte.DateDeleted = priceReader.GetDateTime(23);
+        if (priceReader.FieldCount == 1)
+          PrcDte.ASXCode = priceReader.GetString(0);
+        else
+        {
+
+          PrcDte.ID = priceReader.GetInt32(0);
+          PrcDte.PriceDate = priceReader.GetDateTime(1);
+          PrcDte.ASXCode = priceReader.GetString(2); ;
+          PrcDte.PrcOpen = priceReader.GetDecimal(3);
+          PrcDte.PrcHigh = priceReader.GetDecimal(4);
+          PrcDte.PrcLow = priceReader.GetDecimal(5);
+          PrcDte.PrcClose = priceReader.GetDecimal(6);
+          PrcDte.Volume = priceReader.GetInt32(7);
+          PrcDte.AdjClose = priceReader.GetDecimal(8);
+          PrcDte.Day5Min = priceReader.GetDecimal(9);
+          PrcDte.Day5Max = priceReader.GetDecimal(10);
+          PrcDte.Day5Pct = priceReader.GetDecimal(11);
+          PrcDte.Day30Min = priceReader.GetDecimal(12);
+          PrcDte.Day30Max = priceReader.GetDecimal(13);
+          PrcDte.Day30Pct = priceReader.GetDecimal(14);
+          PrcDte.Day60Min = priceReader.GetDecimal(15);
+          PrcDte.Day60Max = priceReader.GetDecimal(16);
+          PrcDte.Day60Pct = priceReader.GetDecimal(17);
+          PrcDte.Day90Min = priceReader.GetDecimal(18);
+          PrcDte.Day90Max = priceReader.GetDecimal(19);
+          PrcDte.Day90Pct = priceReader.GetDecimal(20);
+          PrcDte.DateCreated = priceReader.GetDateTime(21);
+          PrcDte.DateModified = priceReader.GetDateTime(22);
+          PrcDte.DateDeleted = priceReader.GetDateTime(23);
+        }
 
         inputList.Add(PrcDte);
       }

@@ -56,6 +56,18 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\Devart.Data.PostgreSql.dll</HintPath>
     </Reference>
+    <Reference Include="Itenso.Rtf.Converter.Html">
+      <HintPath>.\Itenso.Rtf.Converter.Html.dll</HintPath>
+    </Reference>
+    <Reference Include="Itenso.Rtf.Interpreter">
+      <HintPath>.\Itenso.Rtf.Interpreter.dll</HintPath>
+    </Reference>
+    <Reference Include="Itenso.Rtf.Parser">
+      <HintPath>.\Itenso.Rtf.Parser.dll</HintPath>
+    </Reference>
+    <Reference Include="Itenso.Sys">
+      <HintPath>.\Itenso.Sys.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
@@ -116,6 +128,7 @@
     <Compile Include="ImportDailyPrices.Designer.cs">
       <DependentUpon>ImportDailyPrices.cs</DependentUpon>
     </Compile>
+    <Compile Include="ImportDividendHistory.cs" />
     <Compile Include="ImportRecentPrices.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -171,6 +184,7 @@
     <None Include="Properties\DataSources\DBAccess.GLCodes.datasource" />
     <None Include="Properties\DataSources\DBAccess.GLType.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.BuySuggestions.datasource" />
+    <None Include="Properties\DataSources\FrmSuggestions.SellSuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.Suggestions.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

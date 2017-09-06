@@ -40,3 +40,7 @@ C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\bin\Debug\Devart.Dat
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.EditGeneralLedger.resources
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.ExportBuysSellsToMYOB.resources
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.FrmSuggestions.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Itenso.Rtf.Converter.Html.dll
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Itenso.Rtf.Interpreter.dll
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Itenso.Rtf.Parser.dll
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Itenso.Sys.dll

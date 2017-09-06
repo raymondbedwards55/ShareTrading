@@ -25,6 +25,28 @@ namespace ShareTrading
             int a = 0;
     }
 
+    private Boolean dividendPending(string ASXCode, int days1, int days2, out DBAccess.DividendHistory divHist)
+    {
+      divHist = new DBAccess.DividendHistory();
+      List<DBAccess.DividendHistory> divList = new List<DBAccess.DividendHistory>();
+      string extraWhere = string.Empty;
+      string orderBy = string.Empty;
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", ASXCode));
+      extraWhere += " AND dvh_asxcode = @P1 ";
+      paramList.Add(new PgSqlParameter("@P2", DateTime.Today.AddDays(days1)));
+      paramList.Add(new PgSqlParameter("@P3", DateTime.Today.AddDays(days2)));
+      extraWhere += " AND dvh_exdivdate BETWEEN @P2 AND @P3 ";
+      orderBy += " ORDER BY dvh_exdivdate DESC ";
+      if (DBAccess.GetDividends(paramList, out divList, extraWhere, orderBy))
+      {
+        divHist = divList[0];
+        return true;
+      }
+      return false;
+
+    }
     private void populateSellGrid()
     {
       List<SellSuggestions> suggestList = new List<SellSuggestions>();
@@ -77,6 +99,24 @@ namespace ShareTrading
             sug.PctGain = Decimal.Round((sug.TodaysUnitPrice - sug.UnitBuyPrice) * 100 / sug.UnitBuyPrice, 2);
             sug.PctYear = Decimal.Round((sug.TodaysUnitPrice - sug.UnitBuyPrice) / sug.UnitBuyPrice * 365 * 100 / daysHeld, 2);
           }
+
+          //  Is there a dividend pending - already announced (ie. with ex dividend date +/- 10 days from today)
+          DBAccess.DividendHistory divHist = new DBAccess.DividendHistory();
+          if (dividendPending(sug.ASXCode, -30, 30, out divHist))
+          {
+            sug.LastDividendAmount = divHist.Amount;
+            sug.LastDivDate = divHist.ExDividend;
+            ;
+          }
+          else
+          {
+            // or issued +/- 12 months ago
+            if (dividendPending(sug.ASXCode, -374, -354, out divHist))
+            {
+              sug.LastDividendAmount = divHist.Amount;
+              sug.LastDivDate = divHist.ExDividend;
+            }
+          }
           suggestList.Add(sug);
         }
 
@@ -93,6 +133,8 @@ namespace ShareTrading
     public class SellSuggestions
     {
       public string ASXCode { get; set; }
+      public decimal LastDividendAmount { get; set; }
+      public DateTime LastDivDate { get; set; }
       public int SOH { get; set; }
       public decimal UnitBuyPrice { get; set; }
       public DateTime BuyDate { get; set; }
@@ -189,8 +231,6 @@ namespace ShareTrading
           dt = todaysPrice[0].PriceDate;
         }
         // create records to display
-        //foreach (DBAccess.TransRecords transRec in codeList)
-        //{
         DBAccess.TransRecords transRec = codeList[0];
           decimal daysHeld = (DateTime.Today - transRec.TranDate.Date).Days;
           if (daysHeld < 3)
@@ -209,8 +249,28 @@ namespace ShareTrading
             sug.BuyPctGain = Decimal.Round((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) * 100 / sug.UnitSellPrice, 2);
             sug.BuyPctYear = Decimal.Round((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) / sug.UnitSellPrice * 365 * 100 / daysHeld, 2);
           }
-          suggestList.Add(sug);
-        //}
+
+        //  Is there a dividend pending - already announced (ie. with ex dividend date +/- 10 days from today)
+        DBAccess.DividendHistory divHist = new DBAccess.DividendHistory();
+        if (sug.BuyASXCode == "WES")
+        { }
+
+        if (dividendPending(sug.BuyASXCode, -30, 30, out divHist))
+        {
+          sug.BuyLastDividendAmount = divHist.Amount;
+          sug.BuyLastDivDate = divHist.ExDividend;
+        }
+        else
+        {
+          // or issued +/- 12 months ago
+          if (dividendPending(sug.BuyASXCode, -374, -354, out divHist))
+          {
+            sug.BuyLastDividendAmount = divHist.Amount;
+            sug.BuyLastDivDate = divHist.ExDividend;
+          }
+        }
+
+        suggestList.Add(sug);
 
       }
       suggestList = suggestList.OrderByDescending(x => x.BuyPctGain).ToList();
@@ -225,6 +285,8 @@ namespace ShareTrading
     public class BuySuggestions
     {
       public string BuyASXCode { get; set; }
+      public decimal BuyLastDividendAmount { get; set; }
+      public DateTime BuyLastDivDate { get; set; }
       public int BuySOH { get; set; }
       public DateTime SellDate { get; set; }
       public decimal BuyDaysHeld { get; set; }

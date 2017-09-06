@@ -1042,6 +1042,7 @@ namespace ShareTrading
       }
       try
       {
+        
 
         using (System.IO.StreamReader sr = new System.IO.StreamReader(System.IO.File.Open(filename, System.IO.FileMode.Open)))
         {
@@ -1197,6 +1198,45 @@ namespace ShareTrading
     {
       FrmSuggestions frm = new FrmSuggestions();
       frm.ShowDialog();
+    }
+
+    private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+    {
+
+      // Get list of ASX Companies required
+      List<DBAccess.ASXPriceDate> coList = new List<DBAccess.ASXPriceDate>();
+      if (!DBAccess.GetAllPrices(new List<PgSqlParameter>(),  out coList, " DISTINCT apd_asxcode  ", string.Empty, string.Empty))
+        return;
+      // foreach company, get dividend history
+      int counter = 0;
+      foreach (DBAccess.ASXPriceDate rec in coList)
+      {
+        ImportDividendHistory.ImportDividends(rec.ASXCode);
+        if (counter > 100)
+          counter = 0;
+        backgroundWorker1.ReportProgress(counter++);
+      }
+
+    }
+
+    private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+    {
+      // Change the value of the ProgressBar to the BackgroundWorker progress.
+      progressBar.Value = e.ProgressPercentage;
+      // Set the text.
+      this.Text = e.ProgressPercentage.ToString();
+    }
+
+    private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+    {
+      MessageBox.Show("Dividend History Import Completed", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
+
+    private void toolStripMenuItemImportDivHistory_Click(object sender, EventArgs e)
+    {
+      if (backgroundWorker1.IsBusy)
+        return;
+      backgroundWorker1.RunWorkerAsync();
     }
   }
 }
