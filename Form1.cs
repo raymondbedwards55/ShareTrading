@@ -1202,7 +1202,6 @@ namespace ShareTrading
 
     private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
     {
-
       // Get list of ASX Companies required
       List<DBAccess.ASXPriceDate> coList = new List<DBAccess.ASXPriceDate>();
       if (!DBAccess.GetAllPrices(new List<PgSqlParameter>(),  out coList, " DISTINCT apd_asxcode  ", string.Empty, string.Empty))
@@ -1230,12 +1229,15 @@ namespace ShareTrading
     private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
     {
       MessageBox.Show("Dividend History Import Completed", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+      progressBar.Visible = false;
+
     }
 
     private void toolStripMenuItemImportDivHistory_Click(object sender, EventArgs e)
     {
       if (backgroundWorker1.IsBusy)
         return;
+      progressBar.Visible = true;
       backgroundWorker1.RunWorkerAsync();
     }
   }

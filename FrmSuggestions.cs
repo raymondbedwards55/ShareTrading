@@ -22,7 +22,7 @@ namespace ShareTrading
     {
       populateSellGrid();
       populateBuyGrid();
-            int a = 0;
+      
     }
 
     private Boolean dividendPending(string ASXCode, int days1, int days2, out DBAccess.DividendHistory divHist)
@@ -47,6 +47,29 @@ namespace ShareTrading
       return false;
 
     }
+    private bool calculateDividendTotal(string ASXCode, DateTime buyDate, out decimal totalDividends, out decimal totalFrCredits)
+    {
+      totalDividends = 0M;
+      totalFrCredits = 0M;
+      List<DBAccess.DividendHistory> divList = new List<DBAccess.DividendHistory>();
+      string extraWhere = string.Empty;
+      string orderBy = string.Empty;
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", ASXCode));
+      extraWhere += " AND dvh_asxcode = @P1 ";
+      paramList.Add(new PgSqlParameter("@P2", buyDate.Date));
+      paramList.Add(new PgSqlParameter("@P3", DateTime.Today));
+      extraWhere += " AND dvh_exdivdate BETWEEN @P2 AND @P3 ";
+      orderBy += " ORDER BY dvh_exdivdate DESC ";
+      if (DBAccess.GetDividends(paramList, out divList, extraWhere, orderBy))
+      {
+        totalDividends = divList.Select(x => x.GrossDividend).Sum();
+        totalFrCredits = divList.Select(x => x.FrankingCredit).Sum();
+      }
+
+        return true;
+    }
     private void populateSellGrid()
     {
       List<SellSuggestions> suggestList = new List<SellSuggestions>();
@@ -62,6 +85,8 @@ namespace ShareTrading
       var uCode = transList.Select(x => x.ASXCode).Distinct().ToList();
       foreach (string code in uCode)
       {
+        if (code == "TLS")
+        { }
         List<DBAccess.TransRecords> codeList = transList.FindAll(delegate (DBAccess.TransRecords r1) { return r1.ASXCode == code; });
         // For each ASXCode, get todays price and work out the percentages
         List<DBAccess.ASXPriceDate> todaysPrice = null;
@@ -96,26 +121,35 @@ namespace ShareTrading
           sug.BuyDate = transRec.TranDate;
           if (prc != 0 && sug.UnitBuyPrice != 0)
           {
-            sug.PctGain = Decimal.Round((sug.TodaysUnitPrice - sug.UnitBuyPrice) * 100 / sug.UnitBuyPrice, 2);
-            sug.PctYear = Decimal.Round((sug.TodaysUnitPrice - sug.UnitBuyPrice) / sug.UnitBuyPrice * 365 * 100 / daysHeld, 2);
+            sug.PctGain = Decimal.Round((sug.TodaysUnitPrice - transRec.UnitPrice) * 100 / transRec.UnitPrice, 2);
+            sug.PctYear = Decimal.Round((sug.TodaysUnitPrice - transRec.UnitPrice) / transRec.UnitPrice * 365 * 100 / daysHeld, 2);
           }
 
           //  Is there a dividend pending - already announced (ie. with ex dividend date +/- 10 days from today)
           DBAccess.DividendHistory divHist = new DBAccess.DividendHistory();
           if (dividendPending(sug.ASXCode, -30, 30, out divHist))
           {
-            sug.LastDividendAmount = divHist.Amount;
+            sug.LastDividendAmount = divHist.GrossDividend;
             sug.LastDivDate = divHist.ExDividend;
-            ;
+            sug.DividendForecast = false;
           }
           else
           {
             // or issued +/- 12 months ago
             if (dividendPending(sug.ASXCode, -374, -354, out divHist))
             {
-              sug.LastDividendAmount = divHist.Amount;
-              sug.LastDivDate = divHist.ExDividend;
+              sug.LastDividendAmount = divHist.GrossDividend;
+              sug.LastDivDate = divHist.ExDividend.AddYears(1);
+              sug.DividendForecast = true;
             }
+          }
+          // Get the sum of Dividends & sum of Franking Credits between buy date & now
+          decimal totalDividends = 0M;
+          decimal totalFrCredits = 0M;
+          if (calculateDividendTotal(sug.ASXCode, sug.BuyDate, out totalDividends, out totalFrCredits))
+          {
+            sug.PctROI = Decimal.Round(((sug.TodaysUnitPrice - transRec.UnitPrice) + totalDividends) / transRec.UnitPrice * 100, 2);
+            sug.PctYearROI = Decimal.Round(((sug.TodaysUnitPrice - transRec.UnitPrice) + totalDividends) / transRec.UnitPrice * 100 * 365 / daysHeld, 2);
           }
           suggestList.Add(sug);
         }
@@ -135,13 +169,16 @@ namespace ShareTrading
       public string ASXCode { get; set; }
       public decimal LastDividendAmount { get; set; }
       public DateTime LastDivDate { get; set; }
+      public Boolean DividendForecast { get; set; }
       public int SOH { get; set; }
       public decimal UnitBuyPrice { get; set; }
       public DateTime BuyDate { get; set; }
+      public decimal DaysHeld { get; set; }
       public decimal TodaysUnitPrice { get; set; }
       public decimal PctGain { get; set; }
       public decimal PctYear { get; set; }
-      public decimal DaysHeld { get; set; }
+      public decimal PctROI { get; set; }
+      public decimal PctYearROI{ get; set; }
     }
 
     private void toolStripButtonClose_Click(object sender, EventArgs e)
@@ -273,7 +310,7 @@ namespace ShareTrading
         suggestList.Add(sug);
 
       }
-      suggestList = suggestList.OrderByDescending(x => x.BuyPctGain).ToList();
+      suggestList = suggestList.OrderBy(x => x.BuyPctGain).ToList();
       // 
       dgvToBuy.DataSource = null;
       ToBuyBindingSource.DataSource = suggestList;

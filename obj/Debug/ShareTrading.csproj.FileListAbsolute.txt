@@ -12,27 +12,6 @@ C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTradi
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.csproj.GenerateResource.Cache
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.exe
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.pdb
-C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\ShareTrading.exe.config
-C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.exe
-C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.pdb
-C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\ShareAnalV2.accdb
-C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\ShareTrading.exe
-C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\ShareTrading.pdb
-C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.csprojResolveAssemblyReference.cache
-C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.DividendImport.resources
-C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.Form1.resources
-C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.Form2.resources
-C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.ImportDailyPrices.resources
-C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.ImportRecentPrices.resources
-C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.Properties.Resources.resources
-C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.csproj.GenerateResource.Cache
-C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Devart.Data.dll
-C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Devart.Data.PostgreSql.dll
-C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Devart.Data.xml
-C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Devart.Data.PostgreSql.xml
-C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.EditGeneralLedger.resources
-C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.ExportBuysSellsToMYOB.resources
-C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.FrmSuggestions.resources
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\bin\Debug\Devart.Data.dll
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\bin\Debug\Devart.Data.PostgreSql.dll
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\bin\Debug\Devart.Data.xml
@@ -40,7 +19,28 @@ C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\bin\Debug\Devart.Dat
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.EditGeneralLedger.resources
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.ExportBuysSellsToMYOB.resources
 C:\Dvl\Rays Projects\ShareTrading\ShareTrading\ShareTrading\obj\Debug\ShareTrading.FrmSuggestions.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\ShareAnalV2.accdb
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\ShareTrading.exe.config
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\ShareTrading.exe
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\ShareTrading.pdb
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Devart.Data.dll
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Devart.Data.PostgreSql.dll
 C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Itenso.Rtf.Converter.Html.dll
 C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Itenso.Rtf.Interpreter.dll
 C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Itenso.Rtf.Parser.dll
 C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Itenso.Sys.dll
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Devart.Data.xml
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\Devart.Data.PostgreSql.xml
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.csprojResolveAssemblyReference.cache
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.DividendImport.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.EditGeneralLedger.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.ExportBuysSellsToMYOB.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.Form1.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.Form2.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.FrmSuggestions.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.ImportDailyPrices.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.ImportRecentPrices.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.Properties.Resources.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.csproj.GenerateResource.Cache
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.exe
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.pdb
