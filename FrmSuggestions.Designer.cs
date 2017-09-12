@@ -364,10 +364,10 @@
       // 
       this.LastDividendAmount.DataPropertyName = "LastDividendAmount";
       dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-      dataGridViewCellStyle3.Format = "C2";
+      dataGridViewCellStyle3.Format = "N2";
       dataGridViewCellStyle3.NullValue = null;
       this.LastDividendAmount.DefaultCellStyle = dataGridViewCellStyle3;
-      this.LastDividendAmount.HeaderText = "Last Dividend Amount";
+      this.LastDividendAmount.HeaderText = "Last Dividend %";
       this.LastDividendAmount.Name = "LastDividendAmount";
       this.LastDividendAmount.ReadOnly = true;
       // 
