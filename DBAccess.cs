@@ -1101,6 +1101,7 @@ namespace ShareTrading
       public DateTime DateCreated { get; set; }
       public DateTime DateModified { get; set; }
       public DateTime DateDeleted { get; set; }
+      public string SellConfirmation { get; set; }      // may be manually filled in to force a match with this buy
     }
     public static string TransRecordsFieldList
     {
@@ -1208,6 +1209,7 @@ namespace ShareTrading
         TransRecord.DateCreated = reader.GetDateTime(14);
         TransRecord.DateModified = reader.GetDateTime(15);
         TransRecord.DateDeleted = reader.GetDateTime(16);
+        TransRecord.SellConfirmation = reader.GetString(17);
         list.Add(TransRecord);
       }
       return list;
@@ -1378,12 +1380,12 @@ namespace ShareTrading
 
     public static bool TransInsert(TransRecords myTransRecord)
     {
-      return DBInsert(myTransRecord, "trantable", typeof(TransRecords));
+      return DBInsert(myTransRecord, "transrecord", typeof(TransRecords));
     }
 
     public static void TransUpdate(TransRecords myTransRecord)
     {
-      DBUpdate(myTransRecord, "trantable", typeof(TransRecords));
+      DBUpdate(myTransRecord, "transrecord", typeof(TransRecords));
     }
         // ***************************************************************
         public class TodaysTrades

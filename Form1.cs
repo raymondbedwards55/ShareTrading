@@ -918,6 +918,7 @@ namespace ShareTrading
             tx.BuySell = flds[4].Trim();
             tx.UnitPrice = decimal.Parse(flds[5]);
             tx.BrokerageInc = decimal.Parse(flds[6]);
+            tx.SellConfirmation = string.Empty;
             //  Is this record a duplicate? use the confirmation number
             List<DBAccess.TransRecords> list;
             List<PgSqlParameter> paramList = new List<PgSqlParameter>();
@@ -926,8 +927,9 @@ namespace ShareTrading
               continue;
 
             tx.SOH = tx.TransQty;
+            if (string.IsNullOrEmpty(tx.SellConfirmation))
+              tx.SellConfirmation = string.Empty;
             DBAccess.DBInsert(tx, "transrecord", typeof(DBAccess.TransRecords));
-            continue;
           }
           // Get all Sells with SOH > 0 (ie. not matched with a Buy)
           List<DBAccess.TransRecords> sellList;
@@ -938,7 +940,7 @@ namespace ShareTrading
           {
             ASXCodeinError = tx.ASXCode;
             Console.WriteLine(tx.ASXCode + ";" + tx.TranDate.ToShortDateString());
-            if (ASXCodeinError.Contains("CIM"))
+            if (ASXCodeinError.Contains("MQG"))
             { }
             decimal profit = 0M;
             decimal daysHeld = 0;
@@ -947,6 +949,19 @@ namespace ShareTrading
             int remainingSOH = tx.TransQty;
 
             // Change this to get for all the 'suggested sells' and use those in descending order
+            if (DBAccess.GetAllTransRecords(tx.ASXCode, tx.TranDate, out buyList, DBAccess.TransRecordsFieldList, " AND trn_SOH > 0 AND trn_buysell = 'Buy'", false, DBAccess.dirn.lessThanEquals))
+            {
+              DBAccess.TransRecords buyRec = buyList.Find(delegate (DBAccess.TransRecords r1) { return !string.IsNullOrEmpty(r1.SellConfirmation) && r1.SellConfirmation.Trim() == tx.NABOrderNmbr.Trim(); });
+              if (buyRec != null)
+              {
+                DBAccess.TransRecords sell = tx;
+                if (matchedOnConNr(ref sell, buyRec, out remainingSOH))
+                  if (remainingSOH <= 0)
+                    continue;
+              }
+            }
+
+
             if (DBAccess.GetAllTransRecords(tx.ASXCode, tx.TranDate, out buyList, DBAccess.TransRecordsFieldList, " AND trn_SOH > 0 AND trn_buysell = 'Buy'", false, DBAccess.dirn.lessThanEquals))
             {
               buyList = buyList.OrderByDescending(x => x.TranDate).ToList();
@@ -1014,6 +1029,58 @@ namespace ShareTrading
         MessageBox.Show(string.Format("Unable to open selected file {0} ", ex.Message), "", MessageBoxButtons.OK, MessageBoxIcon.Error);
         return;
       }
+    }
+
+    private bool matchedOnConNr(ref DBAccess.TransRecords sell, DBAccess.TransRecords buy, out int remainingSOH)
+    {
+      remainingSOH = sell.TransQty;
+      decimal profit = 0M;
+      decimal daysHeld = 0M;
+      if (remainingSOH < buy.SOH)
+      {
+        addRelatedBuySell(buy, sell, remainingSOH, out profit, out daysHeld);
+        // This is the last buy we have to match with -  Update the Sell to the remaing SOH and put the Buy Id into the RelatedTransId
+        sell.TradeProfit += profit;
+        sell.DaysHeld += daysHeld;
+        sell.SOH = 0;
+        DBAccess.DBUpdate(sell, "transrecord", typeof(DBAccess.TransRecords));
+
+        buy.SOH -= remainingSOH;
+        DBAccess.DBUpdate(buy, "transrecord", typeof(DBAccess.TransRecords));
+        remainingSOH = 0;
+
+      }
+      else if (buy.SOH == remainingSOH)
+      {
+        addRelatedBuySell(buy, sell, remainingSOH, out profit, out daysHeld);
+        remainingSOH -= buy.SOH;
+        buy.SOH = 0;
+        DBAccess.DBUpdate(buy, "transrecord", typeof(DBAccess.TransRecords));
+        sell.RelatedTransactionID = buy.ID;
+        sell.TradeProfit += profit;
+        sell.DaysHeld += daysHeld;
+        sell.SOH = 0;
+        DBAccess.DBUpdate(sell, "transrecord", typeof(DBAccess.TransRecords));
+      }
+      else  // remainingSOH > buy.SOH
+      {
+        addRelatedBuySell(buy, sell, buy.SOH, out profit, out daysHeld);
+
+        remainingSOH -= buy.SOH;
+        sell.SOH -= buy.SOH;
+        sell.DaysHeld += daysHeld;
+        sell.TradeProfit += profit;
+        DBAccess.DBUpdate(buy, "transrecord", typeof(DBAccess.TransRecords));
+        // The sell sold more than this buy so create a relatedSell record
+        buy.SOH = 0;
+        DBAccess.DBUpdate(buy, "transrecord", typeof(DBAccess.TransRecords));
+      }
+      return remainingSOH <= 0;
+    }
+
+    private void x(DBAccess.TransRecords sell, DBAccess.TransRecords buy)
+    {
+
     }
     private static void addRelatedBuySell(DBAccess.TransRecords buy, DBAccess.TransRecords sell, int qty, out decimal profit, out decimal daysHeld)
     {
@@ -1239,6 +1306,12 @@ namespace ShareTrading
         return;
       progressBar.Visible = true;
       backgroundWorker1.RunWorkerAsync();
+    }
+
+    private void enterConfirmationNrToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      FrmEnterSellConfrmationNr frm = new FrmEnterSellConfrmationNr();
+      frm.ShowDialog();
     }
   }
 }

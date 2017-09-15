@@ -116,6 +116,12 @@
     <Compile Include="Form2.Designer.cs">
       <DependentUpon>Form2.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmEnterSellConfrmationNr.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmEnterSellConfrmationNr.Designer.cs">
+      <DependentUpon>FrmEnterSellConfrmationNr.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmSuggestions.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -161,6 +167,9 @@
     <EmbeddedResource Include="Form2.resx">
       <DependentUpon>Form2.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FrmEnterSellConfrmationNr.resx">
+      <DependentUpon>FrmEnterSellConfrmationNr.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmSuggestions.resx">
       <DependentUpon>FrmSuggestions.cs</DependentUpon>
     </EmbeddedResource>
@@ -183,6 +192,7 @@
     <None Include="Properties\DataSources\DBAccess.datasource" />
     <None Include="Properties\DataSources\DBAccess.GLCodes.datasource" />
     <None Include="Properties\DataSources\DBAccess.GLType.datasource" />
+    <None Include="Properties\DataSources\DBAccess.TransRecords.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.BuySuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.SellSuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.Suggestions.datasource" />

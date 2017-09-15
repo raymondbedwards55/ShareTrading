@@ -294,7 +294,7 @@ namespace ShareTrading
 
         if (dividendPending(sug.BuyASXCode, -30, 30, out divHist))
         {
-          sug.BuyLastDividendAmount = divHist.Amount;
+          sug.BuyLastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.BuyTodaysUnitPrice * 100, 2);
           sug.BuyLastDivDate = divHist.ExDividend;
         }
         else
@@ -302,7 +302,7 @@ namespace ShareTrading
           // or issued +/- 12 months ago
           if (dividendPending(sug.BuyASXCode, -374, -354, out divHist))
           {
-            sug.BuyLastDividendAmount = divHist.Amount;
+            sug.BuyLastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.BuyTodaysUnitPrice * 100, 2);
             sug.BuyLastDivDate = divHist.ExDividend;
           }
         }

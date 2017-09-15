@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
       this.components = new System.ComponentModel.Container();
-      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-      System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-      System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+      System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+      System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
       this.button5 = new System.Windows.Forms.Button();
       this.dataGridView2 = new System.Windows.Forms.DataGridView();
       this.dataGridView1 = new System.Windows.Forms.DataGridView();
@@ -68,10 +68,11 @@
       this.DgvSuggestedSells = new System.Windows.Forms.DataGridView();
       this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
       this.CSVopenFileDialog = new System.Windows.Forms.OpenFileDialog();
-      this.shareAnalV2DataSetBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.progressBar = new System.Windows.Forms.ProgressBar();
       this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
       this.toolStripMenuItem_importDivHistory = new System.Windows.Forms.ToolStripMenuItem();
+      this.shareAnalV2DataSetBindingSource = new System.Windows.Forms.BindingSource(this.components);
+      this.enterConfirmationNrToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.DgvSuggestedBuys)).BeginInit();
@@ -198,7 +199,8 @@
       // homeToolStripMenuItem
       // 
       this.homeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.suggestionsToolStripMenuItem});
+            this.suggestionsToolStripMenuItem,
+            this.enterConfirmationNrToolStripMenuItem});
       this.homeToolStripMenuItem.Name = "homeToolStripMenuItem";
       this.homeToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
       this.homeToolStripMenuItem.Text = "Home";
@@ -206,7 +208,7 @@
       // suggestionsToolStripMenuItem
       // 
       this.suggestionsToolStripMenuItem.Name = "suggestionsToolStripMenuItem";
-      this.suggestionsToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+      this.suggestionsToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
       this.suggestionsToolStripMenuItem.Text = "Suggestions";
       this.suggestionsToolStripMenuItem.Click += new System.EventHandler(this.suggestionsToolStripMenuItem_Click);
       // 
@@ -385,17 +387,17 @@
       // 
       // chart1
       // 
-      chartArea2.Name = "ChartArea1";
-      this.chart1.ChartAreas.Add(chartArea2);
-      legend2.Name = "Legend1";
-      this.chart1.Legends.Add(legend2);
+      chartArea1.Name = "ChartArea1";
+      this.chart1.ChartAreas.Add(chartArea1);
+      legend1.Name = "Legend1";
+      this.chart1.Legends.Add(legend1);
       this.chart1.Location = new System.Drawing.Point(12, 162);
       this.chart1.Name = "chart1";
-      series2.ChartArea = "ChartArea1";
-      series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-      series2.Legend = "Legend1";
-      series2.Name = "Series1";
-      this.chart1.Series.Add(series2);
+      series1.ChartArea = "ChartArea1";
+      series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+      series1.Legend = "Legend1";
+      series1.Name = "Series1";
+      this.chart1.Series.Add(series1);
       this.chart1.Size = new System.Drawing.Size(797, 350);
       this.chart1.TabIndex = 47;
       this.chart1.Text = "Suggested Sells";
@@ -424,6 +426,13 @@
       this.toolStripMenuItem_importDivHistory.Size = new System.Drawing.Size(201, 22);
       this.toolStripMenuItem_importDivHistory.Text = "Import Dividend History";
       this.toolStripMenuItem_importDivHistory.Click += new System.EventHandler(this.toolStripMenuItemImportDivHistory_Click);
+      // 
+      // enterConfirmationNrToolStripMenuItem
+      // 
+      this.enterConfirmationNrToolStripMenuItem.Name = "enterConfirmationNrToolStripMenuItem";
+      this.enterConfirmationNrToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+      this.enterConfirmationNrToolStripMenuItem.Text = "Enter Confirmation Nr";
+      this.enterConfirmationNrToolStripMenuItem.Click += new System.EventHandler(this.enterConfirmationNrToolStripMenuItem_Click);
       // 
       // Form1
       // 
@@ -511,6 +520,7 @@
     private System.Windows.Forms.ProgressBar progressBar;
     private System.ComponentModel.BackgroundWorker backgroundWorker1;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_importDivHistory;
+    private System.Windows.Forms.ToolStripMenuItem enterConfirmationNrToolStripMenuItem;
   }
 }
 

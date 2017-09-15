@@ -44,3 +44,4 @@ C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.Properties.Res
 C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.csproj.GenerateResource.Cache
 C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.exe
 C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.pdb
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.FrmEnterSellConfrmationNr.resources
