@@ -1109,8 +1109,8 @@ namespace ShareTrading
       }
       try
       {
-        
 
+        List<string> exceptionCodes = new List<string>();
         using (System.IO.StreamReader sr = new System.IO.StreamReader(System.IO.File.Open(filename, System.IO.FileMode.Open)))
         {
           string inputLine = sr.ReadLine();
@@ -1123,12 +1123,19 @@ namespace ShareTrading
             if (String.IsNullOrEmpty(inputLine) || inputLine.Length < 2)
               continue;
             string[] flds = inputLine.Split(',');
-            
+            if (flds.Length > 13)     // in case there are commas within any of the field values
+            {
+              exceptionCodes.Add(flds[0]);
+              continue;
+            }
             DBAccess.ASXPriceDate tx = DBAccess.GetSpecificASXPriceRecord(flds[0], DateTime.Today);
             if (tx == null)
               tx = new DBAccess.ASXPriceDate();
             tx.PriceDate = DateTime.Today;
             tx.ASXCode = flds[0];
+            Console.WriteLine(">>" + tx.ASXCode + "<<");
+            if (tx.ASXCode == "RGC")
+            { }
             tx.PrcClose = decimal.Parse(flds[5]);
             tx.PrcOpen = decimal.Parse(flds[9]);
             tx.PrcLow = flds[10] == "--" ? 0M : decimal.Parse(flds[10]);
@@ -1140,6 +1147,11 @@ namespace ShareTrading
               DBAccess.DBUpdate(tx, "asxpricedate", typeof(DBAccess.ASXPriceDate));
           }
 
+        }
+        if (exceptionCodes.Count > 0)
+        {
+          string eList = string.Join("\r\n", exceptionCodes.ToArray());
+          MessageBox.Show(string.Format("Unable to import data for the following ASX Codes - \r\n {0}", eList), "", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         if (System.IO.File.Exists(filename))
           System.IO.File.Delete(filename);
@@ -1277,6 +1289,7 @@ namespace ShareTrading
       int counter = 0;
       foreach (DBAccess.ASXPriceDate rec in coList)
       {
+        Console.WriteLine(">" + rec.ASXCode + "<");
         ImportDividendHistory.ImportDividends(rec.ASXCode);
         if (counter > 100)
           counter = 0;
@@ -1312,6 +1325,13 @@ namespace ShareTrading
     {
       FrmEnterSellConfrmationNr frm = new FrmEnterSellConfrmationNr();
       frm.ShowDialog();
+    }
+
+    private void gatherStatisticsToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      FrmGatherStats frm = new FrmGatherStats();
+      frm.ShowDialog();
+
     }
   }
 }

@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
       this.components = new System.ComponentModel.Container();
-      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-      System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-      System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+      System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+      System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
       this.button5 = new System.Windows.Forms.Button();
       this.dataGridView2 = new System.Windows.Forms.DataGridView();
       this.dataGridView1 = new System.Windows.Forms.DataGridView();
@@ -43,6 +43,7 @@
       this.importRecentPricesToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
       this.importRecentPricesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.importYahooDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.toolStripMenuItem_importDivHistory = new System.Windows.Forms.ToolStripMenuItem();
       this.importNABPricesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.importNABTransactionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.importNABDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -70,9 +71,10 @@
       this.CSVopenFileDialog = new System.Windows.Forms.OpenFileDialog();
       this.progressBar = new System.Windows.Forms.ProgressBar();
       this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-      this.toolStripMenuItem_importDivHistory = new System.Windows.Forms.ToolStripMenuItem();
       this.shareAnalV2DataSetBindingSource = new System.Windows.Forms.BindingSource(this.components);
-      this.enterConfirmationNrToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.statisticsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.enterConfirmationNrToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+      this.gatherStatisticsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.DgvSuggestedBuys)).BeginInit();
@@ -173,6 +175,13 @@
       this.importYahooDataToolStripMenuItem.Size = new System.Drawing.Size(119, 20);
       this.importYahooDataToolStripMenuItem.Text = "Import Yahoo Data";
       // 
+      // toolStripMenuItem_importDivHistory
+      // 
+      this.toolStripMenuItem_importDivHistory.Name = "toolStripMenuItem_importDivHistory";
+      this.toolStripMenuItem_importDivHistory.Size = new System.Drawing.Size(201, 22);
+      this.toolStripMenuItem_importDivHistory.Text = "Import Dividend History";
+      this.toolStripMenuItem_importDivHistory.Click += new System.EventHandler(this.toolStripMenuItemImportDivHistory_Click);
+      // 
       // importNABPricesToolStripMenuItem
       // 
       this.importNABPricesToolStripMenuItem.Name = "importNABPricesToolStripMenuItem";
@@ -199,8 +208,7 @@
       // homeToolStripMenuItem
       // 
       this.homeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.suggestionsToolStripMenuItem,
-            this.enterConfirmationNrToolStripMenuItem});
+            this.suggestionsToolStripMenuItem});
       this.homeToolStripMenuItem.Name = "homeToolStripMenuItem";
       this.homeToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
       this.homeToolStripMenuItem.Text = "Home";
@@ -336,7 +344,8 @@
             this.importNABDataToolStripMenuItem,
             this.importYahooDataToolStripMenuItem,
             this.Edits,
-            this.exportsToolStripMenuItem});
+            this.exportsToolStripMenuItem,
+            this.statisticsToolStripMenuItem});
       this.menuStrip1.Location = new System.Drawing.Point(0, 0);
       this.menuStrip1.Name = "menuStrip1";
       this.menuStrip1.Size = new System.Drawing.Size(1384, 24);
@@ -346,7 +355,8 @@
       // Edits
       // 
       this.Edits.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.GLCodeToolStripMenuItem});
+            this.GLCodeToolStripMenuItem,
+            this.enterConfirmationNrToolStripMenuItem1});
       this.Edits.Name = "Edits";
       this.Edits.Size = new System.Drawing.Size(44, 20);
       this.Edits.Text = "Edits";
@@ -387,17 +397,17 @@
       // 
       // chart1
       // 
-      chartArea1.Name = "ChartArea1";
-      this.chart1.ChartAreas.Add(chartArea1);
-      legend1.Name = "Legend1";
-      this.chart1.Legends.Add(legend1);
-      this.chart1.Location = new System.Drawing.Point(12, 162);
+      chartArea3.Name = "ChartArea1";
+      this.chart1.ChartAreas.Add(chartArea3);
+      legend3.Name = "Legend1";
+      this.chart1.Legends.Add(legend3);
+      this.chart1.Location = new System.Drawing.Point(12, 142);
       this.chart1.Name = "chart1";
-      series1.ChartArea = "ChartArea1";
-      series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-      series1.Legend = "Legend1";
-      series1.Name = "Series1";
-      this.chart1.Series.Add(series1);
+      series3.ChartArea = "ChartArea1";
+      series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+      series3.Legend = "Legend1";
+      series3.Name = "Series1";
+      this.chart1.Series.Add(series3);
       this.chart1.Size = new System.Drawing.Size(797, 350);
       this.chart1.TabIndex = 47;
       this.chart1.Text = "Suggested Sells";
@@ -420,19 +430,27 @@
       this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
       this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
       // 
-      // toolStripMenuItem_importDivHistory
+      // statisticsToolStripMenuItem
       // 
-      this.toolStripMenuItem_importDivHistory.Name = "toolStripMenuItem_importDivHistory";
-      this.toolStripMenuItem_importDivHistory.Size = new System.Drawing.Size(201, 22);
-      this.toolStripMenuItem_importDivHistory.Text = "Import Dividend History";
-      this.toolStripMenuItem_importDivHistory.Click += new System.EventHandler(this.toolStripMenuItemImportDivHistory_Click);
+      this.statisticsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.gatherStatisticsToolStripMenuItem});
+      this.statisticsToolStripMenuItem.Name = "statisticsToolStripMenuItem";
+      this.statisticsToolStripMenuItem.Size = new System.Drawing.Size(65, 20);
+      this.statisticsToolStripMenuItem.Text = "Statistics";
       // 
-      // enterConfirmationNrToolStripMenuItem
+      // enterConfirmationNrToolStripMenuItem1
       // 
-      this.enterConfirmationNrToolStripMenuItem.Name = "enterConfirmationNrToolStripMenuItem";
-      this.enterConfirmationNrToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-      this.enterConfirmationNrToolStripMenuItem.Text = "Enter Confirmation Nr";
-      this.enterConfirmationNrToolStripMenuItem.Click += new System.EventHandler(this.enterConfirmationNrToolStripMenuItem_Click);
+      this.enterConfirmationNrToolStripMenuItem1.Name = "enterConfirmationNrToolStripMenuItem1";
+      this.enterConfirmationNrToolStripMenuItem1.Size = new System.Drawing.Size(212, 22);
+      this.enterConfirmationNrToolStripMenuItem1.Text = "Enter Confirmation Nr";
+      this.enterConfirmationNrToolStripMenuItem1.Click += new System.EventHandler(this.enterConfirmationNrToolStripMenuItem_Click);
+      // 
+      // gatherStatisticsToolStripMenuItem
+      // 
+      this.gatherStatisticsToolStripMenuItem.Name = "gatherStatisticsToolStripMenuItem";
+      this.gatherStatisticsToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+      this.gatherStatisticsToolStripMenuItem.Text = "Gather Statistics";
+      this.gatherStatisticsToolStripMenuItem.Click += new System.EventHandler(this.gatherStatisticsToolStripMenuItem_Click);
       // 
       // Form1
       // 
@@ -520,7 +538,9 @@
     private System.Windows.Forms.ProgressBar progressBar;
     private System.ComponentModel.BackgroundWorker backgroundWorker1;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_importDivHistory;
-    private System.Windows.Forms.ToolStripMenuItem enterConfirmationNrToolStripMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem enterConfirmationNrToolStripMenuItem1;
+    private System.Windows.Forms.ToolStripMenuItem statisticsToolStripMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem gatherStatisticsToolStripMenuItem;
   }
 }
 

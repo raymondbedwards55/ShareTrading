@@ -2149,6 +2149,102 @@ namespace ShareTrading
       [Description("Dividend W/Hold Tax")]
       DivWHoldTax = 7
     }
+
+    // *************************************  Statistics  ******************************************
+    public class Statistics
+    {
+      public int ID { get; set; }
+      public StatsType Type { get; set; }
+      public string ASXCode { get; set; }
+      public DateTime  StartDate { get; set; }
+      public Decimal Stat { get; set; }
+      public DateTime DateCreated { get; set; }
+      public DateTime DateModified { get; set; }
+      public DateTime DateDeleted { get; set; }
+    }
+    public static string StatFieldList
+    {
+      get
+      {
+        return string.Join(",", GetColumnNames("statistics").ToArray());
+      }
+    }
+
+    public static bool GetStatRecords(List<PgSqlParameter> paramList, out List<Statistics> list, string reqdFields, string extraWhere, string orderBy)
+    {
+      list = null;
+      return GetStatsRecords(paramList, out list, reqdFields, extraWhere, orderBy, false);
+    }
+    public static bool GetStatsRecords(List<PgSqlParameter> paramList, out List<Statistics> list, string reqdFields, string extraWhere, string orderBy, bool incDeleted)
+    {
+      list = new List<Statistics>();
+      using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
+      {
+        try
+        {
+          conn.Open();
+          PgSqlCommand command = new PgSqlCommand();
+          command.Connection = conn;
+          if (!incDeleted)
+            command.Parameters.Add("@P0", DateTime.MinValue);
+          if (paramList != null)
+            command.Parameters.AddRange(paramList.ToArray());
+
+          if (incDeleted)
+            command.CommandText = string.Format("SELECT {1} FROM {0} WHERE 1 = 1  {2} {3} ", "statistics", reqdFields, extraWhere, orderBy);
+          else
+            command.CommandText = string.Format("SELECT {1} FROM {0} WHERE st_datedeleted = @P0 {2} {3} ", "statistics", reqdFields, extraWhere, orderBy);
+          command.Prepare();
+          try
+          {
+            PgSqlDataReader reader = command.ExecuteReader();
+            list = GetStatsRecords(reader, reqdFields.Contains("MAX(st_startdate)"));
+          }
+          catch (Exception ex)
+          {
+            Console.Write("Exception " + ex.ToString());
+            return false;
+          }
+        }
+        catch (System.Data.Common.DbException pex)
+        {
+          throw new DatabaseIOException(pex.Message, pex);
+        }
+        finally
+        {
+          if (conn != null)
+            conn.Close();
+        }
+      }
+      if (list.Count <= 0)
+        return false;
+
+      return true;
+    }
+
+    public static List<Statistics> GetStatsRecords(PgSqlDataReader reader, bool dateOnly)
+    {
+      List<Statistics> inputList = new List<Statistics>();
+      while (reader.Read())
+      {
+        Statistics dtls = new Statistics();
+        if (dateOnly)
+          dtls.StartDate = reader.GetDateTime(3);
+        else
+        {
+          dtls.ID = reader.GetInt32(0);
+          dtls.Type = (StatsType)reader.GetInt32(1);
+          dtls.ASXCode = reader.GetString(2);
+          dtls.Stat = reader.GetDecimal(4);
+          dtls.DateCreated = reader.GetDateTime(5);
+          dtls.DateModified = reader.GetDateTime(6);
+          dtls.DateDeleted = reader.GetDateTime(7);
+        }
+
+        inputList.Add(dtls);
+      }
+      return inputList;
+    }
   }
 }
 // *************************************************************************************************

@@ -22,6 +22,7 @@ namespace ShareTrading
     {
       populateSellGrid();
       populateBuyGrid();
+      populateReBuyGrid();
       
     }
 
@@ -119,6 +120,7 @@ namespace ShareTrading
           sug.PctYear = 0M;
           sug.DaysHeld = daysHeld;
           sug.BuyDate = transRec.TranDate;
+          sug.HighlightDiv = false;
           if (prc != 0 && sug.UnitBuyPrice != 0)
           {
             sug.PctGain = Decimal.Round((sug.TodaysUnitPrice - transRec.UnitPrice) * 100 / transRec.UnitPrice, 2);
@@ -132,6 +134,7 @@ namespace ShareTrading
             sug.LastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.TodaysUnitPrice * 100, 2);
             sug.LastDivDate = divHist.ExDividend;
             sug.DividendForecast = false;
+            sug.HighlightDiv = true;
           }
           else
           {
@@ -141,6 +144,18 @@ namespace ShareTrading
               sug.LastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.TodaysUnitPrice * 100,2);
               sug.LastDivDate = divHist.ExDividend.AddYears(1);
               sug.DividendForecast = true;
+              sug.HighlightDiv = true;
+            }
+            else
+            {
+              if (dividendPending(sug.ASXCode, -10000, 0, out divHist))
+              {
+                sug.LastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.TodaysUnitPrice * 100, 2);
+                sug.LastDivDate = divHist.ExDividend.AddYears(1);
+                sug.DividendForecast = false;
+                sug.HighlightDiv = false;
+
+              }
             }
           }
           // Get the sum of Dividends & sum of Franking Credits between buy date & now
@@ -179,6 +194,7 @@ namespace ShareTrading
       public decimal PctYear { get; set; }
       public decimal PctROI { get; set; }
       public decimal PctYearROI{ get; set; }
+      public bool HighlightDiv { get; set; }
     }
 
     private void toolStripButtonClose_Click(object sender, EventArgs e)
@@ -190,6 +206,7 @@ namespace ShareTrading
     {
       populateSellGrid();
       populateBuyGrid();
+      populateReBuyGrid();
     }
 
     private int _previousIndex;
@@ -225,6 +242,11 @@ namespace ShareTrading
       if (dgv.Columns[e.ColumnIndex].ValueType == typeof(decimal))
         if ((decimal)dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value < 0M)
           dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+      if ((dgv.Columns[e.ColumnIndex].Name == "LastDividendAmount" || dgv.Columns[e.ColumnIndex].Name == "LastDivDate") && (bool)dgv.Rows[e.RowIndex].Cells["HighlightDiv"].Value)
+      {
+        dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+      }
+
     }
 
     private void populateBuyGrid()
@@ -291,11 +313,12 @@ namespace ShareTrading
         DBAccess.DividendHistory divHist = new DBAccess.DividendHistory();
         if (sug.BuyASXCode == "WES")
         { }
-
+        sug.BuyHighlightDiv = false;
         if (dividendPending(sug.BuyASXCode, -30, 30, out divHist))
         {
           sug.BuyLastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.BuyTodaysUnitPrice * 100, 2);
           sug.BuyLastDivDate = divHist.ExDividend;
+          sug.BuyHighlightDiv = true;
         }
         else
         {
@@ -304,6 +327,16 @@ namespace ShareTrading
           {
             sug.BuyLastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.BuyTodaysUnitPrice * 100, 2);
             sug.BuyLastDivDate = divHist.ExDividend;
+            sug.BuyHighlightDiv = true;
+          }
+          else
+          {
+            if (dividendPending(sug.BuyASXCode, -10000, 0, out divHist))
+            {
+              sug.BuyLastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.BuyTodaysUnitPrice * 100, 2);
+              sug.BuyLastDivDate = divHist.ExDividend;
+              sug.BuyHighlightDiv = false;
+            }
           }
         }
 
@@ -331,6 +364,7 @@ namespace ShareTrading
       public decimal BuyTodaysUnitPrice { get; set; }
       public decimal BuyPctGain { get; set; }
       public decimal BuyPctYear { get; set; }
+      public bool BuyHighlightDiv { get; set; }
     }
 
     private void dgvToBuy_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -341,6 +375,11 @@ namespace ShareTrading
         if (dgv.Columns[e.ColumnIndex].ValueType == typeof(decimal))
           if ((decimal)dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value < 0M)
             dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+        if ((dgv.Columns[e.ColumnIndex].Name == "BuyLastDividendAmount" || dgv.Columns[e.ColumnIndex].Name == "BuyLastDivDate") && (bool)dgv.Rows[e.RowIndex].Cells["BuyHighlightDiv"].Value)
+        {
+          dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+        }
+
       }
       catch
       { }
@@ -358,6 +397,171 @@ namespace ShareTrading
     }
 
     public List<BuySuggestions> SortToBuyData(List<BuySuggestions> list, string column, bool ascending)
+    {
+      try
+      {
+        return ascending ?
+           /* RefreshId( */ list.OrderBy(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /* ) */ :
+           /* RefreshId( */ list.OrderByDescending(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /*) */;
+      }
+      catch
+      { }
+      return list;
+    }
+
+    // **************  Rebuys  ***********************************************************
+    public class ReBuySuggestions
+    {
+      public string ReBuyASXCode { get; set; }
+      public decimal ReBuyLastDividendAmount { get; set; }
+      public DateTime ReBuyLastDivDate { get; set; }
+      public int LastPurchaseQty { get; set; }
+      public DateTime LastBuyDate { get; set; }
+      public decimal DaysSinceLastBuy { get; set; }
+      public decimal LastBuyPrice { get; set; }
+      public decimal ReBuyTodaysUnitPrice { get; set; }
+      public decimal ReBuyPctGain { get; set; }
+      public decimal ReBuyPctYear { get; set; }
+      public bool ReBuyHighlightDiv { get; set; }
+
+    }
+    private void populateReBuyGrid()
+    {
+      List<ReBuySuggestions> suggestList = new List<ReBuySuggestions>();
+      // Get all the shares we have stock of
+      List<DBAccess.TransRecords> transList = null;
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+
+      if (!DBAccess.GetTransRecords(null, out transList, DBAccess.TransRecordsFieldList, " AND trn_soh  > 0 ", " ORDER BY trn_ASXCode, trn_transdate DESC", false))
+      {
+        MessageBox.Show("No transactions found", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        return;
+      }
+      var uCode = transList.Select(x => x.ASXCode).Distinct().ToList();
+      foreach (string code in uCode)
+      {
+        List<DBAccess.TransRecords> codeList = transList.FindAll(delegate (DBAccess.TransRecords r1) { return r1.ASXCode == code; });
+        codeList = codeList.OrderByDescending(x => x.TranDate).ToList();
+        // Check if stock has been bought again since this sell
+        paramList = new List<PgSqlParameter>();
+        paramList.Add(new PgSqlParameter("@P1", codeList[0].ASXCode));
+        paramList.Add(new PgSqlParameter("@P2", codeList[0].TranDate));
+        List<DBAccess.TransRecords> buyList = new List<DBAccess.TransRecords>();
+        if (DBAccess.GetTransRecords(paramList, out buyList, DBAccess.TransRecordsFieldList, " AND trn_asxcode = @P1 AND trn_transdate >= @P2  AND trn_buysell = 'Sell' ", string.Empty, false))
+          continue;
+        //For each ASXCode, get latest buy but make sure there is not a sell after this buy and work out the percentages
+
+        List<DBAccess.ASXPriceDate> todaysPrice = null;
+        DateTime dt = DateTime.MinValue;
+        Decimal prc = 0M;
+        paramList = new List<PgSqlParameter>();
+        paramList.Add(new PgSqlParameter("@P1", code));
+        if (DBAccess.GetPriceRecords(paramList, out todaysPrice, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P1 ", "ORDER BY apd_pricedate DESC ", false))
+        {
+          // no prices for this ASX Code so we'll pretend
+
+        }
+        if (todaysPrice != null && todaysPrice.Count > 0)
+        {
+          prc = todaysPrice[0].PrcClose;
+          dt = todaysPrice[0].PriceDate;
+        }
+        // create records to display
+        DBAccess.TransRecords transRec = codeList[0];
+        decimal daysHeld = (DateTime.Today - transRec.TranDate.Date).Days;
+        if (daysHeld < 3)
+          daysHeld = 3;         // takes 3 days for the transaction to be finalised
+        ReBuySuggestions sug = new ReBuySuggestions();
+        sug.ReBuyASXCode = transRec.ASXCode;
+        sug.LastPurchaseQty = transRec.TransQty;
+        sug.LastBuyPrice = transRec.UnitPrice;
+        sug.ReBuyTodaysUnitPrice = prc;
+        sug.ReBuyPctGain = 0M;
+        sug.ReBuyPctYear = 0M;
+        sug.DaysSinceLastBuy = daysHeld;
+        sug.LastBuyDate = transRec.TranDate;
+        if (prc != 0 && sug.LastBuyPrice != 0)
+        {
+          sug.ReBuyPctGain = Decimal.Round((sug.ReBuyTodaysUnitPrice - sug.LastBuyPrice) * 100 / sug.LastBuyPrice, 2);
+          sug.ReBuyPctYear = Decimal.Round((sug.ReBuyTodaysUnitPrice - sug.LastBuyPrice) / sug.LastBuyPrice * 365 * 100 / daysHeld, 2);
+        }
+
+        //  Is there a dividend pending - already announced (ie. with ex dividend date +/- 10 days from today)
+        DBAccess.DividendHistory divHist = new DBAccess.DividendHistory();
+        if (sug.ReBuyASXCode == "WES")
+        { }
+
+        if (dividendPending(sug.ReBuyASXCode, -30, 30, out divHist))
+        {
+          sug.ReBuyLastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.ReBuyTodaysUnitPrice * 100, 2);
+          sug.ReBuyLastDivDate = divHist.ExDividend;
+          sug.ReBuyHighlightDiv = true;
+        }
+        else
+        {
+          // or issued +/- 12 months ago
+          if (dividendPending(sug.ReBuyASXCode, -374, -354, out divHist))
+          {
+            sug.ReBuyLastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.ReBuyTodaysUnitPrice * 100, 2);
+            sug.ReBuyLastDivDate = divHist.ExDividend;
+            sug.ReBuyHighlightDiv = true;
+          }
+          else
+          {
+            if (dividendPending(sug.ReBuyASXCode, -10000, 0, out divHist))
+            {
+              sug.ReBuyLastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.ReBuyTodaysUnitPrice * 100, 2);
+              sug.ReBuyLastDivDate = divHist.ExDividend;
+              sug.ReBuyHighlightDiv = false;
+            }
+          }
+
+        }
+
+        suggestList.Add(sug);
+
+      }
+      suggestList = suggestList.OrderBy(x => x.ReBuyPctGain).ToList();
+      // 
+      dgvToReBuy.DataSource = null;
+      ToReBuyBindingSource.DataSource = suggestList;
+      dgvToReBuy.DataSource = ToReBuyBindingSource;
+      dgvToReBuy.Refresh();
+
+    }
+
+
+
+    private void dgvToReBuy_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+    {
+      try
+      {
+        DataGridView dgv = sender as DataGridView;
+        if (dgv.Columns[e.ColumnIndex].ValueType == typeof(decimal))
+          if ((decimal)dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value < 0M)
+            dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+        if ((dgv.Columns[e.ColumnIndex].Name == "BuyLastDividendAmount" || dgv.Columns[e.ColumnIndex].Name == "BuyLastDivDate") && (bool)dgv.Rows[e.RowIndex].Cells["BuyHighlightDiv"].Value)
+        {
+          dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+        }
+
+      }
+      catch
+      { }
+    }
+
+    private void dgvToReBuy_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+    {
+      if (e.ColumnIndex == _previousIndex)
+        _sortDirection ^= true; // toggle direction
+
+      dgvToReBuy.DataSource = SortToReBuyData(
+          (List<ReBuySuggestions>)ToReBuyBindingSource.DataSource, dgvToReBuy.Columns[e.ColumnIndex].Name, _sortDirection);
+
+      _previousIndex = e.ColumnIndex;
+    }
+
+    public List<ReBuySuggestions> SortToReBuyData(List<ReBuySuggestions> list, string column, bool ascending)
     {
       try
       {
