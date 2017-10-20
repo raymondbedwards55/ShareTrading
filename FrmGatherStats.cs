@@ -22,6 +22,7 @@ namespace ShareTrading
     {
       cbxStatsType.DataSource = System.Enum.GetNames(typeof(StatsType));
       cbxStatsType.Focus();
+      updateASXCodeComboBox();
 
     }
     private void toolStripButtonGenerate_Click(object sender, EventArgs e)
@@ -55,10 +56,12 @@ namespace ShareTrading
         return;
       foreach (DBAccess.ASXPriceDate co in coList)
       {
+        if (co.ASXCode != "ANZ")
+          continue;
         // get max date for this stats type & company
         DateTime maxDate = DateTime.MinValue;
         List<PgSqlParameter> paramList = new List<PgSqlParameter>();
-        paramList.Add(new PgSqlParameter("@P1", co.ASXCode));
+        paramList.Add(new PgSqlParameter("@P1",  co.ASXCode));
         List<DBAccess.Statistics> dateList = new List<DBAccess.Statistics>();
         if (DBAccess.GetStatRecords(paramList, out dateList, " MAX(st_startdate) ", " AND st_asxcode = @P1", string.Empty))
           maxDate = dateList[0].StartDate;
@@ -72,6 +75,8 @@ namespace ShareTrading
           // foreach of the records, create a stats record
           foreach (DBAccess.ASXPriceDate rec in priceList)
           {
+            if (rec.PriceDate.Year != 2017 && rec.PriceDate.Month != 2)
+              continue;
             DBAccess.Statistics statsRec = new DBAccess.Statistics();
             // Does the record already exist?
             List<DBAccess.Statistics> statsList = new List<DBAccess.Statistics>();
@@ -88,7 +93,7 @@ namespace ShareTrading
               statsRec.Type = getStatsType();
             }
 
-            statsRec.Stat = rec.PrcOpen == 0 ? 0M : todays ? Decimal.Round((rec.PrcClose - rec.PrcOpen) / rec.PrcOpen * 100, 2) : getOvernightStat(rec, priceList);
+            statsRec.Stat = rec.PrcOpen == 0 ? 0M : todays ? Decimal.Round((rec.PrcClose - rec.PrcOpen) / rec.PrcOpen * 100, 6) : getOvernightStat(rec, priceList);
             
             if (statsRec.ID == 0)
               DBAccess.DBInsert(statsRec, "statistics", typeof(DBAccess.Statistics));
@@ -108,7 +113,7 @@ namespace ShareTrading
       int currentIdx = priceList.FindIndex(delegate (DBAccess.ASXPriceDate r1) { return r1.ID == currentRec.ID; });
       if (currentIdx < 0 || currentIdx >= priceList.Count - 1)
         return 0M;
-      stat = currentRec.PrcClose == 0M ? 0M :  Decimal.Round((priceList[currentIdx + 1].PrcOpen - currentRec.PrcClose) / currentRec.PrcClose * 100, 2);
+      stat = currentRec.PrcClose == 0M ? 0M :  Decimal.Round((priceList[currentIdx + 1].PrcOpen - currentRec.PrcClose) / currentRec.PrcClose * 100, 6);
       return stat;
     }
     private StatsType getStatsType()
@@ -118,8 +123,94 @@ namespace ShareTrading
       Enum.TryParse(txt, out val);
       return val;
 
-    }    
+    }
 
+    private void label1_Click(object sender, EventArgs e)
+    {
+
+    }
+
+    private void cbxStatsType_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void updateASXCodeComboBox()
+    {
+      List<string> incAll = new List<string>();
+      incAll.Add(">>ALL<<");
+      incAll.AddRange(DBAccess.GetASXCodes(chbOnWatchList.Checked));
+      cbxASXCode.DataSource = incAll;
+      cbxASXCode.SelectedIndex = 0;
+
+    }
+    public class chartEntry
+    {
+      public string date { get; set; }
+      public Decimal sumPct { get; set; }
+    }
+    private void toolStripButtonChart_Click(object sender, EventArgs e)
+    {
+      for (int i = 0; i < 2; i++)
+      {
+        List<DBAccess.Statistics> statsList = null;
+        string whereClause = " AND st_type = @P1 AND st_startdate > @P2 ";
+        List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+        paramList.Add(new PgSqlParameter("@P1", i + 1 /* (int)StatsType.Overnight) */));
+        paramList.Add(new PgSqlParameter("@P2", DateTime.MinValue));
+        if (cbxASXCode.SelectedIndex > 0)
+        {
+          whereClause += " AND st_asxcode = @P3 ";
+          paramList.Add(new PgSqlParameter("@P3", cbxASXCode.Text));
+        }
+        if (chbOnWatchList.Checked && cbxASXCode.SelectedIndex <= 0)
+        {
+          whereClause += " AND st_asxcode IN (@P3) ";
+          paramList.Add(new PgSqlParameter("@P3", string.Format("'{0}'", string.Join("','", DBAccess.GetASXCodes(true).ToArray()))));
+          //paramList.Add(new PgSqlParameter("@P4", "'ANZ'"));
+        }
+        if (!DBAccess.GetStatsRecords(paramList, out statsList, DBAccess.StatFieldList, whereClause, " ORDER BY st_startdate, st_asxcode ", false))
+        {
+          MessageBox.Show("Unable to find stats to update chart", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+          continue;
+        }
+        var codeList = statsList.Select(x => x.ASXCode).Distinct();
+        List<DateTime> dateList = statsList.Select(x => x.StartDate).Distinct().ToList();
+        decimal yValue = 0M;
+        decimal prevValue = 0M;
+        List<chartEntry> chartXY = new List<chartEntry>();
+        foreach (DateTime dt in dateList)
+        {
+          chartEntry eXY = new chartEntry();
+          eXY.date = dt.ToShortDateString();
+          yValue = statsList.FindAll(delegate (DBAccess.Statistics r1) { return r1.StartDate == dt; }).Select(x => x.Stat).Sum();
+          prevValue += yValue;
+          eXY.sumPct = prevValue;
+          chartXY.Add(eXY);
+        }
+        chart1.Series[i].XValueMember = "date";
+        chart1.Series[i].YValueMembers = "sumPct";
+        List<string> xValuesList = chartXY.Select(x => x.date).ToList();
+        List<decimal> yValuesList = chartXY.Select(x => x.sumPct).ToList();
+        chart1.Series[i].Points.DataBindXY(xValuesList, yValuesList);
+      }
+    }
+
+    private void label2_Click(object sender, EventArgs e)
+    {
+
+    }
+
+    private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void chbOnWatchList_CheckedChanged(object sender, EventArgs e)
+    {
+      updateASXCodeComboBox();
+
+    }
   }
 
 

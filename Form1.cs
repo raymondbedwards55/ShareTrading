@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 
 using System.Data;
+using System.IO;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -1330,6 +1331,105 @@ namespace ShareTrading
     private void gatherStatisticsToolStripMenuItem_Click(object sender, EventArgs e)
     {
       FrmGatherStats frm = new FrmGatherStats();
+      frm.ShowDialog();
+
+    }
+
+    // ******************************  Import Price History *************************************
+
+
+    private void importPriceHistoryToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      if (backgroundWorkerPrcHst.IsBusy)
+        return;
+      importPriceHistoryToolStripMenuItem.Enabled = false;
+      
+      string[] files = Directory.GetFiles(getPriceHistoryFolder());
+      if (files.Length <= 0)
+      {
+        MessageBox.Show("No files found in selected directory");
+        return;
+      }
+      progressBar.Visible = true;
+      statusLabel.Visible = true;
+      WorkState ws = new WorkState();
+      ws.filenames = files;
+      startProgressBarMarquee();
+      statusLabel.Text = "Loading Files ...";
+      backgroundWorkerPrcHst.RunWorkerAsync(ws);
+
+    }
+
+    internal class WorkState
+    {
+      public string status { get; set; }
+      public string[] filenames { get; set; }
+    }
+
+    private void backgroundWorkerPrcHst_DoWork(object sender, DoWorkEventArgs e)
+    {
+      WorkState ws = e.Argument as WorkState;
+      string[] fileNames = ws.filenames;
+      
+      // foreach file, import data
+      foreach (string filename in fileNames)
+      {
+        Console.WriteLine(">" + filename + "<");
+        ImportPriceHistory.ImportPriceFile(filename);
+      }
+      e.Result = true;
+    }
+
+    private void backgroundWorkerPrcHst_ProgressChanged(object sender, ProgressChangedEventArgs e)
+    {
+      WorkState ws = e.UserState as WorkState;
+      statusLabel.Text = ws.status;
+
+    }
+
+    private void backgroundWorkerPrcHst_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+    {
+      endProgressBarMarquee();
+      if ((bool)e.Result)
+        statusLabel.Text = "Complete";
+      else
+        statusLabel.Text = "Error loading files";
+
+    }
+
+    private void startProgressBarMarquee()
+    {
+      progressBar.Style = ProgressBarStyle.Marquee;
+      progressBar.Minimum = 0;
+      progressBar.Value = 0;
+      progressBar.Visible = true;
+      progressBar.Minimum = 1;
+      progressBar.Maximum = 100;
+      progressBar.Step = 1;
+    }
+
+    private void endProgressBarMarquee()
+    {
+      progressBar.Style = ProgressBarStyle.Blocks;
+      progressBar.MarqueeAnimationSpeed = 0;
+      progressBar.Value = progressBar.Maximum;
+    }
+    private string getPriceHistoryFolder()
+    {
+      CSVopenFileDialog.Title = "Load Price History Files in Folder";
+      CSVopenFileDialog.Filter = string.Format("{0} Any File (*.*)|*.*", string.Empty);
+      CSVopenFileDialog.InitialDirectory = string.Format(@"c://Users//{0}////Downloads", Environment.UserName);
+      CSVopenFileDialog.FileName = String.Empty;
+      if (CSVopenFileDialog.ShowDialog() == DialogResult.OK)
+        return Path.GetDirectoryName(CSVopenFileDialog.FileName);
+      return string.Empty;
+    }
+
+    //  *****************************  Company Details  ******************************************
+
+    private void editCompanyDetailsToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      FrmEditCompanyDetails frm = new FrmEditCompanyDetails();
       frm.ShowDialog();
 
     }

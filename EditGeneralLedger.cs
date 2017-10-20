@@ -38,7 +38,7 @@ namespace ShareTrading
         int rowIdx = dgvGeneralLedger.CurrentCell.RowIndex;
         currentRecord = ((List<DBAccess.GLCodes>)GLBindingSource.DataSource)[rowIdx];
         tbxGLCode.Text = currentRecord.GLCode;
-        cbxGLType.SelectedIndex = ((string[])cbxGLType.DataSource).ToList().FindIndex(x => x == currentRecord.Type.ToString());
+        cbxGLType.SelectedIndex = ((List<string>)cbxGLType.DataSource).FindIndex(x => x == currentRecord.Type.ToString());
         chbGSTApplies.Checked = currentRecord.GSTApplies;
       }
       catch { }

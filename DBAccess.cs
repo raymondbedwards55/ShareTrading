@@ -1831,17 +1831,18 @@ namespace ShareTrading
     public class CompanyDetails
     {
       public int ID { get; set; }
-      public DateTime PriceDate { get; set; }
+      //public DateTime PriceDate { get; set; }
       public String ASXCode { get; set; }
       public string CompanyName { get; set; }
-      public DateTime FirstDividendDate { get; set; }
-      public Decimal FirstDividendPerShare { get; set; }
-      public DateTime SecondDividendDate { get; set; }
-      public Decimal SecondDividendPerShare { get; set; }
-      public Decimal EarningsPerShare { get; set; }
+      //public DateTime FirstDividendDate { get; set; }
+      //public Decimal FirstDividendPerShare { get; set; }
+      //public DateTime SecondDividendDate { get; set; }
+      //public Decimal SecondDividendPerShare { get; set; }
+      //public Decimal EarningsPerShare { get; set; }
       public DateTime DateCreated { get; set; }
       public DateTime DateModified { get; set; }
       public DateTime DateDeleted { get; set; }
+      public Boolean OnWatchList { get; set; }
     }
 
     public static  string  CompanyDetailsFieldList
@@ -1852,8 +1853,29 @@ namespace ShareTrading
       }
     }
 
+    public static List<string> GetASXCodes()
+    {
+      return GetASXCodes(false);
+    }
+    public static List<string> GetASXCodes(bool onlyWatchList)
+    { 
+      List<CompanyDetails> list = null;
+      List<string> codeList = new List<string>();
+      if (DBAccess.GetCompanyDetails(null, out list))
+        if (onlyWatchList)
+          codeList = list.Where(z => z.OnWatchList == onlyWatchList).Select(x => x.ASXCode).Distinct().OrderBy(y => y).ToList();
+      else
+          codeList = list.Select(x => x.ASXCode).Distinct().OrderBy(y => y).ToList();
+      return codeList;
+    }
+
     public static Boolean GetCompanyDetails(string ASXCode, out List<CompanyDetails> list)
     {
+      
+      return GetCompanyDetails(ASXCode, out list, false);
+    }
+    public static Boolean GetCompanyDetails(string ASXCode, out List<CompanyDetails> list, bool incDeleted)
+    { 
       list = new List<CompanyDetails>();
       using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
       {
@@ -1862,14 +1884,18 @@ namespace ShareTrading
           conn.Open();
           PgSqlCommand command = new PgSqlCommand();
           command.Connection = conn;
-          command.Parameters.Add("@P0", DateTime.MinValue);
           string ASXCodeString = string.Empty;
+          if (!incDeleted)
+          {
+            command.Parameters.Add("@P0", DateTime.MinValue);
+            ASXCodeString += " AND cod_datedeleted = @P0 ";
+          }
           if (ASXCode != null)
           {
             command.Parameters.Add("@P1", ASXCode);
-            ASXCodeString = string.Format(" AND cod_ASXCode = '@P1' ", ASXCode);
+            ASXCodeString += " AND cod_ASXCode = @P1 ";
           }
-          command.CommandText = string.Format("SELECT {0} FROM companydetails WHERE cod_datedeleted = @P0 {1} ORDER BY cod_ASXCode ", CompanyDetailsFieldList.Replace("\r\n", ""), ASXCodeString);
+          command.CommandText = string.Format("SELECT {0} FROM companydetails WHERE 1 = 1 {1} ORDER BY cod_ASXCode ", CompanyDetailsFieldList.Replace("\r\n", ""), ASXCodeString);
           command.Prepare();
           try
           {
@@ -1892,6 +1918,9 @@ namespace ShareTrading
             conn.Close();
         }
       }
+      if (list.Count <= 0)
+        return false;
+
       return true;
     }
 
@@ -1902,17 +1931,18 @@ namespace ShareTrading
       {
         CompanyDetails dtls = new CompanyDetails();
         dtls.ID = reader.GetInt32(0);
-        dtls.PriceDate = reader.GetDateTime(1);
-        dtls.ASXCode = reader.GetString(2); ;
-        dtls.CompanyName = reader.GetString(3);
-        dtls.FirstDividendDate = reader.GetDateTime(4);
-        dtls.FirstDividendPerShare = reader.GetDecimal(5);
-        dtls.SecondDividendDate = reader.GetDateTime(6);
-        dtls.SecondDividendPerShare = reader.GetDecimal(7);
-        dtls.EarningsPerShare = reader.GetDecimal(8);
-        dtls.DateCreated = reader.GetDateTime(9);
-        dtls.DateModified = reader.GetDateTime(10);
-        dtls.DateDeleted = reader.GetDateTime(11);
+        //dtls.PriceDate = reader.GetDateTime(1);
+        dtls.ASXCode = reader.GetString(1); ;
+        dtls.CompanyName = reader.GetString(2);
+        //dtls.FirstDividendDate = reader.GetDateTime(4);
+        //dtls.FirstDividendPerShare = reader.GetDecimal(5);
+        //dtls.SecondDividendDate = reader.GetDateTime(6);
+        //dtls.SecondDividendPerShare = reader.GetDecimal(7);
+        //dtls.EarningsPerShare = reader.GetDecimal(8);
+        dtls.DateCreated = reader.GetDateTime(3);
+        dtls.DateModified = reader.GetDateTime(4);
+        dtls.DateDeleted = reader.GetDateTime(5);
+        dtls.OnWatchList = reader.GetBoolean(6);
 
         inputList.Add(dtls);
       }
@@ -2235,6 +2265,7 @@ namespace ShareTrading
           dtls.ID = reader.GetInt32(0);
           dtls.Type = (StatsType)reader.GetInt32(1);
           dtls.ASXCode = reader.GetString(2);
+          dtls.StartDate = reader.GetDateTime(3);
           dtls.Stat = reader.GetDecimal(4);
           dtls.DateCreated = reader.GetDateTime(5);
           dtls.DateModified = reader.GetDateTime(6);
