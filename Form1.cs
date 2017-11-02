@@ -1394,6 +1394,7 @@ namespace ShareTrading
         statusLabel.Text = "Complete";
       else
         statusLabel.Text = "Error loading files";
+      importPriceHistoryToolStripMenuItem.Enabled = true;
 
     }
 

@@ -28,10 +28,11 @@
     /// </summary>
     private void InitializeComponent()
     {
-      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-      System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+      System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+      System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+      System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
       System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-      System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
       this.toolStrip1 = new System.Windows.Forms.ToolStrip();
       this.toolStripButtonGenerate = new System.Windows.Forms.ToolStripButton();
       this.toolStripButtonClose = new System.Windows.Forms.ToolStripButton();
@@ -42,6 +43,13 @@
       this.cbxASXCode = new System.Windows.Forms.ComboBox();
       this.label2 = new System.Windows.Forms.Label();
       this.chbOnWatchList = new System.Windows.Forms.CheckBox();
+      this.dtpFrom = new System.Windows.Forms.DateTimePicker();
+      this.label3 = new System.Windows.Forms.Label();
+      this.dtpTo = new System.Windows.Forms.DateTimePicker();
+      this.label4 = new System.Windows.Forms.Label();
+      this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+      this.progressBar = new System.Windows.Forms.ProgressBar();
+      this.statusLabel = new System.Windows.Forms.Label();
       this.toolStrip1.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
       this.SuspendLayout();
@@ -55,7 +63,7 @@
       this.toolStrip1.Location = new System.Drawing.Point(0, 0);
       this.toolStrip1.Name = "toolStrip1";
       this.toolStrip1.Padding = new System.Windows.Forms.Padding(0, 0, 2, 0);
-      this.toolStrip1.Size = new System.Drawing.Size(940, 25);
+      this.toolStrip1.Size = new System.Drawing.Size(1186, 25);
       this.toolStrip1.TabIndex = 0;
       this.toolStrip1.Text = "toolStrip1";
       // 
@@ -109,23 +117,31 @@
       // 
       // chart1
       // 
-      chartArea2.Name = "ChartArea1";
-      this.chart1.ChartAreas.Add(chartArea2);
-      legend2.Name = "Legend1";
-      this.chart1.Legends.Add(legend2);
+      this.chart1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+      chartArea1.Name = "ChartArea1";
+      this.chart1.ChartAreas.Add(chartArea1);
+      legend1.Name = "Legend1";
+      this.chart1.Legends.Add(legend1);
       this.chart1.Location = new System.Drawing.Point(32, 115);
       this.chart1.Name = "chart1";
+      series1.ChartArea = "ChartArea1";
+      series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+      series1.Legend = "Legend1";
+      series1.Name = "Overnight";
+      series2.ChartArea = "ChartArea1";
+      series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+      series2.Legend = "Legend1";
+      series2.Name = "TradeDay";
       series3.ChartArea = "ChartArea1";
       series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
       series3.Legend = "Legend1";
-      series3.Name = "Overnight";
-      series4.ChartArea = "ChartArea1";
-      series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-      series4.Legend = "Legend1";
-      series4.Name = "TradeDay";
+      series3.Name = "Price";
+      this.chart1.Series.Add(series1);
+      this.chart1.Series.Add(series2);
       this.chart1.Series.Add(series3);
-      this.chart1.Series.Add(series4);
-      this.chart1.Size = new System.Drawing.Size(845, 342);
+      this.chart1.Size = new System.Drawing.Size(1104, 563);
       this.chart1.TabIndex = 3;
       this.chart1.Text = "Stats";
       // 
@@ -153,19 +169,88 @@
       // 
       this.chbOnWatchList.AutoSize = true;
       this.chbOnWatchList.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-      this.chbOnWatchList.Location = new System.Drawing.Point(395, 85);
+      this.chbOnWatchList.Location = new System.Drawing.Point(721, 87);
       this.chbOnWatchList.Name = "chbOnWatchList";
-      this.chbOnWatchList.Size = new System.Drawing.Size(133, 20);
+      this.chbOnWatchList.Size = new System.Drawing.Size(156, 20);
       this.chbOnWatchList.TabIndex = 8;
-      this.chbOnWatchList.Text = "Watchlist Only?";
+      this.chbOnWatchList.Text = "On Watchlist Only?";
       this.chbOnWatchList.UseVisualStyleBackColor = true;
       this.chbOnWatchList.CheckedChanged += new System.EventHandler(this.chbOnWatchList_CheckedChanged);
+      // 
+      // dtpFrom
+      // 
+      this.dtpFrom.Checked = false;
+      this.dtpFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+      this.dtpFrom.Location = new System.Drawing.Point(412, 83);
+      this.dtpFrom.Name = "dtpFrom";
+      this.dtpFrom.Size = new System.Drawing.Size(117, 22);
+      this.dtpFrom.TabIndex = 9;
+      // 
+      // label3
+      // 
+      this.label3.AutoSize = true;
+      this.label3.Location = new System.Drawing.Point(409, 64);
+      this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.label3.Name = "label3";
+      this.label3.Size = new System.Drawing.Size(67, 16);
+      this.label3.TabIndex = 10;
+      this.label3.Text = "Between";
+      this.label3.Click += new System.EventHandler(this.label3_Click);
+      // 
+      // dtpTo
+      // 
+      this.dtpTo.Checked = false;
+      this.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+      this.dtpTo.Location = new System.Drawing.Point(565, 83);
+      this.dtpTo.Name = "dtpTo";
+      this.dtpTo.Size = new System.Drawing.Size(117, 22);
+      this.dtpTo.TabIndex = 11;
+      // 
+      // label4
+      // 
+      this.label4.AutoSize = true;
+      this.label4.Location = new System.Drawing.Point(540, 84);
+      this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.label4.Name = "label4";
+      this.label4.Size = new System.Drawing.Size(18, 16);
+      this.label4.TabIndex = 12;
+      this.label4.Text = "&&";
+      // 
+      // backgroundWorker1
+      // 
+      this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+      this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+      this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+      // 
+      // progressBar
+      // 
+      this.progressBar.Location = new System.Drawing.Point(949, 674);
+      this.progressBar.Name = "progressBar";
+      this.progressBar.Size = new System.Drawing.Size(237, 34);
+      this.progressBar.TabIndex = 49;
+      // 
+      // statusLabel
+      // 
+      this.statusLabel.AutoSize = true;
+      this.statusLabel.BackColor = System.Drawing.SystemColors.ButtonFace;
+      this.statusLabel.Location = new System.Drawing.Point(973, 684);
+      this.statusLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.statusLabel.Name = "statusLabel";
+      this.statusLabel.Size = new System.Drawing.Size(100, 16);
+      this.statusLabel.TabIndex = 50;
+      this.statusLabel.Text = "Generating ...";
       // 
       // FrmGatherStats
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(940, 551);
+      this.ClientSize = new System.Drawing.Size(1186, 709);
+      this.Controls.Add(this.statusLabel);
+      this.Controls.Add(this.progressBar);
+      this.Controls.Add(this.label4);
+      this.Controls.Add(this.dtpTo);
+      this.Controls.Add(this.label3);
+      this.Controls.Add(this.dtpFrom);
       this.Controls.Add(this.chbOnWatchList);
       this.Controls.Add(this.label2);
       this.Controls.Add(this.cbxASXCode);
@@ -202,5 +287,12 @@
     private System.Windows.Forms.ComboBox cbxASXCode;
     private System.Windows.Forms.Label label2;
     private System.Windows.Forms.CheckBox chbOnWatchList;
+    private System.Windows.Forms.DateTimePicker dtpFrom;
+    private System.Windows.Forms.Label label3;
+    private System.Windows.Forms.DateTimePicker dtpTo;
+    private System.Windows.Forms.Label label4;
+    private System.ComponentModel.BackgroundWorker backgroundWorker1;
+    private System.Windows.Forms.ProgressBar progressBar;
+    private System.Windows.Forms.Label statusLabel;
   }
 }

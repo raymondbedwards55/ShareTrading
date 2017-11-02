@@ -118,7 +118,7 @@ namespace ShareTrading
       List<DBAccess.CompanyDetails> list = new List<DBAccess.CompanyDetails>();
       if (currentRecord.ID == 0)
       {
-        if (DBAccess.GetCompanyDetails(cbxASXCode.Text, out list,  false))
+        if (DBAccess.GetCompanyDetails(cbxASXCode.Text, out list,  false, false))
         {
           MessageBox.Show("Duplicate ASX Code", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
           return;
@@ -129,14 +129,14 @@ namespace ShareTrading
         currentRecord.OnWatchList = chbOnWatchList.Checked;
         currentRecord.ASXCode = cbxASXCode.Text;
         DBAccess.DBInsert(currentRecord, "companydetails", typeof(DBAccess.CompanyDetails));
-        if (DBAccess.GetCompanyDetails(cbxASXCode.Text, out list, false))
+        if (DBAccess.GetCompanyDetails(cbxASXCode.Text, out list, false, false))
           currentRecord.ID = list[0].ID;
       }
       else
       {
         // Update record
 
-        if (!DBAccess.GetCompanyDetails(cbxASXCode.Text, out list, false))
+        if (!DBAccess.GetCompanyDetails(cbxASXCode.Text, out list, false, false))
         {
           MessageBox.Show("Unable to find ASX Code", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
           return;
@@ -156,7 +156,7 @@ namespace ShareTrading
       CoBindingSource.DataSource = null;
       List<DBAccess.CompanyDetails> list = new List<DBAccess.CompanyDetails>();
 
-      DBAccess.GetCompanyDetails(null, out list, chbIncDeleted.Checked);
+      DBAccess.GetCompanyDetails(null, out list, chbIncDeleted.Checked, false);
       CoBindingSource.DataSource = list;
       if (CoBindingSource != null && CoBindingSource.Count > 0)
       {

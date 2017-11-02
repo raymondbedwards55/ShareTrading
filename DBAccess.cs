@@ -1861,7 +1861,7 @@ namespace ShareTrading
     { 
       List<CompanyDetails> list = null;
       List<string> codeList = new List<string>();
-      if (DBAccess.GetCompanyDetails(null, out list))
+      if (DBAccess.GetCompanyDetails(null, out list, false, onlyWatchList))
         if (onlyWatchList)
           codeList = list.Where(z => z.OnWatchList == onlyWatchList).Select(x => x.ASXCode).Distinct().OrderBy(y => y).ToList();
       else
@@ -1872,9 +1872,9 @@ namespace ShareTrading
     public static Boolean GetCompanyDetails(string ASXCode, out List<CompanyDetails> list)
     {
       
-      return GetCompanyDetails(ASXCode, out list, false);
+      return GetCompanyDetails(ASXCode, out list, false, false);
     }
-    public static Boolean GetCompanyDetails(string ASXCode, out List<CompanyDetails> list, bool incDeleted)
+    public static Boolean GetCompanyDetails(string ASXCode, out List<CompanyDetails> list, bool incDeleted, bool onWatchlistOnly)
     { 
       list = new List<CompanyDetails>();
       using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
@@ -1890,10 +1890,16 @@ namespace ShareTrading
             command.Parameters.Add("@P0", DateTime.MinValue);
             ASXCodeString += " AND cod_datedeleted = @P0 ";
           }
-          if (ASXCode != null)
+          if (!string.IsNullOrEmpty(ASXCode))
           {
             command.Parameters.Add("@P1", ASXCode);
             ASXCodeString += " AND cod_ASXCode = @P1 ";
+          }
+
+          if (onWatchlistOnly)
+          {
+            command.Parameters.Add("@P2", "Y");
+            ASXCodeString += " AND cod_isonwatchlist = @P2 ";
           }
           command.CommandText = string.Format("SELECT {0} FROM companydetails WHERE 1 = 1 {1} ORDER BY cod_ASXCode ", CompanyDetailsFieldList.Replace("\r\n", ""), ASXCodeString);
           command.Prepare();

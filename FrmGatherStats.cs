@@ -23,68 +23,50 @@ namespace ShareTrading
       cbxStatsType.DataSource = System.Enum.GetNames(typeof(StatsType));
       cbxStatsType.Focus();
       updateASXCodeComboBox();
+      statusLabel.Visible = false;
+      progressBar.Visible = false;
+    }
 
-    }
-    private void toolStripButtonGenerate_Click(object sender, EventArgs e)
-    {
-      int t = (int) getStatsType();
-      switch (t)
-      {
-        case 1:     // ( Next day's open - today's close ) / today's close
-          processPriceChange(false);
-          break;
-        case 2:     // (today's close - today's open) / today's open
-          processPriceChange(true);
-          break;
-        default:
-        break;
-      }
-    }
 
     private void toolStripButtonClose_Click(object sender, EventArgs e)
     {
       Close();
     }
 
-    private void processOvernightPriceChange()
-    { }
-
-    private void processPriceChange(bool todays)
+    private void processPriceChange(bool todays, WorkState ws)
     {
-      List<DBAccess.ASXPriceDate> coList = new List<DBAccess.ASXPriceDate>();
-      if (!DBAccess.GetAllPrices(new List<PgSqlParameter>(), out coList, " DISTINCT apd_asxcode  ", string.Empty, string.Empty))
+      List<DBAccess.CompanyDetails> coList = new List<DBAccess.CompanyDetails>();
+      if (!DBAccess.GetCompanyDetails(ws.asxcode, out coList, false, ws.onWatchListOnly))
         return;
-      foreach (DBAccess.ASXPriceDate co in coList)
+      if (!string.IsNullOrEmpty(ws.asxcode))
+        coList = coList.FindAll(delegate (DBAccess.CompanyDetails r1) { return r1.ASXCode == ws.asxcode; });
+
+      if (coList == null || coList.Count <= 0)
+          return;
+
+      foreach (DBAccess.CompanyDetails co in coList)
       {
-        if (co.ASXCode != "ANZ")
-          continue;
-        // get max date for this stats type & company
-        DateTime maxDate = DateTime.MinValue;
+        Console.WriteLine(string.Format("Type >{0}< ASX Code >{1}<", ws.type.ToString(), co.ASXCode)) ;
         List<PgSqlParameter> paramList = new List<PgSqlParameter>();
-        paramList.Add(new PgSqlParameter("@P1",  co.ASXCode));
-        List<DBAccess.Statistics> dateList = new List<DBAccess.Statistics>();
-        if (DBAccess.GetStatRecords(paramList, out dateList, " MAX(st_startdate) ", " AND st_asxcode = @P1", string.Empty))
-          maxDate = dateList[0].StartDate;
-        // get all ASXPriceRecords for this company after this date
+        // get all ASXPriceRecords for this company in the date range
         paramList = new List<PgSqlParameter>();
         paramList.Add(new PgSqlParameter("@P1", co.ASXCode));
-        paramList.Add(new PgSqlParameter("@P2", maxDate));
+        paramList.Add(new PgSqlParameter("@P2", ws.dateFrom));
+        paramList.Add(new PgSqlParameter("@P3", ws.dateTo));
         List<DBAccess.ASXPriceDate> priceList = new List<DBAccess.ASXPriceDate>();
-        if (DBAccess.GetPriceRecords(paramList, out priceList, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P1 AND apd_pricedate >= @P2  " , " ORDER BY apd_pricedate ASC ", false))
+        if (DBAccess.GetPriceRecords(paramList, out priceList, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P1 AND apd_pricedate BETWEEN @P2 AND @P3 " , " ORDER BY apd_pricedate ASC ", false))
         {
           // foreach of the records, create a stats record
           foreach (DBAccess.ASXPriceDate rec in priceList)
           {
-            if (rec.PriceDate.Year != 2017 && rec.PriceDate.Month != 2)
-              continue;
             DBAccess.Statistics statsRec = new DBAccess.Statistics();
             // Does the record already exist?
             List<DBAccess.Statistics> statsList = new List<DBAccess.Statistics>();
             paramList = new List<PgSqlParameter>();
             paramList.Add(new PgSqlParameter("@P1", rec.ASXCode));
             paramList.Add(new PgSqlParameter("@P2", rec.PriceDate));
-            paramList.Add(new PgSqlParameter("@P3", (int)getStatsType()));
-            if (DBAccess.GetStatRecords(paramList, out statsList, DBAccess.StatFieldList, " AND st_asxcode = @P1 AND st_startdate >= @P2 AND st_type = @P3 ", string.Empty))
+            paramList.Add(new PgSqlParameter("@P3", ws.type));
+            if (DBAccess.GetStatRecords(paramList, out statsList, DBAccess.StatFieldList, " AND st_asxcode = @P1 AND st_startdate = @P2 AND st_type = @P3 ", string.Empty))
               statsRec = statsList[0];
             else
             {
@@ -116,6 +98,62 @@ namespace ShareTrading
       stat = currentRec.PrcClose == 0M ? 0M :  Decimal.Round((priceList[currentIdx + 1].PrcOpen - currentRec.PrcClose) / currentRec.PrcClose * 100, 6);
       return stat;
     }
+
+    private void processPriceVsFirst(WorkState ws)
+    {
+      List<DBAccess.CompanyDetails> coList = new List<DBAccess.CompanyDetails>();
+      if (!DBAccess.GetCompanyDetails(ws.asxcode, out coList, false, ws.onWatchListOnly))
+        return;
+      if (!string.IsNullOrEmpty(ws.asxcode))
+        coList = coList.FindAll(delegate (DBAccess.CompanyDetails r1) { return r1.ASXCode == ws.asxcode; });
+
+      if (coList == null || coList.Count <= 0)
+        return;
+      foreach (DBAccess.CompanyDetails co in coList)
+      {
+        // foreach Company
+        List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+        paramList.Add(new PgSqlParameter("@P1", co.ASXCode));
+        paramList.Add(new PgSqlParameter("@P2", DateTime.MinValue));
+        List<DBAccess.ASXPriceDate> priceList = null;
+        //   get all price records 
+        string orderBy = " ORDER BY apd_pricedate ASC ";
+        string where = " AND apd_asxcode = @P1 AND apd_pricedate > @P2 ";
+        if (!DBAccess.GetAllPrices(paramList, out priceList, DBAccess.ASXPriceDateFieldList, where, orderBy))
+          continue;
+        // get close price from first record
+        decimal firstClosePrice = priceList[0].PrcClose;
+        foreach (DBAccess.ASXPriceDate rec in priceList)
+        {
+          //   foreach price record
+          //     get current stat record if it is already there
+          List<DBAccess.Statistics> statList = null;
+          List<PgSqlParameter> statParams = new List<PgSqlParameter>();
+          statParams.Add(new PgSqlParameter("@P3", rec.ASXCode));
+          statParams.Add(new PgSqlParameter("@P4", rec.PriceDate));
+          statParams.Add(new PgSqlParameter("@P5", (int)StatsType.Price));
+          where = " AND st_asxcode = @P3 AND st_startdate = @P4 AND st_type = @P5 ";
+          orderBy = string.Empty;
+          DBAccess.Statistics statsRec = new DBAccess.Statistics();
+          if (!DBAccess.GetStatsRecords(statParams, out statList, DBAccess.StatFieldList, where, orderBy, false))
+          {
+            statsRec.ASXCode = rec.ASXCode;
+            statsRec.StartDate = rec.PriceDate;
+            statsRec.Type = StatsType.Price;
+          }
+          else
+            statsRec = statList[0];
+          //     calculate stats
+          statsRec.Stat = rec.PrcClose == 0 ? 0M : Decimal.Round((rec.PrcClose - firstClosePrice) / firstClosePrice * 100, 6);
+          //     insert / update record
+          if (statsRec.ID == 0)
+            DBAccess.DBInsert(statsRec, "statistics", typeof(DBAccess.Statistics));
+          else
+            DBAccess.DBUpdate(statsRec, "statistics", typeof(DBAccess.Statistics));
+        }
+      }
+
+    }
     private StatsType getStatsType()
     {
       string txt = cbxStatsType.SelectedValue.ToString();
@@ -124,6 +162,8 @@ namespace ShareTrading
       return val;
 
     }
+
+
 
     private void label1_Click(object sender, EventArgs e)
     {
@@ -151,7 +191,7 @@ namespace ShareTrading
     }
     private void toolStripButtonChart_Click(object sender, EventArgs e)
     {
-      for (int i = 0; i < 2; i++)
+      for (int i = 0; i < 3; i++)
       {
         List<DBAccess.Statistics> statsList = null;
         string whereClause = " AND st_type = @P1 AND st_startdate > @P2 ";
@@ -185,7 +225,7 @@ namespace ShareTrading
           eXY.date = dt.ToShortDateString();
           yValue = statsList.FindAll(delegate (DBAccess.Statistics r1) { return r1.StartDate == dt; }).Select(x => x.Stat).Sum();
           prevValue += yValue;
-          eXY.sumPct = prevValue;
+          eXY.sumPct = i == 2 ? yValue : prevValue;
           chartXY.Add(eXY);
         }
         chart1.Series[i].XValueMember = "date";
@@ -211,14 +251,126 @@ namespace ShareTrading
       updateASXCodeComboBox();
 
     }
+
+    private void label3_Click(object sender, EventArgs e)
+    {
+
+    }
+
+//  *******************  Generate  *********************
+
+    private void toolStripButtonGenerate_Click(object sender, EventArgs e)
+    {
+      if (backgroundWorker1.IsBusy)
+        return;
+
+      progressBar.Visible = true;
+      statusLabel.Visible = true;
+      toolStripButtonGenerate.Enabled = false;
+      toolStripButtonChart.Enabled = false;
+
+      WorkState ws = new WorkState();
+      ws.asxcode = cbxASXCode.SelectedIndex <= 0 ? null : cbxASXCode.SelectedItem.ToString();
+      ws.onWatchListOnly = chbOnWatchList.Checked;
+      ws.dateFrom = dtpFrom.Value;
+      ws.dateTo = dtpTo.Value;
+      int x = (int)getStatsType();
+      ws.type = x;
+
+      startProgressBarMarquee();
+      statusLabel.Text = "Generating ...";
+      backgroundWorker1.RunWorkerAsync(ws);
+
+    }
+
+    internal class WorkState
+    {
+      public string status { get; set; }
+      public string asxcode { get; set; }
+      public bool onWatchListOnly { get; set; }
+      public DateTime dateFrom { get; set; }
+      public DateTime dateTo { get; set; }
+
+      public  int type { get; set; }
+    }
+
+    private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+    {
+      WorkState ws = e.Argument as WorkState;
+      switch (ws.type)
+      {
+        case 1:     // ( Next day's open - today's close ) / today's close
+          processPriceChange(false, ws);
+          break;
+        case 2:     // (today's close - today's open) / today's open
+          processPriceChange(true, ws);
+          break;
+        case 3:     // today's close price - first day's close price / todays close price
+          processPriceVsFirst(ws);
+          break;
+        case 4:
+          processPriceChange(false, ws);
+          processPriceChange(true, ws);
+          processPriceVsFirst(ws);
+          break;
+        default:
+          break;
+      }
+
+
+      e.Result = true;
+    }
+
+    private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+    {
+      WorkState ws = e.UserState as WorkState;
+      statusLabel.Text = ws.status;
+
+    }
+
+    private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+    {
+      endProgressBarMarquee();
+      if ((bool)e.Result)
+        statusLabel.Text = "Complete";
+      else
+        statusLabel.Text = "Error generating stats ...";
+      toolStripButtonGenerate.Enabled = true;
+      toolStripButtonChart.Enabled = true;
+      progressBar.Visible = false;
+      statusLabel.Visible = false;
+
+    }
+
+    private void startProgressBarMarquee()
+    {
+      progressBar.Style = ProgressBarStyle.Marquee;
+      progressBar.Minimum = 0;
+      progressBar.Value = 0;
+      progressBar.Visible = true;
+      progressBar.Minimum = 1;
+      progressBar.Maximum = 100;
+      progressBar.Step = 1;
+    }
+
+    private void endProgressBarMarquee()
+    {
+      progressBar.Style = ProgressBarStyle.Blocks;
+      progressBar.MarqueeAnimationSpeed = 0;
+      progressBar.Value = progressBar.Maximum;
+    }
   }
 
 
   public enum StatsType
   {
+    [Description(">>ALL<<")]
+    All = 0,
     [Description("Price Diff Overnight")]
     Overnight = 1,                            // ( Next day's open - today's close ) / today's close
     [Description("Trading Day Price Diff")]
     TradeDay = 2,                             // (today's close - today's open) / today's open
+    [Description("Price wrt First Price")]
+    Price = 3,                                // today's price - first price found / today's price
   }
 }
