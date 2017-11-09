@@ -72,7 +72,7 @@ namespace ShareTrading
             {
               statsRec.ASXCode = rec.ASXCode;
               statsRec.StartDate = rec.PriceDate;
-              statsRec.Type = getStatsType();
+              statsRec.Type = (StatsType)ws.type;
             }
 
             statsRec.Stat = rec.PrcOpen == 0 ? 0M : todays ? Decimal.Round((rec.PrcClose - rec.PrcOpen) / rec.PrcOpen * 100, 6) : getOvernightStat(rec, priceList);
@@ -111,14 +111,17 @@ namespace ShareTrading
         return;
       foreach (DBAccess.CompanyDetails co in coList)
       {
+        Console.WriteLine(string.Format("Type >{0}< ASX Code >{1}<", ws.type.ToString(), co.ASXCode));
+
         // foreach Company
         List<PgSqlParameter> paramList = new List<PgSqlParameter>();
         paramList.Add(new PgSqlParameter("@P1", co.ASXCode));
-        paramList.Add(new PgSqlParameter("@P2", DateTime.MinValue));
+        paramList.Add(new PgSqlParameter("@P2", ws.dateFrom));
+        paramList.Add(new PgSqlParameter("@P3", ws.dateTo));
         List<DBAccess.ASXPriceDate> priceList = null;
         //   get all price records 
         string orderBy = " ORDER BY apd_pricedate ASC ";
-        string where = " AND apd_asxcode = @P1 AND apd_pricedate > @P2 ";
+        string where = " AND apd_asxcode = @P1 AND apd_pricedate BETWEEN @P2 AND @P3  ";
         if (!DBAccess.GetAllPrices(paramList, out priceList, DBAccess.ASXPriceDateFieldList, where, orderBy))
           continue;
         // get close price from first record
@@ -129,10 +132,10 @@ namespace ShareTrading
           //     get current stat record if it is already there
           List<DBAccess.Statistics> statList = null;
           List<PgSqlParameter> statParams = new List<PgSqlParameter>();
-          statParams.Add(new PgSqlParameter("@P3", rec.ASXCode));
+          statParams.Add(new PgSqlParameter("@P6", rec.ASXCode));
           statParams.Add(new PgSqlParameter("@P4", rec.PriceDate));
           statParams.Add(new PgSqlParameter("@P5", (int)StatsType.Price));
-          where = " AND st_asxcode = @P3 AND st_startdate = @P4 AND st_type = @P5 ";
+          where = " AND st_asxcode = @P6 AND st_startdate = @P4 AND st_type = @P5 ";
           orderBy = string.Empty;
           DBAccess.Statistics statsRec = new DBAccess.Statistics();
           if (!DBAccess.GetStatsRecords(statParams, out statList, DBAccess.StatFieldList, where, orderBy, false))
@@ -182,6 +185,7 @@ namespace ShareTrading
       incAll.AddRange(DBAccess.GetASXCodes(chbOnWatchList.Checked));
       cbxASXCode.DataSource = incAll;
       cbxASXCode.SelectedIndex = 0;
+      
 
     }
     public class chartEntry
@@ -191,13 +195,23 @@ namespace ShareTrading
     }
     private void toolStripButtonChart_Click(object sender, EventArgs e)
     {
-      for (int i = 0; i < 3; i++)
+      //int start = cbxStatsType.SelectedIndex == 0 ? 0 : (int)getStatsType();
+      //int fin = cbxStatsType.SelectedIndex == 0 ? 3 : start;
+      for (int i = 0; i < 3 ; i++)
       {
+        if ((int)getStatsType() != 0 && i != (int) getStatsType() - 1)
+        {
+          chart1.Series[i].Enabled = false;
+          continue;
+        }
+        chart1.Series[i].Enabled = true;
         List<DBAccess.Statistics> statsList = null;
-        string whereClause = " AND st_type = @P1 AND st_startdate > @P2 ";
+        string whereClause = " AND st_type = @P1 AND st_startdate BETWEEN @P2 AND @P4 ";
         List<PgSqlParameter> paramList = new List<PgSqlParameter>();
         paramList.Add(new PgSqlParameter("@P1", i + 1 /* (int)StatsType.Overnight) */));
-        paramList.Add(new PgSqlParameter("@P2", DateTime.MinValue));
+        paramList.Add(new PgSqlParameter("@P2", DateTime.Compare(dtpFrom.Value, dtpTo.Value) == 0 ? DateTime.MinValue : dtpFrom.Value));
+        paramList.Add(new PgSqlParameter("@P4", dtpTo.Value));
+
         if (cbxASXCode.SelectedIndex > 0)
         {
           whereClause += " AND st_asxcode = @P3 ";
@@ -234,6 +248,7 @@ namespace ShareTrading
         List<decimal> yValuesList = chartXY.Select(x => x.sumPct).ToList();
         chart1.Series[i].Points.DataBindXY(xValuesList, yValuesList);
       }
+      
     }
 
     private void label2_Click(object sender, EventArgs e)
@@ -308,10 +323,14 @@ namespace ShareTrading
         case 3:     // today's close price - first day's close price / todays close price
           processPriceVsFirst(ws);
           break;
-        case 4:
+        case 0:
+          ws.type = (int)StatsType.Overnight;
           processPriceChange(false, ws);
+          ws.type = (int)StatsType.TradeDay;
           processPriceChange(true, ws);
+          ws.type = (int)StatsType.Price;
           processPriceVsFirst(ws);
+          ws.type = (int)StatsType.All;
           break;
         default:
           break;
