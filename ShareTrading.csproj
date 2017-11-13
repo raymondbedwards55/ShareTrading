@@ -217,6 +217,7 @@
     <None Include="Properties\DataSources\FrmSuggestions.ReBuySuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.SellSuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.Suggestions.datasource" />
+    <None Include="Properties\DataSources\FrmSuggestions.Transactions.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

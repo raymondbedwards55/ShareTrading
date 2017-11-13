@@ -135,7 +135,8 @@ namespace ShareTrading
             sp = sp.Replace("IncTaxAmt", incTaxAmt.ToString("#.##"));
             sp = sp.Replace("ExTaxAmt", incTaxAmt.ToString("#.##"));
             sp = sp.Replace("TaxAmt", "0.00");
-            sp = sp.Replace("AllocMemo", string.Format("SELL {0} {1}", rec.TransQty.ToString("#"), rec.ASXCode));
+            sp = sp.Replace("AllocMemo", string.Empty);
+            sp = sp.Replace("Memo", string.Format("BUY {0} {1}", rec.TransQty.ToString("#"), rec.ASXCode));
             sp = sp.Replace("TaxCode", string.Empty);
           line = sp;
             break;
@@ -151,6 +152,7 @@ namespace ShareTrading
           sp = sp.Replace("ExTaxAmt", incTaxAmt.ToString("#.##"));
           sp = sp.Replace("TaxAmt", "0.00");
           sp = sp.Replace("AllocMemo", string.Empty);
+          sp = sp.Replace("Memo", string.Format("BUY {0} {1}", rec.TransQty.ToString("#"), rec.ASXCode));
           sp = sp.Replace("TaxCode", DBAccess.getTaxCode(v));
           line = sp;
           break;
@@ -167,6 +169,7 @@ namespace ShareTrading
           sp = sp.Replace("ExTaxAmt", (incTaxAmt - taxAmt).ToString("#.##"));
           sp = sp.Replace("TaxAmt", taxAmt.ToString("#.##"));
           sp = sp.Replace("AllocMemo", string.Empty);
+          sp = sp.Replace("Memo", string.Format("BUY {0} {1}", rec.TransQty.ToString("#"), rec.ASXCode));
           sp = sp.Replace("TaxCode", DBAccess.getTaxCode(v));
           line = sp;
           break;
@@ -196,11 +199,12 @@ namespace ShareTrading
           sp = sp.Replace("Date", rec.TranDate.ToString("dd-MM-yyyy"));
           sp = sp.Replace("LastName", "SHARES");
           sp = sp.Replace("AllocAccount", chqAct);
-          decimal incTaxAmt = (Decimal.Round(rec.UnitPrice * rec.TransQty, 2) + rec.BrokerageInc);
+          decimal incTaxAmt = (Decimal.Round(rec.UnitPrice * rec.TransQty, 2) - rec.BrokerageInc);
           sp = sp.Replace("IncTaxAmt", incTaxAmt.ToString("#.##"));
           sp = sp.Replace("ExTaxAmt", incTaxAmt.ToString("#.##"));
           sp = sp.Replace("TaxAmt", "0.00");
-          sp = sp.Replace("AllocMemo", string.Format("BUY {0} {1}", rec.TransQty.ToString("#"), rec.ASXCode));
+          sp = sp.Replace("AllocMemo", string.Empty);
+          sp = sp.Replace("Memo", string.Format("SELL {0} {1}", rec.TransQty.ToString("#"), rec.ASXCode));
           sp = sp.Replace("TaxCode", string.Empty);
           line = sp;
           break;
@@ -211,11 +215,12 @@ namespace ShareTrading
           sp = sp.Replace("Date", rec.TranDate.ToString("dd-MM-yyyy"));
           sp = sp.Replace("LastName", "SHARES");
           sp = sp.Replace("AllocAccount", DBAccess.getGLCode(v));
-          incTaxAmt = Decimal.Round(rec.UnitPrice * rec.TransQty, 2);
+          incTaxAmt = Decimal.Round((rec.UnitPrice * rec.TransQty) - rec.TradeProfit, 2 );
           sp = sp.Replace("IncTaxAmt", incTaxAmt.ToString("#.##"));
           sp = sp.Replace("ExTaxAmt", incTaxAmt.ToString("#.##"));
           sp = sp.Replace("TaxAmt", "0.00");
           sp = sp.Replace("AllocMemo", string.Empty);
+          sp = sp.Replace("Memo", string.Format("SELL {0} {1}", rec.TransQty.ToString("#"), rec.ASXCode));
           sp = sp.Replace("TaxCode", DBAccess.getTaxCode(v));
           line = sp;
           break;
@@ -231,6 +236,7 @@ namespace ShareTrading
           sp = sp.Replace("ExTaxAmt", incTaxAmt.ToString("#.##"));
           sp = sp.Replace("TaxAmt", "0.00");
           sp = sp.Replace("AllocMemo", string.Empty);
+          sp = sp.Replace("Memo", string.Format("SELL {0} {1}", rec.TransQty.ToString("#"), rec.ASXCode));
           sp = sp.Replace("TaxCode", DBAccess.getTaxCode(v));
           line = sp;
           break;
@@ -241,12 +247,13 @@ namespace ShareTrading
           sp = sp.Replace("Date", rec.TranDate.ToString("dd-MM-yyyy"));
           sp = sp.Replace("LastName", "SHARES");
           sp = sp.Replace("AllocAccount", DBAccess.getGLCode(v));
-          incTaxAmt = rec.BrokerageInc;
+          incTaxAmt = -rec.BrokerageInc;
           decimal taxAmt = Decimal.Round(incTaxAmt / 11, 2);
           sp = sp.Replace("IncTaxAmt", incTaxAmt.ToString("#.##"));
           sp = sp.Replace("ExTaxAmt", (incTaxAmt - taxAmt).ToString("#.##"));
           sp = sp.Replace("TaxAmt", taxAmt.ToString("#.##"));
           sp = sp.Replace("AllocMemo", string.Empty);
+          sp = sp.Replace("Memo", string.Format("SELL {0} {1}", rec.TransQty.ToString("#"), rec.ASXCode));
           sp = sp.Replace("TaxCode", DBAccess.getTaxCode(v));
           line = sp;
           break;

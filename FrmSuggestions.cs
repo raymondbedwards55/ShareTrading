@@ -151,7 +151,7 @@ namespace ShareTrading
               if (dividendPending(sug.ASXCode, -10000, 0, out divHist))
               {
                 sug.LastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.TodaysUnitPrice * 100, 2);
-                sug.LastDivDate = divHist.ExDividend.AddYears(1);
+                sug.LastDivDate = divHist.ExDividend; //.AddYears(1);
                 sug.DividendForecast = false;
                 sug.HighlightDiv = false;
 
@@ -253,26 +253,29 @@ namespace ShareTrading
     {
       List<BuySuggestions> suggestList = new List<BuySuggestions>();
       // Get all the shares we have stock of
+      List<string> uCode = new List<string>();
       List<DBAccess.TransRecords> transList = null;
+      List<DBAccess.CompanyDetails> allCompaniesList = null;
       List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      if (chbAll.Checked)
+      {
+        if (!DBAccess.GetCompanyDetails(null, out allCompaniesList, false, false))
+        { 
+          MessageBox.Show("No companies found", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+          return;
+        }
+        uCode = allCompaniesList.Select(x => x.ASXCode).Distinct().ToList();
 
+      }
       if (!DBAccess.GetTransRecords(null, out transList, DBAccess.TransRecordsFieldList, " AND trn_soh  = 0 ", " ORDER BY trn_ASXCode, trn_transdate DESC", false))
       {
         MessageBox.Show("No transactions found", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
         return;
       }
-      var uCode = transList.Select(x => x.ASXCode).Distinct().ToList();
+      if (allCompaniesList == null)
+        uCode = transList.Select(x => x.ASXCode).Distinct().ToList();
       foreach (string code in uCode)
       {
-        List<DBAccess.TransRecords> codeList = transList.FindAll(delegate (DBAccess.TransRecords r1) { return r1.ASXCode == code; });
-        codeList = codeList.OrderByDescending(x => x.TranDate).ToList();
-        // Check if stock has been bought again since this sell
-        paramList = new List<PgSqlParameter>();
-        paramList.Add(new PgSqlParameter("@P1", codeList[0].ASXCode));
-        paramList.Add(new PgSqlParameter("@P2", codeList[0].TranDate));
-        List<DBAccess.TransRecords> buyList = new List<DBAccess.TransRecords>();
-        if (DBAccess.GetTransRecords(paramList, out buyList, DBAccess.TransRecordsFieldList, " AND trn_asxcode = @P1 AND trn_transdate >= @P2 AND trn_soh > 0 AND trn_buysell = 'Buy' ", string.Empty, false))
-          continue;
         // For each ASXCode, get todays price and work out the percentages
         List<DBAccess.ASXPriceDate> todaysPrice = null;
         DateTime dt = DateTime.MinValue;
@@ -289,12 +292,31 @@ namespace ShareTrading
           prc = todaysPrice[0].PrcClose;
           dt = todaysPrice[0].PriceDate;
         }
-        // create records to display
-        DBAccess.TransRecords transRec = codeList[0];
+
+        List<DBAccess.TransRecords> codeList = transList.FindAll(delegate (DBAccess.TransRecords r1) { return r1.ASXCode == code; });
+        BuySuggestions sug = new BuySuggestions();
+
+        if (codeList == null || codeList.Count <= 0)
+        {
+          sug.BuyASXCode = code;
+          sug.BuyTodaysUnitPrice = prc;
+        }
+        else
+        {
+
+          codeList = codeList.OrderByDescending(x => x.TranDate).ToList();
+          // Check if stock has been bought again since this sell
+          paramList = new List<PgSqlParameter>();
+          paramList.Add(new PgSqlParameter("@P1", codeList[0].ASXCode));
+          paramList.Add(new PgSqlParameter("@P2", codeList[0].TranDate));
+          List<DBAccess.TransRecords> buyList = new List<DBAccess.TransRecords>();
+          if (DBAccess.GetTransRecords(paramList, out buyList, DBAccess.TransRecordsFieldList, " AND trn_asxcode = @P1 AND trn_transdate >= @P2 AND trn_soh > 0 AND trn_buysell = 'Buy' ", string.Empty, false))
+            continue;
+          // create records to display
+          DBAccess.TransRecords transRec = codeList[0];
           decimal daysHeld = (DateTime.Today - transRec.TranDate.Date).Days;
           if (daysHeld < 3)
             daysHeld = 3;         // takes 3 days for the transaction to be finalised
-          BuySuggestions sug = new BuySuggestions();
           sug.BuyASXCode = transRec.ASXCode;
           sug.BuySOH = transRec.TransQty;
           sug.UnitSellPrice = transRec.UnitPrice;
@@ -308,11 +330,10 @@ namespace ShareTrading
             sug.BuyPctGain = Decimal.Round((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) * 100 / sug.UnitSellPrice, 2);
             sug.BuyPctYear = Decimal.Round((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) / sug.UnitSellPrice * 365 * 100 / daysHeld, 2);
           }
+        }
 
         //  Is there a dividend pending - already announced (ie. with ex dividend date +/- 10 days from today)
         DBAccess.DividendHistory divHist = new DBAccess.DividendHistory();
-        if (sug.BuyASXCode == "WES")
-        { }
         sug.BuyHighlightDiv = false;
         if (dividendPending(sug.BuyASXCode, -30, 30, out divHist))
         {
@@ -333,7 +354,7 @@ namespace ShareTrading
           {
             if (dividendPending(sug.BuyASXCode, -10000, 0, out divHist))
             {
-              sug.BuyLastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.BuyTodaysUnitPrice * 100, 2);
+              sug.BuyLastDividendAmount = sug.BuyTodaysUnitPrice == 0 ? 0 : Decimal.Round(divHist.GrossDividend / sug.BuyTodaysUnitPrice * 100, 2);
               sug.BuyLastDivDate = divHist.ExDividend;
               sug.BuyHighlightDiv = false;
             }
@@ -572,6 +593,114 @@ namespace ShareTrading
       catch
       { }
       return list;
+    }
+
+    private void chbAll_CheckedChanged(object sender, EventArgs e)
+    {
+      populateBuyGrid();
+    }
+
+    //  ****  Transactions Tab
+    public class Transactions
+    {
+      public string TransASXCode { get; set; }
+      public DateTime TransDate { get; set; }
+      public string TransBuySell { get; set; }
+      public string TransNABOrderNmbr { get; set; }
+      public int TransQty { get; set; }
+      public decimal TransUnitPrice { get; set; }
+      public decimal TransProfit { get; set; }
+      public decimal TransSOH { get; set; }
+      public decimal TransCompanyTotalSOH { get; set; }
+
+    }
+    private void populateTransactions()
+    {
+      List<Transactions> displayList = new List<Transactions>();
+      // Get all the shares we have stock of
+      List<DBAccess.TransRecords> transList = null;
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+
+      if (!DBAccess.GetTransRecords(null, out transList, DBAccess.TransRecordsFieldList, string.Empty, " ORDER BY trn_ASXCode, trn_transdate DESC", false))
+      {
+        MessageBox.Show("No transactions found", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        return;
+      }
+      foreach (DBAccess.TransRecords rec in transList)
+      {
+        Decimal totalSOH = transList.FindAll(delegate (DBAccess.TransRecords r1) { return r1.ASXCode == rec.ASXCode; }).Sum(x => x.SOH);
+        // Display transaction
+        Transactions outRec = new FrmSuggestions.Transactions();
+        outRec.TransASXCode = rec.ASXCode;
+        outRec.TransDate = rec.TranDate;
+        outRec.TransBuySell = rec.BuySell;
+        outRec.TransNABOrderNmbr = rec.NABOrderNmbr;
+        outRec.TransQty = rec.TransQty;
+        outRec.TransUnitPrice = rec.UnitPrice;
+        outRec.TransProfit = rec.TradeProfit;
+        outRec.TransSOH = rec.SOH;
+        outRec.TransCompanyTotalSOH = totalSOH;
+        displayList.Add(outRec);
+
+      }
+      // 
+      dgvTransactions.DataSource = null;
+      TransactionsBindingSource.DataSource = displayList;
+      dgvTransactions.DataSource = TransactionsBindingSource;
+      dgvTransactions.Refresh();
+
+    }
+
+
+
+    private void dgvTransactions_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+    {
+      try
+      {
+        DataGridView dgv = sender as DataGridView;
+        if (dgv.Columns[e.ColumnIndex].ValueType == typeof(decimal))
+          if ((decimal)dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value < 0M)
+            dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+        if ((dgv.Columns[e.ColumnIndex].Name == "BuyLastDividendAmount" || dgv.Columns[e.ColumnIndex].Name == "BuyLastDivDate") && (bool)dgv.Rows[e.RowIndex].Cells["BuyHighlightDiv"].Value)
+        {
+          dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+        }
+
+      }
+      catch
+      { }
+    }
+
+    private void dgvTransactions_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+    {
+      if (e.ColumnIndex == _previousIndex)
+        _sortDirection ^= true; // toggle direction
+
+      dgvTransactions.DataSource = SortTransactionsData(
+          (List<Transactions>)TransactionsBindingSource.DataSource, dgvTransactions.Columns[e.ColumnIndex].Name, _sortDirection);
+
+      _previousIndex = e.ColumnIndex;
+    }
+
+    public List<Transactions> SortTransactionsData(List<Transactions> list, string column, bool ascending)
+    {
+      try
+      {
+        return ascending ?
+           /* RefreshId( */ list.OrderBy(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /* ) */ :
+           /* RefreshId( */ list.OrderByDescending(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /*) */;
+      }
+      catch
+      { }
+      return list;
+    }
+
+    private void tabSells_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      if (tabSells.SelectedTab == tabSells.TabPages[3])
+      {
+        populateTransactions();
+      }
     }
   }
 }
