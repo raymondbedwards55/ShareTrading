@@ -413,49 +413,53 @@ namespace ShareTrading
     {
       DBInsert(myDividend, "dividendhistory", typeof(DividendHistory));
     }
+    public static void DividendHistoryUpdate(DividendHistory myDividend)
+    {
+      DBUpdate(myDividend, "dividendhistory", typeof(DividendHistory));
+    }
 
-        //public static Boolean GetMostRecentDividend(String ASXCode, DateTime dt)
-        //{
-        //    OleDbCommand command = new OleDbCommand();
-        //    command.Connection = connectionDividend;
-        //    if (connectionDividend.State == System.Data.ConnectionState.Open)
-        //        connectionDividend.Close();
-        //    connectionDividend.ConnectionString = @"Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\Dvl\Rays Projects\Shares\ShareAnalV2.accdb; Persist Security Info = False;";
-        //    connectionDividend.Open();
-        //    command.CommandText = "Select * from DividendHistory where ASXCode = '" + ASXCode +
-        //                            "' and ExDividend < #" + dt.ToString("yyyy - MM - dd") + "# order by ExDividend desc";
-        //    DividendReader = command.ExecuteReader();
-        //    return true;
-        //}
+    //public static Boolean GetMostRecentDividend(String ASXCode, DateTime dt)
+    //{
+    //    OleDbCommand command = new OleDbCommand();
+    //    command.Connection = connectionDividend;
+    //    if (connectionDividend.State == System.Data.ConnectionState.Open)
+    //        connectionDividend.Close();
+    //    connectionDividend.ConnectionString = @"Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\Dvl\Rays Projects\Shares\ShareAnalV2.accdb; Persist Security Info = False;";
+    //    connectionDividend.Open();
+    //    command.CommandText = "Select * from DividendHistory where ASXCode = '" + ASXCode +
+    //                            "' and ExDividend < #" + dt.ToString("yyyy - MM - dd") + "# order by ExDividend desc";
+    //    DividendReader = command.ExecuteReader();
+    //    return true;
+    //}
 
 
-        //public static Boolean GetDividendHistory(String ASXCode, DateTime dt)
-        //{
-        //    OleDbCommand command = new OleDbCommand();
-        //    command.Connection = connectionDividend;
-        //    if (connectionDividend.State == System.Data.ConnectionState.Open)
-        //        connectionDividend.Close();
-        //    connectionDividend.ConnectionString = @"Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\Dvl\Rays Projects\Shares\ShareAnalV2.accdb; Persist Security Info = False;";
-        //    connectionDividend.Open();
-        //    command.CommandText = "Select * from DividendHistory where ASXCode = '" + ASXCode +
-        //                            "' and ExDividend = #" + dt.ToString("yyyy - MM - dd") + "#";
-        //    DividendReader = command.ExecuteReader();
-        //    return true;
-        //}
+    //public static Boolean GetDividendHistory(String ASXCode, DateTime dt)
+    //{
+    //    OleDbCommand command = new OleDbCommand();
+    //    command.Connection = connectionDividend;
+    //    if (connectionDividend.State == System.Data.ConnectionState.Open)
+    //        connectionDividend.Close();
+    //    connectionDividend.ConnectionString = @"Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\Dvl\Rays Projects\Shares\ShareAnalV2.accdb; Persist Security Info = False;";
+    //    connectionDividend.Open();
+    //    command.CommandText = "Select * from DividendHistory where ASXCode = '" + ASXCode +
+    //                            "' and ExDividend = #" + dt.ToString("yyyy - MM - dd") + "#";
+    //    DividendReader = command.ExecuteReader();
+    //    return true;
+    //}
 
-        //public static Boolean GetNextDividend(String ASXCode, DateTime dt)
-        //{
-        //    OleDbCommand command = new OleDbCommand();
-        //    command.Connection = connectionDividend;
-        //    if (connectionDividend.State == System.Data.ConnectionState.Open)
-        //        connectionDividend.Close();
-        //    connectionDividend.ConnectionString = @"Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\Dvl\Rays Projects\Shares\ShareAnalV2.accdb; Persist Security Info = False;";
-        //    connectionDividend.Open();
-        //    command.CommandText = "Select * from DividendHistory where ASXCode = '" + ASXCode +
-        //                            "' and ExDividend >= #" + dt.ToString("yyyy - MM - dd") + "# order by ExDividend asc";
-        //    DividendReader = command.ExecuteReader();
-        //    return true;
-        //}
+    //public static Boolean GetNextDividend(String ASXCode, DateTime dt)
+    //{
+    //    OleDbCommand command = new OleDbCommand();
+    //    command.Connection = connectionDividend;
+    //    if (connectionDividend.State == System.Data.ConnectionState.Open)
+    //        connectionDividend.Close();
+    //    connectionDividend.ConnectionString = @"Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\Dvl\Rays Projects\Shares\ShareAnalV2.accdb; Persist Security Info = False;";
+    //    connectionDividend.Open();
+    //    command.CommandText = "Select * from DividendHistory where ASXCode = '" + ASXCode +
+    //                            "' and ExDividend >= #" + dt.ToString("yyyy - MM - dd") + "# order by ExDividend asc";
+    //    DividendReader = command.ExecuteReader();
+    //    return true;
+    //}
     public enum dirn
     {
       lessThan = 1,
@@ -1189,27 +1193,33 @@ namespace ShareTrading
     public static List<TransRecords> GetAllTransRecords(PgSqlDataReader reader)
     {
       List<TransRecords> list = new List<TransRecords>();
+
       while (reader.Read())
       {
         TransRecords TransRecord = new TransRecords();
-        TransRecord.ID = reader.GetInt32(0);
-        TransRecord.ASXCode = reader.GetString(1);
-        TransRecord.TranDate = reader.GetDateTime(2);
-        TransRecord.BuySell = reader.GetString(3);
-        TransRecord.TransQty = reader.GetInt32(4);
-        TransRecord.UnitPrice = reader.GetDecimal(5);
-        TransRecord.BrokerageInc = reader.GetDecimal(6);
-        TransRecord.GST = reader.GetDecimal(7);
-        TransRecord.SOH = reader.GetInt32(8);
-        TransRecord.TradeProfit = reader.GetDecimal(9);
-        TransRecord.RelatedTransactionID = reader.GetInt32(10);
-        TransRecord.DaysHeld = reader.GetInt32(11);
-        TransRecord.NABOrderNmbr = reader.GetString(12);
-        TransRecord.TransType = reader.GetString(13);
-        TransRecord.DateCreated = reader.GetDateTime(14);
-        TransRecord.DateModified = reader.GetDateTime(15);
-        TransRecord.DateDeleted = reader.GetDateTime(16);
-        TransRecord.SellConfirmation = reader.GetString(17);
+        if (reader.FieldCount == 1)               // SUM(trn_SOH)
+          TransRecord.SOH = reader.GetInt32(0);
+        else
+        {
+          TransRecord.ID = reader.GetInt32(0);
+          TransRecord.ASXCode = reader.GetString(1);
+          TransRecord.TranDate = reader.GetDateTime(2);
+          TransRecord.BuySell = reader.GetString(3);
+          TransRecord.TransQty = reader.GetInt32(4);
+          TransRecord.UnitPrice = reader.GetDecimal(5);
+          TransRecord.BrokerageInc = reader.GetDecimal(6);
+          TransRecord.GST = reader.GetDecimal(7);
+          TransRecord.SOH = reader.GetInt32(8);
+          TransRecord.TradeProfit = reader.GetDecimal(9);
+          TransRecord.RelatedTransactionID = reader.GetInt32(10);
+          TransRecord.DaysHeld = reader.GetInt32(11);
+          TransRecord.NABOrderNmbr = reader.GetString(12);
+          TransRecord.TransType = reader.GetString(13);
+          TransRecord.DateCreated = reader.GetDateTime(14);
+          TransRecord.DateModified = reader.GetDateTime(15);
+          TransRecord.DateDeleted = reader.GetDateTime(16);
+          TransRecord.SellConfirmation = reader.GetString(17);
+        }
         list.Add(TransRecord);
       }
       return list;
@@ -1445,7 +1455,7 @@ namespace ShareTrading
     {
       get
       {
-        return string.Join(",", GetColumnNames("relatedselltrans").ToArray()).Replace("\r\n", "");
+        return string.Join(",", GetColumnNames("relatedbuyselltrans").ToArray()).Replace("\r\n", "");
       }
     }
 
@@ -1464,14 +1474,14 @@ namespace ShareTrading
           if (buyId != 0)
           {
             command.Parameters.Add("@P2", buyId);
-            where += " AND rst_buyid = @P2 ";
+            where += " AND rbs_buyid = @P2 ";
           }
           if (sellId != 0)
           {
             command.Parameters.Add("@P3", sellId);
-            where += " AND rst_sellid = @P3 ";
+            where += " AND rbs_sellid = @P3 ";
           }
-          command.CommandText = string.Format("SELECT {0} FROM relatedselltrans WHERE rst_datedeleted = @P1  {1}  ", RelatedTransFieldList, where);
+          command.CommandText = string.Format("SELECT {0} FROM relatedbuyselltrans WHERE rbs_datedeleted = @P1  {1}  ", RelatedTransFieldList, where);
           command.Prepare();
           try
           {
@@ -1507,10 +1517,13 @@ namespace ShareTrading
         RelatedBuySellTrans rec = new RelatedBuySellTrans();
         rec.ID = priceReader.GetInt32(0);
         rec.BuyId = priceReader.GetInt32(1);
-        rec.SellId = priceReader.GetInt32(2); ;
-        rec.DateCreated = priceReader.GetDateTime(21);
-        rec.DateModified = priceReader.GetDateTime(22);
-        rec.DateDeleted = priceReader.GetDateTime(23);
+        rec.SellId = priceReader.GetInt32(2);
+        rec.TransQty = priceReader.GetInt32(3);
+        rec.TradeProfit = priceReader.GetDecimal(4);
+        rec.DaysHeld = priceReader.GetDecimal(5);
+        rec.DateCreated = priceReader.GetDateTime(6);
+        rec.DateModified = priceReader.GetDateTime(7);
+        rec.DateDeleted = priceReader.GetDateTime(8);
 
         inputList.Add(rec);
       }
@@ -1614,12 +1627,19 @@ namespace ShareTrading
 
     public static List<ASXPriceDate> GetNextPriceDate(PgSqlDataReader priceReader)
     {
+      return GetNextPriceDate(priceReader, false);
+    }
+    public static List<ASXPriceDate> GetNextPriceDate(PgSqlDataReader priceReader, bool maxPricedate)
+    {
       List<ASXPriceDate> inputList = new List<ASXPriceDate>();
       while (priceReader.Read())
       { 
         ASXPriceDate PrcDte = new ASXPriceDate();
-        if (priceReader.FieldCount == 1)
+        if (priceReader.FieldCount == 1 && !maxPricedate)
           PrcDte.ASXCode = priceReader.GetString(0);
+        else
+          if (priceReader.FieldCount == 1 && maxPricedate)
+            PrcDte.PriceDate = priceReader.GetDateTime(0);
         else
         {
 
@@ -1783,6 +1803,7 @@ namespace ShareTrading
 
     public static bool GetPriceRecords(List<PgSqlParameter> paramList, out List<ASXPriceDate> list, string reqdFields, string extraWhere, string orderBy, bool incDeleted)
     {
+      bool maxPricedate = reqdFields.Contains("MAX(apd_pricedate)");
       list = new List<ASXPriceDate>();
       using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
       {
@@ -1801,7 +1822,7 @@ namespace ShareTrading
           try
           {
             PgSqlDataReader reader = command.ExecuteReader();
-            list = GetNextPriceDate(reader);
+            list = GetNextPriceDate(reader, maxPricedate);
           }
           catch (Exception ex)
           {

@@ -164,6 +164,9 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="UI\CurrencyTextbox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <EmbeddedResource Include="DividendImport.resx">
       <DependentUpon>DividendImport.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -214,6 +217,7 @@
     <None Include="Properties\DataSources\DBAccess.GLType.datasource" />
     <None Include="Properties\DataSources\DBAccess.TransRecords.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.BuySuggestions.datasource" />
+    <None Include="Properties\DataSources\FrmSuggestions.FiveDayMinSuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.ReBuySuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.SellSuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.Suggestions.datasource" />

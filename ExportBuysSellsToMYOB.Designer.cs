@@ -34,12 +34,13 @@
       this.rbSell = new System.Windows.Forms.RadioButton();
       this.groupBox1 = new System.Windows.Forms.GroupBox();
       this.groupBox2 = new System.Windows.Forms.GroupBox();
-      this.label1 = new System.Windows.Forms.Label();
       this.label2 = new System.Windows.Forms.Label();
+      this.label1 = new System.Windows.Forms.Label();
       this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
       this.toolStrip1 = new System.Windows.Forms.ToolStrip();
       this.toolStripButton_Export = new System.Windows.Forms.ToolStripButton();
       this.toolStripButtonClose = new System.Windows.Forms.ToolStripButton();
+      this.rbDividend = new System.Windows.Forms.RadioButton();
       this.groupBox1.SuspendLayout();
       this.groupBox2.SuspendLayout();
       this.toolStrip1.SuspendLayout();
@@ -64,7 +65,7 @@
       // rbBuy
       // 
       this.rbBuy.AutoSize = true;
-      this.rbBuy.Location = new System.Drawing.Point(62, 53);
+      this.rbBuy.Location = new System.Drawing.Point(62, 45);
       this.rbBuy.Name = "rbBuy";
       this.rbBuy.Size = new System.Drawing.Size(52, 20);
       this.rbBuy.TabIndex = 2;
@@ -76,7 +77,7 @@
       // 
       this.rbSell.AutoSize = true;
       this.rbSell.Checked = true;
-      this.rbSell.Location = new System.Drawing.Point(62, 30);
+      this.rbSell.Location = new System.Drawing.Point(62, 23);
       this.rbSell.Name = "rbSell";
       this.rbSell.Size = new System.Drawing.Size(53, 20);
       this.rbSell.TabIndex = 3;
@@ -87,6 +88,7 @@
       // 
       // groupBox1
       // 
+      this.groupBox1.Controls.Add(this.rbDividend);
       this.groupBox1.Controls.Add(this.rbSell);
       this.groupBox1.Controls.Add(this.rbBuy);
       this.groupBox1.Location = new System.Drawing.Point(38, 37);
@@ -111,15 +113,6 @@
       this.groupBox2.TabStop = false;
       this.groupBox2.Text = "Export Transactions";
       // 
-      // label1
-      // 
-      this.label1.AutoSize = true;
-      this.label1.Location = new System.Drawing.Point(25, 183);
-      this.label1.Name = "label1";
-      this.label1.Size = new System.Drawing.Size(43, 16);
-      this.label1.TabIndex = 5;
-      this.label1.Text = "From";
-      // 
       // label2
       // 
       this.label2.AutoSize = true;
@@ -128,6 +121,15 @@
       this.label2.Size = new System.Drawing.Size(27, 16);
       this.label2.TabIndex = 6;
       this.label2.Text = "To";
+      // 
+      // label1
+      // 
+      this.label1.AutoSize = true;
+      this.label1.Location = new System.Drawing.Point(25, 183);
+      this.label1.Name = "label1";
+      this.label1.Size = new System.Drawing.Size(43, 16);
+      this.label1.TabIndex = 5;
+      this.label1.Text = "From";
       // 
       // toolStrip1
       // 
@@ -157,6 +159,16 @@
       this.toolStripButtonClose.Size = new System.Drawing.Size(56, 22);
       this.toolStripButtonClose.Text = "Close";
       this.toolStripButtonClose.Click += new System.EventHandler(this.toolStripButton_Close_Click);
+      // 
+      // rbDividend
+      // 
+      this.rbDividend.AutoSize = true;
+      this.rbDividend.Location = new System.Drawing.Point(62, 67);
+      this.rbDividend.Name = "rbDividend";
+      this.rbDividend.Size = new System.Drawing.Size(96, 20);
+      this.rbDividend.TabIndex = 4;
+      this.rbDividend.Text = "Dividends";
+      this.rbDividend.UseVisualStyleBackColor = true;
       // 
       // ExportBuysSellsToMYOB
       // 
@@ -197,5 +209,6 @@
     private System.Windows.Forms.ToolStrip toolStrip1;
     private System.Windows.Forms.ToolStripButton toolStripButton_Export;
     private System.Windows.Forms.ToolStripButton toolStripButtonClose;
+    private System.Windows.Forms.RadioButton rbDividend;
   }
 }

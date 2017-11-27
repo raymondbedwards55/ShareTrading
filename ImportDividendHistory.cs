@@ -22,7 +22,8 @@ namespace ShareTrading
 
       string dlrs1 = @"<td>([\$0-9\-\.]*)</td>";
       string pct1 = @"<td>([0-9\-\.\%]*)</td>";
-      String response = GetPage(ASXCode);
+      //ASXCode = "WPL";
+      String response = GetPage( ASXCode );
       Dividend.ASXCode = ASXCode;
       while (true)
       {
@@ -65,6 +66,23 @@ namespace ShareTrading
               Decimal.TryParse(Fld7, out val);
               Dividend.GrossDividend = val;
               DBAccess.DividendHistoryInsert(Dividend);
+            }
+            else
+            {
+              Dividend.ID = divList[0].ID;
+              Dividend.BooksClose = ConvertToDate(Fld2);
+              Dividend.DatePayable = ConvertToDate(Fld3);
+              Decimal val = 0M;
+              Decimal.TryParse(Fld4, out val);
+              Dividend.Amount = val;
+              Decimal.TryParse(Fld5, out val);
+              Dividend.Franking = val;
+              Decimal.TryParse(Fld6, out val);
+              Dividend.FrankingCredit = val;
+              Decimal.TryParse(Fld7, out val);
+              Dividend.GrossDividend = val;
+              DBAccess.DividendHistoryUpdate(Dividend);
+
             }
             response = yrDataMatch.Groups[11].Value;
             if (!yrDataMatch.Groups[11].Value.StartsWith("<tr   style='background-color"))

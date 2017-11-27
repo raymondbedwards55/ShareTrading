@@ -59,8 +59,100 @@ namespace ShareTrading
         return;
       }
 
-      exportFile(rbBuy.Checked);
+      if (rbDividend.Checked)
+        exportDividends();
+      else
+        exportFile(rbBuy.Checked);
       MessageBox.Show("File export completed");
+    }
+
+    private void exportDividends()
+    {
+      string lit = "Dividends";
+      string filename = getfilename("MYOB Export", string.Format("MYOBExport{2}_{0}_{1}", dtpFrom.Value.ToString("yyMMdd"), dtpTo.Value.ToString("yyMMdd"), lit), lit);
+      if (string.IsNullOrEmpty(filename))
+      {
+        MessageBox.Show("Unable to save to file selected", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        return;
+      }
+      try
+      {
+        using (System.IO.StreamWriter sr = new System.IO.StreamWriter(filename))
+        {
+          string outputLine;
+          // write header line
+          outputLine = string.Join(",", System.Enum.GetNames(typeof(receiveMoney)));
+          sr.WriteLine(outputLine);
+          int counter = 0;
+
+          // get all dividends with ex dividend date in date range selected
+          List<DBAccess.DividendHistory> divHistoryList = new List<DBAccess.DividendHistory>();
+          List<PgSqlParameter> divHistoryParams = new List<PgSqlParameter>();
+          divHistoryParams.Add(new PgSqlParameter("@P1", dtpFrom.Value));
+          divHistoryParams.Add(new PgSqlParameter("@P2", dtpTo.Value));
+          if (!DBAccess.GetDividends(divHistoryParams, out divHistoryList, " AND dvh_exdivdate BETWEEN @P1 AND @P2 ", " ORDER BY dvh_asxcode "))
+          {
+            MessageBox.Show("Unable to find any dividends in Date Range selected", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+          }
+          // foreach dividend, are there any Buys for this company before / equal the ex dividend date
+          foreach (DBAccess.DividendHistory divHistoryRec in divHistoryList)
+          {
+            if (divHistoryRec.ASXCode != "WPL")
+            {
+              continue;
+            }
+            int SOHonDividendDate = 0;
+            // foreach Buy before the ex-Dividend date, add SOH to totalremainingStock (may be zero)
+            List<DBAccess.TransRecords> buyList = null;
+            List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+            paramList.Add(new PgSqlParameter("@P1", "Buy"));
+            paramList.Add(new PgSqlParameter("@P2", divHistoryRec.ExDividend));
+            paramList.Add(new PgSqlParameter("@P3", divHistoryRec.ASXCode));
+            if (DBAccess.GetTransRecords(paramList, out buyList, DBAccess.TransRecordsFieldList, " AND trn_buysell = @P1 AND trn_transdate < @P2 AND trn_asxcode = @P3  "  /* where */, " ORDER BY trn_transdate, trn_asxcode " /* order by */, false /* simulation */))
+            {
+              foreach (DBAccess.TransRecords rec in buyList)
+              {
+                SOHonDividendDate += rec.SOH;
+                //  get related Sell records and if Sell if after the ex Dividend Date, then add SOH to totalRemainingStock
+                List<DBAccess.RelatedBuySellTrans> relatedList = new List<DBAccess.RelatedBuySellTrans>();
+                if (DBAccess.GetAllRelated(rec.ID, 0, out relatedList))
+                {
+                  foreach (DBAccess.RelatedBuySellTrans relRec in relatedList)
+                  {
+                    // get Sell record
+                    List<PgSqlParameter> sellParams = new List<PgSqlParameter>();
+                    sellParams.Add(new PgSqlParameter("@P1", relRec.SellId));
+                    sellParams.Add(new PgSqlParameter("@P2", divHistoryRec.BooksClose));
+                    List<DBAccess.TransRecords> sellList = new List<DBAccess.TransRecords>();
+                    if (DBAccess.GetTransRecords(sellParams, out sellList, DBAccess.TransRecordsFieldList, " AND trn_id = @P1 AND trn_transdate > @P2 ", string.Empty, false))
+                    {
+                      foreach (DBAccess.TransRecords sellrec in sellList)
+                        SOHonDividendDate += relRec.TransQty;
+                    }
+                  }
+                }
+                }
+              }
+              if (SOHonDividendDate == 0)
+                continue;
+              string transId = string.Format("{0}{1}", DateTime.Today.ToString("yyMMdd"), counter.ToString().PadLeft(2, '0'));
+              var values = System.Enum.GetValues(typeof(dividendLineTypes));
+              foreach (int v in values)
+              {
+
+                outputLine = formatDividendReceiveMoney(divHistoryRec, v, ((int[])values)[0], transId, SOHonDividendDate);
+                sr.WriteLine(outputLine);
+              }
+              sr.WriteLine(String.Empty);
+              counter += 1;
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex.Message);
+      }
     }
 
     private void exportFile(bool buy)
@@ -97,7 +189,7 @@ namespace ShareTrading
               foreach (int v in values)
               {
 
-                outputLine = buy ? formatSpend(rec, v,  ((int[]) values)[0]) : formatReceive(rec, v, ((int[])values)[0], transId);
+                outputLine = buy ? formatSpend(rec, v, ((int[])values)[0]) : formatReceive(rec, v, ((int[])values)[0], transId);
                 sr.WriteLine(outputLine);
               }
               sr.WriteLine(String.Empty);
@@ -115,7 +207,6 @@ namespace ShareTrading
         Console.WriteLine(ex.Message);
       }
     }
-
     private string formatSpend(DBAccess.TransRecords rec, int v, int acct)
     {
       string line = string.Empty;
@@ -265,6 +356,70 @@ namespace ShareTrading
       return line;
     }
 
+    private string formatDividendReceiveMoney(DBAccess.DividendHistory rec, int v, int acct, string id, decimal ttlSOH)
+    {
+      string line = string.Empty;
+      string chqAct = DBAccess.getGLCode(acct);
+      switch (v)
+      {
+        //                    return @"DepositAccount,IDNmbr,Date,LastName,,Memo,Y,AllocAccount,ExTaxAmt,IncTaxAmt,,TaxCode,0,TaxAmt,0,,,,,,,,,,,,,,AllocMemo,,,";
+
+
+        case 1:     // Cheque Account Line - Nett Dividend
+          string sp = receiveMoneyDefaults;
+          sp = sp.Replace("DepositAccount", chqAct);
+          sp = sp.Replace("IDNmbr", id);
+          sp = sp.Replace("Date", rec.DatePayable.ToString("dd-MM-yyyy"));
+          sp = sp.Replace("LastName", "SHARES");
+          sp = sp.Replace("AllocAccount", chqAct);
+          decimal incTaxAmt = (Decimal.Round(rec.Amount * ttlSOH, 2));
+          sp = sp.Replace("IncTaxAmt", incTaxAmt.ToString("#.##"));
+          sp = sp.Replace("ExTaxAmt", incTaxAmt.ToString("#.##"));
+          sp = sp.Replace("TaxAmt", "0.00");
+          sp = sp.Replace("AllocMemo", string.Empty);
+          sp = sp.Replace("Memo", string.Format("DIVDEND {1} {0} Shares @ {2}", ttlSOH.ToString("#"), rec.ASXCode, rec.Amount));
+          sp = sp.Replace("TaxCode", string.Empty);
+          line = sp;
+          break;
+        case 5:   // Gross Dividend
+          sp = receiveMoneyDefaults;
+          sp = sp.Replace("DepositAccount", chqAct);
+          sp = sp.Replace("IDNmbr", id);
+          sp = sp.Replace("Date", rec.DatePayable.ToString("dd-MM-yyyy"));
+          sp = sp.Replace("LastName", "SHARES");
+          sp = sp.Replace("AllocAccount", DBAccess.getGLCode(v));
+          incTaxAmt = Decimal.Round((rec.GrossDividend * ttlSOH), 2);
+          sp = sp.Replace("IncTaxAmt", incTaxAmt.ToString("#.##"));
+          sp = sp.Replace("ExTaxAmt", incTaxAmt.ToString("#.##"));
+          sp = sp.Replace("TaxAmt", "0.00");
+          sp = sp.Replace("AllocMemo", string.Empty);
+          sp = sp.Replace("Memo", string.Format("DIVDEND {1} {0} Shares @ {2}", ttlSOH.ToString("#"), rec.ASXCode, rec.Amount));
+          sp = sp.Replace("TaxCode", DBAccess.getTaxCode(v));
+          line = sp;
+          break;
+        case 6: // Franking Credit
+          sp = receiveMoneyDefaults;
+          sp = sp.Replace("DepositAccount", chqAct);
+          sp = sp.Replace("IDNmbr", id);
+          sp = sp.Replace("Date", rec.DatePayable.ToString("dd-MM-yyyy"));
+          sp = sp.Replace("LastName", "SHARES");
+          sp = sp.Replace("AllocAccount", DBAccess.getGLCode(v));
+          incTaxAmt = Decimal.Round(rec.FrankingCredit * ttlSOH, 2);
+          sp = sp.Replace("IncTaxAmt", incTaxAmt.ToString("#.##"));
+          sp = sp.Replace("ExTaxAmt", incTaxAmt.ToString("#.##"));
+          sp = sp.Replace("TaxAmt", "0.00");
+          sp = sp.Replace("AllocMemo", string.Empty);
+          sp = sp.Replace("Memo", string.Format("DIVDEND {1} {0} Shares @ {2}", ttlSOH.ToString("#"), rec.ASXCode, rec.Amount));
+          sp = sp.Replace("TaxCode", DBAccess.getTaxCode(v));
+          line = sp;
+          break;
+        default:
+          break;
+      }
+
+
+      return line;
+    }
     private string getfilename(string fileType, string dtRng, string lit)
     {
       saveFileDialog1.Title = "Export to TXT File";
@@ -289,6 +444,13 @@ namespace ShareTrading
       BankAccountLine = 1,
       ShareAssetLine = 2,
       BrokerageLine = 4
+    }
+
+    public enum dividendLineTypes
+    {
+      BankAccountLine = 1,
+      GrossDividendLine = 5,
+      FrankingCreditLine = 6
     }
     private string spendMoneyDefaults
     {

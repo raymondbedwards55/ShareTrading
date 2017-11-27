@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Devart.Data.PostgreSql;
+using System.Text.RegularExpressions;
+
 
 namespace ShareTrading
 {
@@ -23,6 +25,9 @@ namespace ShareTrading
       populateSellGrid();
       populateBuyGrid();
       populateReBuyGrid();
+      tbxUnitPrice.Text = "$0.10";
+      dtpLastDivDate.Text = dtpLastDivDate.Value.AddYears(-1).ToString();
+      dtpLastDivDate.Enabled = true;
       
     }
 
@@ -249,8 +254,12 @@ namespace ShareTrading
 
     }
 
+
+    //   *****************************  Buy  *********************************
     private void populateBuyGrid()
     {
+      decimal unitPriceFilter = 0M;
+      Decimal.TryParse(tbxUnitPrice.Text, out unitPriceFilter);
       List<BuySuggestions> suggestList = new List<BuySuggestions>();
       // Get all the shares we have stock of
       List<string> uCode = new List<string>();
@@ -267,7 +276,7 @@ namespace ShareTrading
         uCode = allCompaniesList.Select(x => x.ASXCode).Distinct().ToList();
 
       }
-      if (!DBAccess.GetTransRecords(null, out transList, DBAccess.TransRecordsFieldList, " AND trn_soh  = 0 ", " ORDER BY trn_ASXCode, trn_transdate DESC", false))
+      if (!DBAccess.GetTransRecords(null, out transList, DBAccess.TransRecordsFieldList, " AND trn_soh  = 0 ", string.Empty /*" ORDER BY trn_ASXCode, trn_transdate DESC" */, false))
       {
         MessageBox.Show("No transactions found", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
         return;
@@ -280,9 +289,18 @@ namespace ShareTrading
         List<DBAccess.ASXPriceDate> todaysPrice = null;
         DateTime dt = DateTime.MinValue;
         Decimal prc = 0M;
+        decimal daysHeld = 0M;
         paramList = new List<PgSqlParameter>();
         paramList.Add(new PgSqlParameter("@P1", code));
-        if (DBAccess.GetPriceRecords(paramList, out todaysPrice, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P1 ", "ORDER BY apd_pricedate DESC ", false))
+
+        if (!DBAccess.GetPriceRecords(paramList, out todaysPrice, "  MAX(apd_pricedate) ", " AND apd_asxcode = @P1 ", string.Empty, false))
+          continue;   // No price records for this company
+
+        paramList = new List<PgSqlParameter>();
+        paramList.Add(new PgSqlParameter("@P3", code));
+        paramList.Add(new PgSqlParameter("@P4", todaysPrice[0].PriceDate));
+
+        if (!DBAccess.GetPriceRecords(paramList, out todaysPrice, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P3 AND apd_pricedate >= @P4 ", "ORDER BY apd_pricedate DESC ", false))
         {
           // no prices for this ASX Code so we'll pretend
 
@@ -291,6 +309,13 @@ namespace ShareTrading
         {
           prc = todaysPrice[0].PrcClose;
           dt = todaysPrice[0].PriceDate;
+        }
+
+        if (chbAll.Checked)
+        {
+          // filter by Last Unit Price
+          if (prc < unitPriceFilter)
+            continue;
         }
 
         List<DBAccess.TransRecords> codeList = transList.FindAll(delegate (DBAccess.TransRecords r1) { return r1.ASXCode == code; });
@@ -314,7 +339,7 @@ namespace ShareTrading
             continue;
           // create records to display
           DBAccess.TransRecords transRec = codeList[0];
-          decimal daysHeld = (DateTime.Today - transRec.TranDate.Date).Days;
+          daysHeld = (DateTime.Today - transRec.TranDate.Date).Days;
           if (daysHeld < 3)
             daysHeld = 3;         // takes 3 days for the transaction to be finalised
           sug.BuyASXCode = transRec.ASXCode;
@@ -360,11 +385,26 @@ namespace ShareTrading
             }
           }
         }
+        // Get the sum of Dividends & sum of Franking Credits between sell date & now
+        decimal totalDividends = 0M;
+        decimal totalFrCredits = 0M;
+        if (calculateDividendTotal(sug.BuyASXCode, sug.SellDate, out totalDividends, out totalFrCredits))
+        {
+          sug.BuyPctROI = Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.UnitSellPrice * 100, 2);
+          sug.BuyPctYearROI = Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.UnitSellPrice * 100 * 365 / daysHeld, 2);
+        }
+
+        if (chbAll.Checked)
+        {
+          if (DateTime.Compare(dtpLastDivDate.Value, sug.BuyLastDivDate) > 0)
+            continue;
+        }
 
         suggestList.Add(sug);
 
       }
       suggestList = suggestList.OrderBy(x => x.BuyPctGain).ToList();
+      populate5DayMinGrid(suggestList);
       // 
       dgvToBuy.DataSource = null;
       ToBuyBindingSource.DataSource = suggestList;
@@ -386,8 +426,48 @@ namespace ShareTrading
       public decimal BuyPctGain { get; set; }
       public decimal BuyPctYear { get; set; }
       public bool BuyHighlightDiv { get; set; }
-    }
+      public decimal BuyPctROI { get; set; }
+      public decimal BuyPctYearROI { get; set; }
 
+
+    }
+    private void tbxUnitPrice_Leave(object sender, EventArgs e)
+    {
+      //string s = tbxUnitPrice.Text.Replace("$", "");
+      //decimal val = 0M;
+      //if (decimal.TryParse(s, out val))
+      //  tbxUnitPrice.Text = string.Format("{0:C}", val);
+      //else
+      //{
+      //  tbxUnitPrice.Focus();
+      //}
+
+    }
+    bool ok = true;
+    private void tbxUnitPrice_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+    {
+      ok = true;
+      ok = false;
+      
+    }
+    private void tbxUnitPrice_KeyDown(object sender, KeyEventArgs e)
+    {
+      string s = tbxUnitPrice.Text.Replace("$", "");
+      decimal val = 0M;
+      if (decimal.TryParse(s, out val))
+        tbxUnitPrice.Text = string.Format("{0:C}", val);
+
+      if (e.KeyData.ToString() == "." || e.KeyData.ToString() == "$")
+        return;
+      int x = 0;
+      if (int.TryParse(e.KeyData.ToString(), out x))
+        return;
+      if (!ok)
+        e.Handled = true;
+    }
+    private void tbxUnitPrice_TextChanged(object sender, EventArgs e)
+    {
+    }
     private void dgvToBuy_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
     {
       try
@@ -429,7 +509,133 @@ namespace ShareTrading
       { }
       return list;
     }
+    // ************** 5 Day Min Grid  ****************************************************
+    public class FiveDayMinSuggestions
+    {
+      public string FiveDayMinASXCode { get; set; }
+      public decimal FiveDayMinLastDividendAmount { get; set; }
+      public DateTime FiveDayMinLastDivDate { get; set; }
+      public decimal FiveDayMinPrice { get; set; }
+      public decimal FiveDayMinDaysHeld { get; set; }
 
+      public decimal FiveDayMinTodaysUnitPrice { get; set; }
+      public decimal FiveDayMinPctGain { get; set; }
+      public decimal FiveDayMinPctYear { get; set; }
+      public bool FiveDayMinHighlightDiv { get; set; }
+      public decimal FiveDayMinPctROI { get; set; }
+      public decimal FiveDayMinPctYearROI { get; set; }
+
+
+    }
+    private void populate5DayMinGrid(List<BuySuggestions> buyList)
+    {
+      List<FiveDayMinSuggestions> displayList = new List<FiveDayMinSuggestions>();
+      foreach (BuySuggestions buy in buyList)
+      {
+        // Check if current SOH is greater than zero and if so, then ignore the company
+        List<DBAccess.TransRecords> transList = new List<DBAccess.TransRecords>();
+        List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+        paramList.Add(new PgSqlParameter("@P1", buy.BuyASXCode));
+        if (!DBAccess.GetTransRecords(paramList, out transList, " SUM(trn_SOH) ", " AND trn_asxcode = @P1 ",  string.Empty, false))
+          continue;
+
+        if (transList[0].SOH != 0)
+          continue;
+        FiveDayMinSuggestions displayRec = new FiveDayMinSuggestions();
+        displayRec.FiveDayMinASXCode = buy.BuyASXCode;
+        displayRec.FiveDayMinLastDivDate = buy.BuyLastDivDate;
+        displayRec.FiveDayMinLastDividendAmount = buy.BuyLastDividendAmount;
+        DateTime lastPriceDate = DateTime.MinValue;
+        displayRec.FiveDayMinPrice = getFiveDayMinPrice(displayRec.FiveDayMinASXCode, out lastPriceDate);
+        displayRec.FiveDayMinDaysHeld = buy.BuyDaysHeld;
+        displayRec.FiveDayMinHighlightDiv = buy.BuyHighlightDiv;
+        decimal daysHeld = 5;
+        if (displayRec.FiveDayMinPrice == 0)
+          continue;
+        displayRec.FiveDayMinPctGain = Decimal.Round((buy.BuyTodaysUnitPrice - displayRec.FiveDayMinPrice) * 100 / displayRec.FiveDayMinPrice, 2);
+        displayRec.FiveDayMinPctYear = Decimal.Round((buy.BuyTodaysUnitPrice - displayRec.FiveDayMinPrice) / displayRec.FiveDayMinPrice * 365 * 100 / daysHeld, 2);
+
+        displayRec.FiveDayMinPctROI = 0M;
+        displayRec.FiveDayMinPctYearROI = 0M;
+        // Get the sum of Dividends & sum of Franking Credits between sell date & now
+        decimal totalDividends = 0M;
+        decimal totalFrCredits = 0M;
+        if (calculateDividendTotal(displayRec.FiveDayMinASXCode, lastPriceDate.AddDays(-(double)daysHeld - 2), out totalDividends, out totalFrCredits))
+        {
+          displayRec.FiveDayMinPctROI = Decimal.Round(((buy.BuyTodaysUnitPrice - displayRec.FiveDayMinPrice) + totalDividends) / displayRec.FiveDayMinPrice * 100, 2);
+          displayRec.FiveDayMinPctYearROI = Decimal.Round(((buy.BuyTodaysUnitPrice - displayRec.FiveDayMinPrice) + totalDividends) / displayRec.FiveDayMinPrice * 100 * 365 / daysHeld, 2);
+        }
+
+        displayList.Add(displayRec);
+      }
+      dgv5DayMin.DataSource = null;
+      FiveDayMinBindingSource.DataSource = displayList;
+      dgv5DayMin.DataSource = FiveDayMinBindingSource;
+      dgv5DayMin.Refresh();
+
+    }
+
+    private decimal getFiveDayMinPrice(string ASXCode, out DateTime lastPriceDate)
+    {
+      lastPriceDate = DateTime.MinValue;
+      // get max date for this asx code in the prices table
+      List<DBAccess.ASXPriceDate> priceRecords = new List<DBAccess.ASXPriceDate>();
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", ASXCode));
+      if (!DBAccess.GetPriceRecords(paramList, out priceRecords, " MAX(apd_pricedate) ", " AND apd_asxcode = @P1 ", string.Empty, false))
+        return 0M;
+      // get records between max date - 7 and max date
+      paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P2", ASXCode));
+      paramList.Add(new PgSqlParameter("@P3", priceRecords[0].PriceDate.AddDays(-7)));
+      lastPriceDate = priceRecords[0].PriceDate;
+      if (!DBAccess.GetPriceRecords(paramList, out priceRecords, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P2 AND apd_pricedate > @P3 ", string.Empty, false))
+        return 0M;
+
+      return priceRecords.Select(x => x.PrcLow).Min();
+    }
+
+    private void dgvFiveDayMin_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+    {
+      try
+      {
+        DataGridView dgv = sender as DataGridView;
+        if (dgv.Columns[e.ColumnIndex].ValueType == typeof(decimal))
+          if ((decimal)dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value < 0M)
+            dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+        if ((dgv.Columns[e.ColumnIndex].Name == "BuyLastDividendAmount" || dgv.Columns[e.ColumnIndex].Name == "BuyLastDivDate") && (bool)dgv.Rows[e.RowIndex].Cells["BuyHighlightDiv"].Value)
+        {
+          dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+        }
+
+      }
+      catch
+      { }
+    }
+
+    private void dgvFiveDayMin_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+    {
+      if (e.ColumnIndex == _previousIndex)
+        _sortDirection ^= true; // toggle direction
+
+      dgv5DayMin.DataSource = SortdgvFiveDayMinData(
+          (List<FiveDayMinSuggestions>)FiveDayMinBindingSource.DataSource, dgv5DayMin.Columns[e.ColumnIndex].Name, _sortDirection);
+
+      _previousIndex = e.ColumnIndex;
+    }
+
+    public List<FiveDayMinSuggestions> SortdgvFiveDayMinData(List<FiveDayMinSuggestions> list, string column, bool ascending)
+    {
+      try
+      {
+        return ascending ?
+           /* RefreshId( */ list.OrderBy(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /* ) */ :
+           /* RefreshId( */ list.OrderByDescending(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /*) */;
+      }
+      catch
+      { }
+      return list;
+    }
     // **************  Rebuys  ***********************************************************
     public class ReBuySuggestions
     {
@@ -444,6 +650,8 @@ namespace ShareTrading
       public decimal ReBuyPctGain { get; set; }
       public decimal ReBuyPctYear { get; set; }
       public bool ReBuyHighlightDiv { get; set; }
+      public decimal ReBuyPctROI { get; set; }
+      public decimal ReBuyPctYearROI { get; set; }
 
     }
     private void populateReBuyGrid()
@@ -467,8 +675,9 @@ namespace ShareTrading
         paramList = new List<PgSqlParameter>();
         paramList.Add(new PgSqlParameter("@P1", codeList[0].ASXCode));
         paramList.Add(new PgSqlParameter("@P2", codeList[0].TranDate));
+        paramList.Add(new PgSqlParameter("@P3", codeList[0].DateCreated));
         List<DBAccess.TransRecords> buyList = new List<DBAccess.TransRecords>();
-        if (DBAccess.GetTransRecords(paramList, out buyList, DBAccess.TransRecordsFieldList, " AND trn_asxcode = @P1 AND trn_transdate >= @P2  AND trn_buysell = 'Sell' ", string.Empty, false))
+        if (DBAccess.GetTransRecords(paramList, out buyList, DBAccess.TransRecordsFieldList, " AND trn_asxcode = @P1 AND trn_transdate >= @P2  AND trn_buysell = 'Sell'  AND trn_datecreated > @P3 ", string.Empty, false))
           continue;
         //For each ASXCode, get latest buy but make sure there is not a sell after this buy and work out the percentages
 
@@ -538,6 +747,15 @@ namespace ShareTrading
           }
 
         }
+        // Get the sum of Dividends & sum of Franking Credits between sell date & now
+        decimal totalDividends = 0M;
+        decimal totalFrCredits = 0M;
+        if (calculateDividendTotal(sug.ReBuyASXCode, sug.LastBuyDate, out totalDividends, out totalFrCredits))
+        {
+          sug.ReBuyPctROI = Decimal.Round(((sug.ReBuyTodaysUnitPrice - sug.LastBuyPrice) + totalDividends) / sug.LastBuyPrice * 100, 2);
+          sug.ReBuyPctYearROI = Decimal.Round(((sug.ReBuyTodaysUnitPrice - sug.LastBuyPrice) + totalDividends) / sug.LastBuyPrice * 100 * 365 / daysHeld, 2);
+        }
+
 
         suggestList.Add(sug);
 
@@ -702,5 +920,7 @@ namespace ShareTrading
         populateTransactions();
       }
     }
+
+
   }
 }
