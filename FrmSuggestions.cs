@@ -524,6 +524,7 @@ namespace ShareTrading
       public bool FiveDayMinHighlightDiv { get; set; }
       public decimal FiveDayMinPctROI { get; set; }
       public decimal FiveDayMinPctYearROI { get; set; }
+      public decimal FiveDayMinPrcDiffPct { get; set; }
 
 
     }
@@ -543,10 +544,13 @@ namespace ShareTrading
           continue;
         FiveDayMinSuggestions displayRec = new FiveDayMinSuggestions();
         displayRec.FiveDayMinASXCode = buy.BuyASXCode;
+        displayRec.FiveDayMinTodaysUnitPrice = buy.BuyTodaysUnitPrice;
         displayRec.FiveDayMinLastDivDate = buy.BuyLastDivDate;
         displayRec.FiveDayMinLastDividendAmount = buy.BuyLastDividendAmount;
         DateTime lastPriceDate = DateTime.MinValue;
-        displayRec.FiveDayMinPrice = getFiveDayMinPrice(displayRec.FiveDayMinASXCode, out lastPriceDate);
+        Decimal prcDiffPct = 0M;
+        displayRec.FiveDayMinPrice = getFiveDayMinPrice(displayRec.FiveDayMinASXCode, out lastPriceDate, out prcDiffPct);
+        displayRec.FiveDayMinPrcDiffPct = prcDiffPct;
         displayRec.FiveDayMinDaysHeld = buy.BuyDaysHeld;
         displayRec.FiveDayMinHighlightDiv = buy.BuyHighlightDiv;
         decimal daysHeld = 5;
@@ -575,9 +579,10 @@ namespace ShareTrading
 
     }
 
-    private decimal getFiveDayMinPrice(string ASXCode, out DateTime lastPriceDate)
+    private decimal getFiveDayMinPrice(string ASXCode, out DateTime lastPriceDate, out decimal prcDiffPct)
     {
       lastPriceDate = DateTime.MinValue;
+      prcDiffPct = 0M;
       // get max date for this asx code in the prices table
       List<DBAccess.ASXPriceDate> priceRecords = new List<DBAccess.ASXPriceDate>();
       List<PgSqlParameter> paramList = new List<PgSqlParameter>();
@@ -591,7 +596,7 @@ namespace ShareTrading
       lastPriceDate = priceRecords[0].PriceDate;
       if (!DBAccess.GetPriceRecords(paramList, out priceRecords, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P2 AND apd_pricedate > @P3 ", string.Empty, false))
         return 0M;
-
+      prcDiffPct = Decimal.Round((priceRecords[0].PrcClose - priceRecords.Select(x => x.PrcHigh).Max()) / priceRecords[0].PrcClose * 100, 2);
       return priceRecords.Select(x => x.PrcLow).Min();
     }
 
