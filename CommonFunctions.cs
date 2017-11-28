@@ -28,10 +28,10 @@ namespace ShareTrading
             DBAccess.DivPaid divPaid = new DBAccess.DivPaid();
             divPaid.ASXCode = ASXCode;
             divPaid.DatePaid = dividendHistory.DatePayable;
-            divPaid.DividendPerShare = dividendHistory.Amount;
-            divPaid.QtyShares = TtlASXCodeSOH;
-            divPaid.TtlDividend = TtlASXCodeSOH * dividendHistory.Amount;
-            DBAccess.DivPaidInsert(divPaid);
+            //divPaid.DividendPerShare = dividendHistory.Amount;
+            //divPaid.QtyShares = TtlASXCodeSOH;
+            //divPaid.TtlDividend = TtlASXCodeSOH * dividendHistory.Amount;
+            //DBAccess.Insert(divPaid);
             return divPaid;
         }
 

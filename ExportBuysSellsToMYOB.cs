@@ -102,38 +102,7 @@ namespace ShareTrading
             {
               continue;
             }
-            int SOHonDividendDate = 0;
-            // foreach Buy before the ex-Dividend date, add SOH to totalremainingStock (may be zero)
-            List<DBAccess.TransRecords> buyList = null;
-            List<PgSqlParameter> paramList = new List<PgSqlParameter>();
-            paramList.Add(new PgSqlParameter("@P1", "Buy"));
-            paramList.Add(new PgSqlParameter("@P2", divHistoryRec.ExDividend));
-            paramList.Add(new PgSqlParameter("@P3", divHistoryRec.ASXCode));
-            if (DBAccess.GetTransRecords(paramList, out buyList, DBAccess.TransRecordsFieldList, " AND trn_buysell = @P1 AND trn_transdate < @P2 AND trn_asxcode = @P3  "  /* where */, " ORDER BY trn_transdate, trn_asxcode " /* order by */, false /* simulation */))
-            {
-              foreach (DBAccess.TransRecords rec in buyList)
-              {
-                SOHonDividendDate += rec.SOH;
-                //  get related Sell records and if Sell if after the ex Dividend Date, then add SOH to totalRemainingStock
-                List<DBAccess.RelatedBuySellTrans> relatedList = new List<DBAccess.RelatedBuySellTrans>();
-                if (DBAccess.GetAllRelated(rec.ID, 0, out relatedList))
-                {
-                  foreach (DBAccess.RelatedBuySellTrans relRec in relatedList)
-                  {
-                    // get Sell record
-                    List<PgSqlParameter> sellParams = new List<PgSqlParameter>();
-                    sellParams.Add(new PgSqlParameter("@P1", relRec.SellId));
-                    sellParams.Add(new PgSqlParameter("@P2", divHistoryRec.BooksClose));
-                    List<DBAccess.TransRecords> sellList = new List<DBAccess.TransRecords>();
-                    if (DBAccess.GetTransRecords(sellParams, out sellList, DBAccess.TransRecordsFieldList, " AND trn_id = @P1 AND trn_transdate > @P2 ", string.Empty, false))
-                    {
-                      foreach (DBAccess.TransRecords sellrec in sellList)
-                        SOHonDividendDate += relRec.TransQty;
-                    }
-                  }
-                }
-                }
-              }
+            int SOHonDividendDate = DBAccess.CalculateSOHOnDivDate(divHistoryRec);
               if (SOHonDividendDate == 0)
                 continue;
               string transId = string.Format("{0}{1}", DateTime.Today.ToString("yyMMdd"), counter.ToString().PadLeft(2, '0'));
@@ -154,6 +123,7 @@ namespace ShareTrading
         Console.WriteLine(ex.Message);
       }
     }
+
 
     private void exportFile(bool buy)
     {

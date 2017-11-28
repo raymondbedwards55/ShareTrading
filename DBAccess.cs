@@ -572,9 +572,47 @@ namespace ShareTrading
       return list;
     }
 
-        // *************************************************************************************************
+    public static  int CalculateSOHOnDivDate(DBAccess.DividendHistory divHistoryRec)
+    {
+      int SOHonDividendDate = 0;
+      // foreach Buy before the ex-Dividend date, add SOH to totalremainingStock (may be zero)
+      List<DBAccess.TransRecords> buyList = null;
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", "Buy"));
+      paramList.Add(new PgSqlParameter("@P2", divHistoryRec.ExDividend));
+      paramList.Add(new PgSqlParameter("@P3", divHistoryRec.ASXCode));
+      if (DBAccess.GetTransRecords(paramList, out buyList, DBAccess.TransRecordsFieldList, " AND trn_buysell = @P1 AND trn_transdate < @P2 AND trn_asxcode = @P3  "  /* where */, " ORDER BY trn_transdate, trn_asxcode " /* order by */, false /* simulation */))
+      {
+        foreach (DBAccess.TransRecords rec in buyList)
+        {
+          SOHonDividendDate += rec.SOH;
+          //  get related Sell records and if Sell if after the ex Dividend Date, then add SOH to totalRemainingStock
+          List<DBAccess.RelatedBuySellTrans> relatedList = new List<DBAccess.RelatedBuySellTrans>();
+          if (DBAccess.GetAllRelated(rec.ID, 0, out relatedList))
+          {
+            foreach (DBAccess.RelatedBuySellTrans relRec in relatedList)
+            {
+              // get Sell record
+              List<PgSqlParameter> sellParams = new List<PgSqlParameter>();
+              sellParams.Add(new PgSqlParameter("@P1", relRec.SellId));
+              sellParams.Add(new PgSqlParameter("@P2", divHistoryRec.BooksClose));
+              List<DBAccess.TransRecords> sellList = new List<DBAccess.TransRecords>();
+              if (DBAccess.GetTransRecords(sellParams, out sellList, DBAccess.TransRecordsFieldList, " AND trn_id = @P1 AND trn_transdate > @P2 ", string.Empty, false))
+              {
+                foreach (DBAccess.TransRecords sellrec in sellList)
+                  SOHonDividendDate += relRec.TransQty;
+              }
+            }
+          }
+        }
+      }
+      return SOHonDividendDate;
 
-        public class SimulationPerformance
+    }
+
+    // *************************************************************************************************
+
+    public class SimulationPerformance
         {
             public int ID { get; set; }
       public bool MaxBuys { get; set; }
@@ -888,14 +926,16 @@ namespace ShareTrading
 
 
         // *************************************************************************************************
-        public class DivPaid
-        {
-            public int ID { get; set; }
-            public String ASXCode { get; set; }
+    public class DivPaid
+    {
+      public int ID { get; set; }
+      public String ASXCode { get; set; }
+      public DateTime ExDividendDate { get; set; }
       public DateTime DatePaid { get; set; }
-      public Decimal DividendPerShare { get; set; }
+      public Decimal GrossDividendPerShare { get; set; }
+      public Decimal FrCreditPerShare { get; set; }
+      public Decimal AmtPaidPerShare { get; set; }
       public int QtyShares { get; set; }
-      public Decimal TtlDividend { get; set; }
       public DateTime DateCreated { get; set; }
       public DateTime DateModified { get; set; }
       public DateTime DateDeleted { get; set; }
@@ -915,62 +955,27 @@ namespace ShareTrading
         return string.Join(",", GetColumnNames("simulationdividendpaid").ToArray()).Replace("\r\n", "");
       }
     }
-    //static OleDbDataReader DivPaidReader;
-    //static OleDbConnection connectionDicPaidRecs = new OleDbConnection();
 
 
-    //public static Boolean GetDivPaidRecords(String ASXCode, DateTime dt)
-    //    {
-    //        OleDbCommand command = new OleDbCommand();
-    //        command.Connection = connectionDicPaidRecs;
-    //        if (connectionDicPaidRecs.State == System.Data.ConnectionState.Open)
-    //            connectionDicPaidRecs.Close();
-    //        connectionDicPaidRecs.ConnectionString = @"Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\Dvl\Rays Projects\Shares\ShareAnalV2.accdb; Persist Security Info = False;";
-    //        connectionDicPaidRecs.Open();
+    public static Boolean GetDividendPaidRecords(string ASXCode, DateTime divPdDate, out List<DivPaid> list, bool runningSimulation)
+    {
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      string where = string.Empty;
+      string orderBy = string.Empty;
 
-    //        if (dt == new DateTime(1900, 1, 1))  // use as null equivalent
-    //        {
-    //            if (ASXCode != null)
-    //            {
-    //                if (SimulationRunning)
-    //                {
-    //                    command.CommandText = "Select * from SimulationDivPaid where ASXCode = '" + ASXCode + "' order by DatePaid Desc";
-    //                }
-    //                else
-    //                {
-    //                    command.CommandText = "Select * from DivPaid where ASXCode = '" + ASXCode + "' order by DatePaid Desc";
-    //                }
-    //            }
-    //            else
-    //            {
-    //                if (SimulationRunning)
-    //                {
-    //                    command.CommandText = "Select * from SimulationDivPaid order by DatePaid Desc";
-    //                }
-    //                else
-    //                {
-    //                    command.CommandText = "Select * from DivPaid order by DatePaid Desc";
-    //                }
-    //            }
-    //        }
-    //        else
-    //        {
-    //            if (ASXCode != null)
-    //                if (SimulationRunning)
-    //                    command.CommandText = "Select * from SimulationDivPaid where ASXCode = " + ASXCode + " and DatePaid  = #" + dt.ToString("yyyy - MM - dd") + "#";
-    //                else
-    //                    command.CommandText = "Select * from DivPaid where ASXCode = " + ASXCode + " and DatePaid  = #" + dt.ToString("yyyy - MM - dd") + "#";
-    //            else
-    //                if (SimulationRunning)
-    //                command.CommandText = "Select * from SimulationDivPaid order by DatePaid Desc";
-    //            else
-    //                command.CommandText = "Select * from DivPaid order by DatePaid Desc";
-    //        }
-    //        DivPaidReader = command.ExecuteReader();
-    //        return true;
+      where += "AND dvp_datepaid = @P1 ";
+      paramList.Add(new PgSqlParameter("@P1", divPdDate));
+      if (!string.IsNullOrEmpty(ASXCode))
+      {
+        where += " AND dvp_asxcode = @P2 ";
+        paramList.Add(new PgSqlParameter("@P2", ASXCode));
+      }
+      if (ASXCode == "WES")
+      { }
+      return GetDividendPaidRecords(paramList, out list, where, orderBy, runningSimulation);
 
-    //    }
-    public static Boolean GetDividendPaidRecords(string ASXCode,DateTime datePaid, out List<DivPaid> list, bool runningSimulation)
+    }
+    public static Boolean GetDividendPaidRecords(List<PgSqlParameter> paramList, out List<DivPaid> list, string whereClause, string orderByClause, bool runningSimulation)
     {
       list = new List<DivPaid>();
       using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
@@ -980,20 +985,19 @@ namespace ShareTrading
           conn.Open();
           PgSqlCommand command = new PgSqlCommand();
           command.Connection = conn;
+
           command.Parameters.Add("@P0", DateTime.MinValue);
-          command.Parameters.Add("@P1", datePaid);
-          string ASXCodeString = string.Empty;
-          if (ASXCode != null)
-          {
-            command.Parameters.Add("@P2", ASXCode);
-            ASXCodeString = string.Format(" AND cod_ASXCode = @P2 ", ASXCode);
-          }
-          command.CommandText = string.Format("SELECT {0} FROM {2} WHERE dvp_datedeleted = @P0 AND dvp_datepaid = @P1 {1} ORDER BY dvp_ASXCode ", DividendPaidFieldList.Replace("\r\n", ""), ASXCodeString, runningSimulation ? "dividendpaid" : "simulationdividendpaid");
+          if (paramList != null)
+            command.Parameters.AddRange(paramList.ToArray());
+
+          command.CommandText = string.Format("SELECT {0} FROM {3} WHERE dvp_datedeleted = @P0  {1} {2} ", DividendPaidFieldList.Replace("\r\n", ""), whereClause, orderByClause, !runningSimulation ? "dividendpaid" : "simulationdividendpaid");
           command.Prepare();
           try
           {
             PgSqlDataReader reader = command.ExecuteReader();
             list = GetDivPaidRecords(reader);
+            if (list == null || list.Count <= 0)
+              return false;
           }
           catch (Exception ex)
           {
@@ -1015,73 +1019,27 @@ namespace ShareTrading
     }
 
     public static List<DivPaid> GetDivPaidRecords(PgSqlDataReader reader)
-        {
+    {
       List<DivPaid> list = new List<DivPaid>();
-            DivPaid DivPaid = new DivPaid();
-            if (reader.Read())
-            {
-                DivPaid.ID = reader.GetInt32(0);
-                DivPaid.ASXCode = reader.GetString(1);
-                DivPaid.DatePaid = reader.GetDateTime(2);
-                DivPaid.DividendPerShare = reader.GetDecimal(3);
-                DivPaid.QtyShares = reader.GetInt32(4);
-                DivPaid.TtlDividend = reader.GetDecimal(5);
-        DivPaid.DateCreated = reader.GetDateTime(6);
-        DivPaid.DateModified = reader.GetDateTime(7);
-        DivPaid.DateDeleted = reader.GetDateTime(8);
-                list.Add(DivPaid);
-            }
-            return list;
-        }
+      DivPaid DivPaid = new DivPaid();
+      if (reader.Read())
+      {
+         DivPaid.ID = reader.GetInt32(0);
+         DivPaid.ASXCode = reader.GetString(1);
+         DivPaid.ExDividendDate = reader.GetDateTime(2);
+         DivPaid.DatePaid = reader.GetDateTime(3);
+         DivPaid.GrossDividendPerShare = reader.GetDecimal(4);
+         DivPaid.FrCreditPerShare = reader.GetDecimal(5);
+         DivPaid.AmtPaidPerShare = reader.GetDecimal(6);
+         DivPaid.QtyShares = reader.GetInt32(7);
+         DivPaid.DateCreated = reader.GetDateTime(8);
+         DivPaid.DateModified = reader.GetDateTime(9);
+         DivPaid.DateDeleted = reader.GetDateTime(10);
+         list.Add(DivPaid);
+      }
+      return list;
+    }
 
-        public static void DivPaidInsert(DivPaid myDivPaidRecord)
-        {
-      DBInsert(myDivPaidRecord, "dividendpaid", typeof(DivPaid));
-            //OleDbConnection connection_tmp = new OleDbConnection();
-            //OleDbCommand command = new OleDbCommand();
-            //connection_tmp.ConnectionString = @"Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\Dvl\Rays Projects\Shares\ShareAnalV2.accdb; Persist Security Info = False;";
-            //connection_tmp.Open();
-            //command.Connection = connection_tmp;
-            //String tranTable = "DivPaid";
-            //if (SimulationRunning)
-            //    tranTable = "SimulationDivPaid";
-            //else
-            //    tranTable = "DivPaid";
-            //command.CommandText = "insert into " + tranTable + " (ASXCode, DatePaid, DivPerShare, QtyShares, TtlDividend) " +
-            //                      " values ('" + myDivPaidRecord.ASXCode +
-            //                      "',#" + myDivPaidRecord.DatePaid.ToString("yyyy-MM-dd") +
-            //                      "#, " + myDivPaidRecord.DividendPerShare +
-            //                      "," + myDivPaidRecord.QtyShares +
-            //                      "," + myDivPaidRecord.TtlDividend +
-            //                      ")";
-            //command.ExecuteNonQuery();
-            //connection_tmp.Close();
-        }
-
-        public static void DivPaidUpdate(DivPaid myDivPaidRecord)
-        {
-      DBUpdate(myDivPaidRecord, "dividendpaid", typeof(DivPaid));
-            //OleDbConnection connection_tmp = new OleDbConnection();
-            //OleDbCommand command = new OleDbCommand();
-            //connection_tmp.ConnectionString = @"Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\Dvl\Rays Projects\Shares\ShareAnalV2.accdb; Persist Security Info = False;";
-            //connection_tmp.Open();
-            //command.Connection = connection_tmp;
-            //String tranTable = "DivPaid";
-            //if (SimulationRunning)
-            //    tranTable = "SimulationDivPaid";
-            //else
-            //    tranTable = "DivPaid";
-            //command.CommandText = "update " + tranTable + " " +
-            //                        "set ASXCode = '" + myDivPaidRecord.ASXCode +
-            //                        "' ,DatePaid = #" + myDivPaidRecord.DatePaid.ToString("yyyy-MM-dd") +
-            //                        "# ,DividendPerShare = '" + myDivPaidRecord.DividendPerShare +
-            //                        "' ,QtyShares = " + myDivPaidRecord.QtyShares +
-            //                        ",TtlDividend = " + myDivPaidRecord.TtlDividend +
-            //                        " where ID = " + myDivPaidRecord.ID;
-
-            //command.ExecuteNonQuery();
-            //connection_tmp.Close();
-        }
 
 
 

@@ -572,6 +572,8 @@ namespace ShareTrading
 
         displayList.Add(displayRec);
       }
+
+      displayList = displayList.OrderBy(x => x.FiveDayMinPrcDiffPct).ThenBy(y => y.FiveDayMinASXCode).ToList();
       dgv5DayMin.DataSource = null;
       FiveDayMinBindingSource.DataSource = displayList;
       dgv5DayMin.DataSource = FiveDayMinBindingSource;
@@ -592,11 +594,11 @@ namespace ShareTrading
       // get records between max date - 7 and max date
       paramList = new List<PgSqlParameter>();
       paramList.Add(new PgSqlParameter("@P2", ASXCode));
-      paramList.Add(new PgSqlParameter("@P3", priceRecords[0].PriceDate.AddDays(-7)));
+      paramList.Add(new PgSqlParameter("@P3", priceRecords[0].PriceDate.AddDays(-8)));  // so that it's a week plus today
       lastPriceDate = priceRecords[0].PriceDate;
-      if (!DBAccess.GetPriceRecords(paramList, out priceRecords, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P2 AND apd_pricedate > @P3 ", string.Empty, false))
+      if (!DBAccess.GetPriceRecords(paramList, out priceRecords, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P2 AND apd_pricedate > @P3 ", " ORDER BY apd_pricedate DESC ", false))
         return 0M;
-      prcDiffPct = Decimal.Round((priceRecords[0].PrcClose - priceRecords.Select(x => x.PrcHigh).Max()) / priceRecords[0].PrcClose * 100, 2);
+      prcDiffPct = Decimal.Round((priceRecords.Select(x => x.PrcHigh).Max()) - priceRecords[0].PrcClose / priceRecords[0].PrcClose * 100, 2);
       return priceRecords.Select(x => x.PrcLow).Min();
     }
 
@@ -926,6 +928,26 @@ namespace ShareTrading
       }
     }
 
+    // ***************************  Stats *********************
+    public class Stats
+    {
+      private string type { get; set; }
+      private decimal qtr { get; set; }
+      private decimal ytd { get; set; }
+      private decimal total { get; set; }
+    }
 
+    private void populateStats()
+    {
+
+    }
+
+  }
+  public enum TradingStatsType
+  {
+    [Description("Trading Profit")]
+    profit = 0,
+    [Description("Dividends")]
+    dividends = 1,                            
   }
 }

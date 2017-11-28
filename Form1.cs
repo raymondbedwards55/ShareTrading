@@ -233,8 +233,8 @@ namespace ShareTrading
                 //                   continue;
                 int ID = rec.ID;
                 DBAccess.DivPaid dp = CommonFunctions.CheckForDividends(rec.ASXCode, rec.PriceDate, runningSimulation);
-                if (dp != null)
-                    DayDivTotal = dp.TtlDividend + DayDivTotal;
+                //if (dp != null)
+                //    DayDivTotal = dp.TtlDividend + DayDivTotal;
                 if (rec.PriceDate > lastDate)
                 {
                     if (MaxMarginLoan < bankBal.MarginLoan)
@@ -1296,6 +1296,7 @@ namespace ShareTrading
           counter = 0;
         backgroundWorker1.ReportProgress(counter++);
       }
+
 
     }
 

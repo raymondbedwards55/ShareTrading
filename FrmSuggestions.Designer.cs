@@ -148,7 +148,6 @@
       this.ReBuyPctROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.ReBuyPctYearROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.ReBuyHighlightDiv = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-      this.tbxUnitPrice = new ShareTrading.UI.CurrencyTextbox();
       this.FiveDayMinASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.FiveDayMinLastDividendAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.FiveDayMinLastDivDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -161,6 +160,9 @@
       this.FiveDayMinPctROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.FiveDayMinPctYearROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.FiveDayMinPrcDiffPct = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.tbxUnitPrice = new ShareTrading.UI.CurrencyTextbox();
+      this.dgvStats = new System.Windows.Forms.DataGridView();
+      this.StatsBindingSource = new System.Windows.Forms.BindingSource(this.components);
       ((System.ComponentModel.ISupportInitialize)(this.dgvToSell)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.ToSellBindingSource)).BeginInit();
       this.toolStrip1.SuspendLayout();
@@ -178,6 +180,8 @@
       this.TransactionsTab.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.dgvTransactions)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.TransactionsBindingSource)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.dgvStats)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.StatsBindingSource)).BeginInit();
       this.SuspendLayout();
       // 
       // dgvToSell
@@ -1001,14 +1005,6 @@
       this.ReBuyHighlightDiv.Name = "ReBuyHighlightDiv";
       this.ReBuyHighlightDiv.Visible = false;
       // 
-      // tbxUnitPrice
-      // 
-      this.tbxUnitPrice.Location = new System.Drawing.Point(888, 7);
-      this.tbxUnitPrice.Name = "tbxUnitPrice";
-      this.tbxUnitPrice.Size = new System.Drawing.Size(100, 20);
-      this.tbxUnitPrice.TabIndex = 6;
-      this.tbxUnitPrice.WorkingText = null;
-      // 
       // FiveDayMinASXCode
       // 
       this.FiveDayMinASXCode.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
@@ -1085,12 +1081,29 @@
       this.FiveDayMinPrcDiffPct.HeaderText = "5 Day Movement";
       this.FiveDayMinPrcDiffPct.Name = "FiveDayMinPrcDiffPct";
       // 
+      // tbxUnitPrice
+      // 
+      this.tbxUnitPrice.Location = new System.Drawing.Point(888, 7);
+      this.tbxUnitPrice.Name = "tbxUnitPrice";
+      this.tbxUnitPrice.Size = new System.Drawing.Size(100, 20);
+      this.tbxUnitPrice.TabIndex = 6;
+      this.tbxUnitPrice.WorkingText = null;
+      // 
+      // dgvStats
+      // 
+      this.dgvStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+      this.dgvStats.Location = new System.Drawing.Point(23, 127);
+      this.dgvStats.Name = "dgvStats";
+      this.dgvStats.Size = new System.Drawing.Size(279, 150);
+      this.dgvStats.TabIndex = 3;
+      // 
       // FrmSuggestions
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.AutoSize = true;
       this.ClientSize = new System.Drawing.Size(1661, 747);
+      this.Controls.Add(this.dgvStats);
       this.Controls.Add(this.tabSells);
       this.Controls.Add(this.toolStrip1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
@@ -1120,6 +1133,8 @@
       this.TransactionsTab.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(this.dgvTransactions)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.TransactionsBindingSource)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.dgvStats)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.StatsBindingSource)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -1213,5 +1228,7 @@
     private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPctROI;
     private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPctYearROI;
     private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPrcDiffPct;
+    private System.Windows.Forms.DataGridView dgvStats;
+    private System.Windows.Forms.BindingSource StatsBindingSource;
   }
 }

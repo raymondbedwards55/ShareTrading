@@ -84,6 +84,8 @@ namespace ShareTrading
               DBAccess.DividendHistoryUpdate(Dividend);
 
             }
+            // Will this dividend be paid?
+            payDividend(Dividend);
             response = yrDataMatch.Groups[11].Value;
             if (!yrDataMatch.Groups[11].Value.StartsWith("<tr   style='background-color"))
             {
@@ -100,6 +102,42 @@ namespace ShareTrading
       }
     }
 
+    public static void payDividend(DBAccess.DividendHistory div)
+    {
+      // Will this dividend be paid - must have SOH at that point
+      int soh = DBAccess.CalculateSOHOnDivDate(div);
+      if (soh == 0)
+        return;
+      DBAccess.DivPaid divPd = new DBAccess.DivPaid();
+      List<DBAccess.DivPaid> paidList = new List<DBAccess.DivPaid>();
+      if (!DBAccess.GetDividendPaidRecords(div.ASXCode, div.DatePayable, out paidList, false))
+      {
+        // insert
+        divPd.ASXCode = div.ASXCode;
+        divPd.DatePaid = div.DatePayable;
+        divPd.ExDividendDate = div.ExDividend;
+        divPd.FrCreditPerShare = div.FrankingCredit;
+        divPd.GrossDividendPerShare = div.GrossDividend;
+        divPd.AmtPaidPerShare = div.Amount;
+        divPd.QtyShares = soh;
+        DBAccess.DBInsert(divPd, "dividendpaid", typeof(DBAccess.DivPaid));
+      }
+      else
+      {
+        //update
+        divPd = paidList[0];
+        divPd.ASXCode = div.ASXCode;
+        divPd.DatePaid = div.DatePayable;
+        divPd.ExDividendDate = div.ExDividend;
+        divPd.FrCreditPerShare = div.FrankingCredit;
+        divPd.GrossDividendPerShare = div.GrossDividend;
+        divPd.AmtPaidPerShare = div.Amount;
+        divPd.QtyShares = soh;
+
+        DBAccess.DBUpdate(divPd, "dividendpaid", typeof(DBAccess.DivPaid));
+      }
+
+    }
     public static DateTime ConvertToDate(String Stringddmmyyyy)
     {
       int yyyy = 0;
