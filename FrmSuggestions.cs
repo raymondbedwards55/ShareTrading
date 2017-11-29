@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Devart.Data.PostgreSql;
+using ShareTrading.Common.Src;
 using System.Text.RegularExpressions;
 
 
@@ -25,9 +26,14 @@ namespace ShareTrading
       populateSellGrid();
       populateBuyGrid();
       populateReBuyGrid();
+      populateStats();
+      dtpFrom.Value = getStartofQtr();
+      dtpTo.Value = dtpFrom.Value.AddMonths(3).AddDays(-1);
+      populateChart();
       tbxUnitPrice.Text = "$0.10";
       dtpLastDivDate.Text = dtpLastDivDate.Value.AddYears(-1).ToString();
       dtpLastDivDate.Enabled = true;
+
       
     }
 
@@ -212,6 +218,9 @@ namespace ShareTrading
       populateSellGrid();
       populateBuyGrid();
       populateReBuyGrid();
+      populateTransactions();
+      populateStats();
+      populateChart();
     }
 
     private int _previousIndex;
@@ -598,7 +607,7 @@ namespace ShareTrading
       lastPriceDate = priceRecords[0].PriceDate;
       if (!DBAccess.GetPriceRecords(paramList, out priceRecords, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P2 AND apd_pricedate > @P3 ", " ORDER BY apd_pricedate DESC ", false))
         return 0M;
-      prcDiffPct = Decimal.Round((priceRecords.Select(x => x.PrcHigh).Max()) - priceRecords[0].PrcClose / priceRecords[0].PrcClose * 100, 2);
+      prcDiffPct = Decimal.Round((priceRecords[0].PrcClose - priceRecords.Select(x => x.PrcHigh).Max()) / priceRecords[0].PrcClose * 100, 2);
       return priceRecords.Select(x => x.PrcLow).Min();
     }
 
@@ -931,23 +940,183 @@ namespace ShareTrading
     // ***************************  Stats *********************
     public class Stats
     {
-      private string type { get; set; }
-      private decimal qtr { get; set; }
-      private decimal ytd { get; set; }
-      private decimal total { get; set; }
+      public string type { get; set; }
+      public decimal qtr { get; set; }
+      public decimal ytd { get; set; }
+      public decimal total { get; set; }
     }
 
     private void populateStats()
     {
+      List<Stats> statsList = new List<Stats>();
+      DateTime startQtr = getStartofQtr();
+      DateTime startThisFY = DateTime.MinValue.AddMonths(6).AddYears(DateTime.Today.Year - 1);
+      decimal frCrQtr = 0M;
+      decimal frCrYTD = 0M;
+      for (int i = 0; i < (int)TradingStatsType.max; i++)
+      {
+        Stats rec = new Stats();
+        rec.type = EnumHelper.GetEnumDescription((TradingStatsType)i); // Enum.GetName(typeof(TradingStatsType), i);
+        switch (i)
+        {
+          case 0:
+           
+            rec.qtr = getTradingProfit(startQtr, startQtr.AddMonths(3).AddDays(-1));                   // Current Qtr Trading Profit
+            rec.ytd = getTradingProfit(startThisFY, startThisFY.AddMonths(12).AddDays(-1));            // YTD Trading Profit
+            break;
+          case 1:
+            // Current Qtr Dividend
+            rec.qtr = getDividends(startQtr, startQtr.AddMonths(3).AddDays(-1), out frCrQtr);
+            rec.ytd = getDividends(startThisFY, startThisFY.AddMonths(12).AddDays(-1), out frCrYTD);         // YTD Dividends
+            break;
+          case 2:
+            // Current Qtr Franking Credits
+            rec.qtr = frCrQtr;
+            rec.ytd = frCrYTD;
+            // YTD Franking Credits
+            break;
+          default:
+            break;
+        }
+        statsList.Add(rec);
+      }
+      dgvStats.DataSource = null;
+      StatsBindingSource.DataSource = statsList;
+      dgvStats.DataSource = StatsBindingSource;
+      dgvStats.Refresh();
 
     }
 
+    private DateTime getStartofQtr()
+    {
+      var date = DateTime.Now.AddDays(-1); //Give you own DateTime
+      int offset = 2, monthsInQtr = 3;
+
+      var quarter = (date.Month + offset) / monthsInQtr; //To find which quarter 
+      var totalMonths = quarter * monthsInQtr;
+
+      return new DateTime(date.Year, totalMonths - offset, 1); //start date in quarter 
+
+    }
+    private decimal getTradingProfit(DateTime start, DateTime end)
+    {
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", start));
+      paramList.Add(new PgSqlParameter("@P2", end));
+      List<DBAccess.TransRecords> transList = new List<DBAccess.TransRecords>();
+      if (!DBAccess.GetTransRecords(paramList, out transList, DBAccess.TransRecordsFieldList, " AND trn_transdate BETWEEN @P1 AND @P2 ", string.Empty, false))
+        return 0M;
+      return transList.Sum(x => x.TradeProfit);
+    }
+
+    private decimal getDividends(DateTime start, DateTime end, out decimal frCredits)
+    {
+      frCredits = 0M;
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", start));
+      paramList.Add(new PgSqlParameter("@P2", end));
+      List<DBAccess.DivPaid> dividendList = new List<DBAccess.DivPaid>();
+      if (!DBAccess.GetDividendPaidRecords(paramList, out dividendList, DBAccess.DividendPaidFieldList, " AND dvp_exdividenddate BETWEEN @P1 AND @P2 ", string.Empty, false))
+        return 0M;
+
+      frCredits = dividendList.Sum(x => Decimal.Round(x.FrCreditPerShare * x.QtyShares, 2));
+      return dividendList.Sum(x => Decimal.Round(x.GrossDividendPerShare * x.QtyShares, 2));
+    }
+    // ***************************  Dividend & Trading Profit Chart  **************************************
+
+      public class chartEntry
+    {
+      public DateTime date { get; set; }
+      public decimal entry { get; set; }
+    }
+
+    private void populateChart()
+    {
+      // Use start & end date to get transactions 
+      List<chartEntry> entryList = getTradingProfitEntries();
+      chart1.Series[0].XValueMember = "date";
+      chart1.Series[0].YValueMembers = "entry";
+      List<DateTime> xValuesList = entryList.Select(x => x.date).ToList();
+      List<decimal> yValuesList = entryList.Select(x => x.entry).ToList();
+      chart1.Series[0].Points.DataBindXY(xValuesList, yValuesList);
+
+      // Get Gross Dividends
+      entryList = getDividendEntries();
+      chart1.Series[1].XValueMember = "date";
+      chart1.Series[1].YValueMembers = "entry";
+      xValuesList = entryList.Select(x => x.date).ToList();
+      yValuesList = entryList.Select(x => x.entry).ToList();
+      chart1.Series[1].Points.DataBindXY(xValuesList, yValuesList);
+
+    }
+
+    private List<chartEntry> getTradingProfitEntries()
+    {
+      List<chartEntry> entryList = new List<chartEntry>();
+      List<DBAccess.TransRecords> transList = new List<DBAccess.TransRecords>();
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      
+      paramList.Add(new PgSqlParameter("@P1", dtpFrom.Value));
+      paramList.Add(new PgSqlParameter("@P2", dtpTo.Value));
+      if (!DBAccess.GetTransRecords(paramList, out transList, DBAccess.TransRecordsFieldList, " AND trn_transdate BETWEEN @P1 AND @P2", " ORDER BY trn_transdate ASC ", false))
+        return entryList;
+
+      List<chartEntry> tpEntries = new List<chartEntry>();
+      decimal offset = 0M;
+      decimal sumToHere = 0M;
+      bool first = true;
+      List<DateTime> dateList = transList.Select(x => x.TranDate).Distinct().OrderBy(y => y).ToList();
+      foreach (DateTime d in dateList)
+      {
+        List<DBAccess.TransRecords> subset = transList.FindAll(delegate (DBAccess.TransRecords r1) { return DateTime.Compare(r1.TranDate, d) == 0; }).ToList();
+        chartEntry tpEntry = new chartEntry();
+        tpEntry.date = subset[0].TranDate;
+        decimal daysProfit = subset.Sum(x => x.TradeProfit);
+        if (first)
+          offset = daysProfit;
+        tpEntry.entry = daysProfit - offset + sumToHere;
+        sumToHere += daysProfit;
+        tpEntries.Add(tpEntry);
+      }
+
+      return tpEntries;
+    }
+    private List<chartEntry> getDividendEntries()
+    {
+      List<chartEntry> entryList = new List<chartEntry>();
+      List<DBAccess.DivPaid> divPdList = new List<DBAccess.DivPaid>();
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", dtpFrom.Value));
+      paramList.Add(new PgSqlParameter("@P2", dtpTo.Value));
+      if (!DBAccess.GetDividendPaidRecords(paramList, out divPdList, DBAccess.DividendPaidFieldList, " AND dvp_exdividenddate BETWEEN @P1 AND @P2", " ORDER BY dvp_exdividenddate ASC ", false))
+        return entryList;
+
+      List<chartEntry> tpEntries = new List<chartEntry>();
+      decimal offset = Decimal.Round(divPdList[0].GrossDividendPerShare * divPdList[0].QtyShares, 2);
+      decimal sumToHere = 0M;
+      foreach (DBAccess.DivPaid r in divPdList)
+      {
+
+        chartEntry tpEntry = new chartEntry();
+        tpEntry.date = r.ExDividendDate;
+        tpEntry.entry = Decimal.Round(r.GrossDividendPerShare * r.QtyShares, 2) - offset + sumToHere;
+        sumToHere += Decimal.Round(r.GrossDividendPerShare * r.QtyShares, 2);
+        tpEntries.Add(tpEntry);
+
+      }
+
+      return tpEntries;
+    }
   }
   public enum TradingStatsType
   {
     [Description("Trading Profit")]
     profit = 0,
     [Description("Dividends")]
-    dividends = 1,                            
+    dividends = 1, 
+    [Description("Franking Credits")]
+    frCredits = 2,
+    [Description("Max")]
+    max = 3,                           
   }
 }

@@ -84,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonFunctions.cs" />
+    <Compile Include="Common\Src\EnumHelper.cs" />
     <Compile Include="DBAccess.cs" />
     <Compile Include="DividendImport.cs">
       <SubType>Form</SubType>
@@ -220,6 +221,7 @@
     <None Include="Properties\DataSources\FrmSuggestions.FiveDayMinSuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.ReBuySuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.SellSuggestions.datasource" />
+    <None Include="Properties\DataSources\FrmSuggestions.Stats.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.Suggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.Transactions.datasource" />
     <None Include="Properties\Settings.settings">

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Devart.Data.PostgreSql;
+using ShareTrading.Common.Src;
 
 namespace ShareTrading
 {
@@ -20,7 +21,10 @@ namespace ShareTrading
 
     private void FrmGatherStats_Load(object sender, EventArgs e)
     {
-      cbxStatsType.DataSource = System.Enum.GetNames(typeof(StatsType));
+      List<string> descList = new List<string>();
+      for (int i = 0; i <= (int)StatsType.TradeDay; i++)
+        descList.Add(EnumHelper.GetEnumDescription((StatsType)i));
+      cbxStatsType.DataSource = descList;  // System.Enum.GetNames(typeof(StatsType));
       cbxStatsType.Focus();
       updateASXCodeComboBox();
       statusLabel.Visible = false;

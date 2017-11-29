@@ -970,12 +970,10 @@ namespace ShareTrading
         where += " AND dvp_asxcode = @P2 ";
         paramList.Add(new PgSqlParameter("@P2", ASXCode));
       }
-      if (ASXCode == "WES")
-      { }
-      return GetDividendPaidRecords(paramList, out list, where, orderBy, runningSimulation);
+      return GetDividendPaidRecords(paramList, out list, DividendPaidFieldList,  where, orderBy, runningSimulation);
 
     }
-    public static Boolean GetDividendPaidRecords(List<PgSqlParameter> paramList, out List<DivPaid> list, string whereClause, string orderByClause, bool runningSimulation)
+    public static Boolean GetDividendPaidRecords(List<PgSqlParameter> paramList, out List<DivPaid> list, string fieldList, string whereClause, string orderByClause, bool runningSimulation)
     {
       list = new List<DivPaid>();
       using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
@@ -990,7 +988,7 @@ namespace ShareTrading
           if (paramList != null)
             command.Parameters.AddRange(paramList.ToArray());
 
-          command.CommandText = string.Format("SELECT {0} FROM {3} WHERE dvp_datedeleted = @P0  {1} {2} ", DividendPaidFieldList.Replace("\r\n", ""), whereClause, orderByClause, !runningSimulation ? "dividendpaid" : "simulationdividendpaid");
+          command.CommandText = string.Format("SELECT {0} FROM {3} WHERE dvp_datedeleted = @P0  {1} {2} ", fieldList, whereClause, orderByClause, !runningSimulation ? "dividendpaid" : "simulationdividendpaid");
           command.Prepare();
           try
           {
@@ -1021,9 +1019,9 @@ namespace ShareTrading
     public static List<DivPaid> GetDivPaidRecords(PgSqlDataReader reader)
     {
       List<DivPaid> list = new List<DivPaid>();
-      DivPaid DivPaid = new DivPaid();
-      if (reader.Read())
+      while (reader.Read())
       {
+        DivPaid DivPaid = new DivPaid();
          DivPaid.ID = reader.GetInt32(0);
          DivPaid.ASXCode = reader.GetString(1);
          DivPaid.ExDividendDate = reader.GetDateTime(2);
