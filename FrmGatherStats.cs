@@ -236,12 +236,21 @@ namespace ShareTrading
         List<DateTime> dateList = statsList.Select(x => x.StartDate).Distinct().ToList();
         decimal yValue = 0M;
         decimal prevValue = 0M;
+        decimal firstPct = 0M;
+        bool firstPctSet = false;
         List<chartEntry> chartXY = new List<chartEntry>();
         foreach (DateTime dt in dateList)
         {
           chartEntry eXY = new chartEntry();
           eXY.date = dt.ToShortDateString();
           yValue = statsList.FindAll(delegate (DBAccess.Statistics r1) { return r1.StartDate == dt; }).Select(x => x.Stat).Sum();
+          if (!firstPctSet)
+          {
+            firstPct =  yValue ;
+            firstPctSet = true;
+          }
+
+          yValue -= firstPct;
           prevValue += yValue;
           eXY.sumPct = i == 2 ? yValue : prevValue;
           chartXY.Add(eXY);

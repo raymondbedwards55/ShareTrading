@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
       this.components = new System.ComponentModel.Container();
-      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-      System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-      System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+      System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+      System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
       this.button5 = new System.Windows.Forms.Button();
       this.dataGridView2 = new System.Windows.Forms.DataGridView();
       this.dataGridView1 = new System.Windows.Forms.DataGridView();
@@ -64,9 +64,9 @@
       this.TestTran = new System.Windows.Forms.Button();
       this.menuStrip1 = new System.Windows.Forms.MenuStrip();
       this.Edits = new System.Windows.Forms.ToolStripMenuItem();
+      this.editCompanyDetailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.GLCodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.enterConfirmationNrToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-      this.editCompanyDetailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.exportsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.toMYOBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.statisticsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -79,6 +79,7 @@
       this.backgroundWorkerPrcHst = new System.ComponentModel.BackgroundWorker();
       this.statusLabel = new System.Windows.Forms.Label();
       this.shareAnalV2DataSetBindingSource = new System.Windows.Forms.BindingSource(this.components);
+      this.btnUpdateBrokerage = new System.Windows.Forms.Button();
       ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.DgvSuggestedBuys)).BeginInit();
@@ -228,7 +229,7 @@
       // suggestionsToolStripMenuItem
       // 
       this.suggestionsToolStripMenuItem.Name = "suggestionsToolStripMenuItem";
-      this.suggestionsToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+      this.suggestionsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
       this.suggestionsToolStripMenuItem.Text = "Suggestions";
       this.suggestionsToolStripMenuItem.Click += new System.EventHandler(this.suggestionsToolStripMenuItem_Click);
       // 
@@ -374,6 +375,13 @@
       this.Edits.Size = new System.Drawing.Size(44, 20);
       this.Edits.Text = "Edits";
       // 
+      // editCompanyDetailsToolStripMenuItem
+      // 
+      this.editCompanyDetailsToolStripMenuItem.Name = "editCompanyDetailsToolStripMenuItem";
+      this.editCompanyDetailsToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+      this.editCompanyDetailsToolStripMenuItem.Text = "Edit Company Details";
+      this.editCompanyDetailsToolStripMenuItem.Click += new System.EventHandler(this.editCompanyDetailsToolStripMenuItem_Click);
+      // 
       // GLCodeToolStripMenuItem
       // 
       this.GLCodeToolStripMenuItem.Name = "GLCodeToolStripMenuItem";
@@ -387,13 +395,6 @@
       this.enterConfirmationNrToolStripMenuItem1.Size = new System.Drawing.Size(212, 22);
       this.enterConfirmationNrToolStripMenuItem1.Text = "Enter Confirmation Nr";
       this.enterConfirmationNrToolStripMenuItem1.Click += new System.EventHandler(this.enterConfirmationNrToolStripMenuItem_Click);
-      // 
-      // editCompanyDetailsToolStripMenuItem
-      // 
-      this.editCompanyDetailsToolStripMenuItem.Name = "editCompanyDetailsToolStripMenuItem";
-      this.editCompanyDetailsToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
-      this.editCompanyDetailsToolStripMenuItem.Text = "Edit Company Details";
-      this.editCompanyDetailsToolStripMenuItem.Click += new System.EventHandler(this.editCompanyDetailsToolStripMenuItem_Click);
       // 
       // exportsToolStripMenuItem
       // 
@@ -439,17 +440,17 @@
       // 
       // chart1
       // 
-      chartArea2.Name = "ChartArea1";
-      this.chart1.ChartAreas.Add(chartArea2);
-      legend2.Name = "Legend1";
-      this.chart1.Legends.Add(legend2);
+      chartArea1.Name = "ChartArea1";
+      this.chart1.ChartAreas.Add(chartArea1);
+      legend1.Name = "Legend1";
+      this.chart1.Legends.Add(legend1);
       this.chart1.Location = new System.Drawing.Point(12, 142);
       this.chart1.Name = "chart1";
-      series2.ChartArea = "ChartArea1";
-      series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-      series2.Legend = "Legend1";
-      series2.Name = "Series1";
-      this.chart1.Series.Add(series2);
+      series1.ChartArea = "ChartArea1";
+      series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+      series1.Legend = "Legend1";
+      series1.Name = "Series1";
+      this.chart1.Series.Add(series1);
       this.chart1.Size = new System.Drawing.Size(797, 350);
       this.chart1.TabIndex = 47;
       this.chart1.Text = "Suggested Sells";
@@ -487,11 +488,22 @@
       this.statusLabel.Size = new System.Drawing.Size(0, 13);
       this.statusLabel.TabIndex = 49;
       // 
+      // btnUpdateBrokerage
+      // 
+      this.btnUpdateBrokerage.Location = new System.Drawing.Point(1264, 367);
+      this.btnUpdateBrokerage.Name = "btnUpdateBrokerage";
+      this.btnUpdateBrokerage.Size = new System.Drawing.Size(75, 23);
+      this.btnUpdateBrokerage.TabIndex = 50;
+      this.btnUpdateBrokerage.Text = "Update Brokerage";
+      this.btnUpdateBrokerage.UseVisualStyleBackColor = true;
+      this.btnUpdateBrokerage.Click += new System.EventHandler(this.btnUpdateBrokerage_Click);
+      // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(1384, 670);
+      this.Controls.Add(this.btnUpdateBrokerage);
       this.Controls.Add(this.statusLabel);
       this.Controls.Add(this.chart1);
       this.Controls.Add(this.button5);
@@ -581,6 +593,7 @@
     private System.ComponentModel.BackgroundWorker backgroundWorkerPrcHst;
     private System.Windows.Forms.Label statusLabel;
     private System.Windows.Forms.ToolStripMenuItem editCompanyDetailsToolStripMenuItem;
+    private System.Windows.Forms.Button btnUpdateBrokerage;
   }
 }
 

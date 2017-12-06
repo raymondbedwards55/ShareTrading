@@ -26,6 +26,7 @@ namespace ShareTrading
       populateSellGrid();
       populateBuyGrid();
       populateReBuyGrid();
+      populateTransactions();
       populateStats();
       dtpFrom.Value = getStartofQtr();
       dtpTo.Value = dtpFrom.Value.AddMonths(3).AddDays(-1);
@@ -1069,17 +1070,35 @@ namespace ShareTrading
       foreach (DateTime d in dateList)
       {
         List<DBAccess.TransRecords> subset = transList.FindAll(delegate (DBAccess.TransRecords r1) { return DateTime.Compare(r1.TranDate, d) == 0; }).ToList();
+        decimal brokerage = sumBrokerage(subset);
         chartEntry tpEntry = new chartEntry();
         tpEntry.date = subset[0].TranDate;
         decimal daysProfit = subset.Sum(x => x.TradeProfit);
         if (first)
           offset = daysProfit;
-        tpEntry.entry = daysProfit - offset + sumToHere;
+        tpEntry.entry = daysProfit - offset + sumToHere - brokerage;
         sumToHere += daysProfit;
         tpEntries.Add(tpEntry);
       }
 
       return tpEntries;
+    }
+
+    private decimal sumBrokerage(List<DBAccess.TransRecords> sellList)
+    {
+      decimal sum = 0M;
+      foreach (DBAccess.TransRecords sell in sellList)
+      {
+        List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+        List<DBAccess.RelatedBuySellTrans> rbsList = new List<DBAccess.RelatedBuySellTrans>();
+        paramList.Add(new PgSqlParameter("@P2", sell.ID));
+        if (!DBAccess.GetAllRelated(paramList, out rbsList, DBAccess.RelatedTransFieldList, " AND rbs_sellid = @P2 ", string.Empty))
+          return sum;
+        foreach (DBAccess.RelatedBuySellTrans rec in rbsList)
+          sum += rec.SaleBrokerage;
+      }
+
+      return sum;
     }
     private List<chartEntry> getDividendEntries()
     {

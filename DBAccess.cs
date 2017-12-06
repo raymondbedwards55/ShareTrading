@@ -1406,6 +1406,7 @@ namespace ShareTrading
       public DateTime DateCreated { get; set; }
       public DateTime DateModified { get; set; }
       public DateTime DateDeleted { get; set; }
+      public Decimal SaleBrokerage { get; set; }
     }
     public static string RelatedTransFieldList
     {
@@ -1417,6 +1418,25 @@ namespace ShareTrading
 
     public static Boolean GetAllRelated(int buyId, int sellId, out List<RelatedBuySellTrans> list)
     {
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      string where = string.Empty;
+      if (buyId != 0)
+      {
+        paramList.Add(new PgSqlParameter("@P2", buyId));
+        where += " AND rbs_buyid = @P2 ";
+      }
+      if (sellId != 0)
+      {
+        paramList.Add(new PgSqlParameter("@P3", sellId));
+        where += " AND rbs_sellid = @P3 ";
+      }
+      list = new List<RelatedBuySellTrans>();
+      return GetAllRelated(paramList, out list, RelatedTransFieldList, where, string.Empty);
+
+
+    }
+    public static Boolean GetAllRelated(List<PgSqlParameter> paramList, out List<RelatedBuySellTrans> list, string fieldList, string whereClause, string orderBy)
+    {
       list = new List<RelatedBuySellTrans>();
       using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
       {
@@ -1426,18 +1446,8 @@ namespace ShareTrading
           PgSqlCommand command = new PgSqlCommand();
           command.Connection = conn;
           command.Parameters.Add("@P1", DateTime.MinValue);
-          string where = string.Empty;
-          if (buyId != 0)
-          {
-            command.Parameters.Add("@P2", buyId);
-            where += " AND rbs_buyid = @P2 ";
-          }
-          if (sellId != 0)
-          {
-            command.Parameters.Add("@P3", sellId);
-            where += " AND rbs_sellid = @P3 ";
-          }
-          command.CommandText = string.Format("SELECT {0} FROM relatedbuyselltrans WHERE rbs_datedeleted = @P1  {1}  ", RelatedTransFieldList, where);
+          command.Parameters.AddRange(paramList.ToArray());
+          command.CommandText = string.Format("SELECT {0} FROM relatedbuyselltrans WHERE rbs_datedeleted = @P1  {1} {2}  ", fieldList, whereClause, orderBy);
           command.Prepare();
           try
           {
@@ -1480,7 +1490,7 @@ namespace ShareTrading
         rec.DateCreated = priceReader.GetDateTime(6);
         rec.DateModified = priceReader.GetDateTime(7);
         rec.DateDeleted = priceReader.GetDateTime(8);
-
+        rec.SaleBrokerage = priceReader.GetDecimal(9);
         inputList.Add(rec);
       }
 

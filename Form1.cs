@@ -1094,6 +1094,7 @@ namespace ShareTrading
       rbs.DaysHeld = Decimal.Round((Decimal) (sell.TranDate.Date - buy.TranDate.Date).TotalDays * qty / sell.TransQty, 2);
       profit = rbs.TradeProfit;
       daysHeld = rbs.DaysHeld;
+      rbs.SaleBrokerage = Decimal.Round((sell.BrokerageInc * qty / sell.TransQty * 10 / 11) + (buy.BrokerageInc * qty / buy.TransQty * 10 / 11), 2);
       DBAccess.DBInsert(rbs, "relatedbuyselltrans", typeof(DBAccess.RelatedBuySellTrans));
 
     }
@@ -1434,6 +1435,37 @@ namespace ShareTrading
       FrmEditCompanyDetails frm = new FrmEditCompanyDetails();
       frm.ShowDialog();
 
+    }
+
+    //  **********************************  Update Brokerage  ***************************************
+    private void btnUpdateBrokerage_Click(object sender, EventArgs e)
+    {
+      List<DBAccess.RelatedBuySellTrans> rbsList = new List<DBAccess.RelatedBuySellTrans>();
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      if (!DBAccess.GetAllRelated(paramList, out rbsList, DBAccess.RelatedTransFieldList, string.Empty, string.Empty))
+        return;
+      foreach (DBAccess.RelatedBuySellTrans rec in rbsList)
+      {
+        // Get the buy 
+        List<PgSqlParameter> buyParams = new List<PgSqlParameter>();
+        buyParams.Add(new PgSqlParameter("@P2", rec.BuyId));
+        List<DBAccess.TransRecords> buyList = new List<DBAccess.TransRecords>();
+        if (!DBAccess.GetTransRecords(buyParams, out buyList, DBAccess.TransRecordsFieldList, " AND trn_ID = @P2 ",  string.Empty, false))
+          continue;
+        DBAccess.TransRecords buy = buyList[0];
+
+        // & sell record 
+        List<PgSqlParameter> sellParams = new List<PgSqlParameter>();
+        sellParams.Add(new PgSqlParameter("@P3", rec.SellId));
+        List<DBAccess.TransRecords> sellList = new List<DBAccess.TransRecords>();
+        if (!DBAccess.GetTransRecords(sellParams, out sellList, DBAccess.TransRecordsFieldList, " AND trn_ID = @P3 ", string.Empty, false))
+          continue;
+        DBAccess.TransRecords sell = sellList[0];
+        // and then update the brokerage
+        rec.SaleBrokerage = Decimal.Round((sell.BrokerageInc * rec.TransQty / sell.TransQty * 10 / 11) + (buy.BrokerageInc * rec.TransQty / buy.TransQty * 10 / 11), 2);
+        DBAccess.DBUpdate(rec, "relatedbuyselltrans", typeof(DBAccess.RelatedBuySellTrans));
+
+      }
     }
   }
 }
