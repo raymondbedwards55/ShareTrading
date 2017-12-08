@@ -75,7 +75,6 @@
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle37 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle38 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle39 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle41 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle48 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle49 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle50 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -83,6 +82,7 @@
       System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
       System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
       System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle41 = new System.Windows.Forms.DataGridViewCellStyle();
       this.dgvToSell = new System.Windows.Forms.DataGridView();
       this.ASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.LastDividendAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -155,18 +155,6 @@
       this.ReBuyPctROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.ReBuyPctYearROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.ReBuyHighlightDiv = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-      this.FiveDayMinASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.FiveDayMinLastDividendAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.FiveDayMinLastDivDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.FiveDayMinPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.FiveDayMinDaysHeld = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.FiveDayMinTodaysUnitPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.FiveDayMinPctGain = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.FiveDayMinPctYear = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.FiveDayMinHighlightDiv = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-      this.FiveDayMinPctROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.FiveDayMinPctYearROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.FiveDayMinPrcDiffPct = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.dgvStats = new System.Windows.Forms.DataGridView();
       this.StatsBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.typeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -181,6 +169,19 @@
       this.label3 = new System.Windows.Forms.Label();
       this.label4 = new System.Windows.Forms.Label();
       this.tbxUnitPrice = new ShareTrading.UI.CurrencyTextbox();
+      this.FiveDayMinASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.FiveDayMinLastDividendAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.FiveDayMinLastDivDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.FiveDayMinPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.FiveDayMinDaysHeld = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.FiveDayMinTodaysUnitPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.FiveDayMinPrcSuggestedBuyQty = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.FiveDayMinPctGain = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.FiveDayMinPctYear = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.FiveDayMinHighlightDiv = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+      this.FiveDayMinPctROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.FiveDayMinPctYearROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.FiveDayMinPrcDiffPct = new System.Windows.Forms.DataGridViewTextBoxColumn();
       ((System.ComponentModel.ISupportInitialize)(this.dgvToSell)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.ToSellBindingSource)).BeginInit();
       this.toolStrip1.SuspendLayout();
@@ -645,6 +646,7 @@
             this.FiveDayMinPrice,
             this.FiveDayMinDaysHeld,
             this.FiveDayMinTodaysUnitPrice,
+            this.FiveDayMinPrcSuggestedBuyQty,
             this.FiveDayMinPctGain,
             this.FiveDayMinPctYear,
             this.FiveDayMinHighlightDiv,
@@ -1027,82 +1029,6 @@
       this.ReBuyHighlightDiv.Name = "ReBuyHighlightDiv";
       this.ReBuyHighlightDiv.Visible = false;
       // 
-      // FiveDayMinASXCode
-      // 
-      this.FiveDayMinASXCode.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-      this.FiveDayMinASXCode.DataPropertyName = "FiveDayMinASXCode";
-      this.FiveDayMinASXCode.HeaderText = "ASX Code";
-      this.FiveDayMinASXCode.Name = "FiveDayMinASXCode";
-      // 
-      // FiveDayMinLastDividendAmount
-      // 
-      this.FiveDayMinLastDividendAmount.DataPropertyName = "FiveDayMinLastDividendAmount";
-      this.FiveDayMinLastDividendAmount.HeaderText = "Last Dividend";
-      this.FiveDayMinLastDividendAmount.Name = "FiveDayMinLastDividendAmount";
-      // 
-      // FiveDayMinLastDivDate
-      // 
-      this.FiveDayMinLastDivDate.DataPropertyName = "FiveDayMinLastDivDate";
-      this.FiveDayMinLastDivDate.HeaderText = "Last Dividend Date";
-      this.FiveDayMinLastDivDate.Name = "FiveDayMinLastDivDate";
-      // 
-      // FiveDayMinPrice
-      // 
-      this.FiveDayMinPrice.DataPropertyName = "FiveDayMinPrice";
-      this.FiveDayMinPrice.HeaderText = "Five Day Minimum Price";
-      this.FiveDayMinPrice.Name = "FiveDayMinPrice";
-      // 
-      // FiveDayMinDaysHeld
-      // 
-      this.FiveDayMinDaysHeld.DataPropertyName = "FiveDayMinDaysHeld";
-      this.FiveDayMinDaysHeld.HeaderText = "Days Since Last Sale";
-      this.FiveDayMinDaysHeld.Name = "FiveDayMinDaysHeld";
-      // 
-      // FiveDayMinTodaysUnitPrice
-      // 
-      this.FiveDayMinTodaysUnitPrice.DataPropertyName = "FiveDayMinTodaysUnitPrice";
-      this.FiveDayMinTodaysUnitPrice.HeaderText = "Todays Unit Price";
-      this.FiveDayMinTodaysUnitPrice.Name = "FiveDayMinTodaysUnitPrice";
-      // 
-      // FiveDayMinPctGain
-      // 
-      this.FiveDayMinPctGain.DataPropertyName = "FiveDayMinPctGain";
-      this.FiveDayMinPctGain.HeaderText = "% Gain";
-      this.FiveDayMinPctGain.Name = "FiveDayMinPctGain";
-      // 
-      // FiveDayMinPctYear
-      // 
-      this.FiveDayMinPctYear.DataPropertyName = "FiveDayMinPctYear";
-      this.FiveDayMinPctYear.HeaderText = "% Year";
-      this.FiveDayMinPctYear.Name = "FiveDayMinPctYear";
-      // 
-      // FiveDayMinHighlightDiv
-      // 
-      this.FiveDayMinHighlightDiv.DataPropertyName = "FiveDayMinHighlightDiv";
-      this.FiveDayMinHighlightDiv.HeaderText = "FiveDayMinHighlightDiv";
-      this.FiveDayMinHighlightDiv.Name = "FiveDayMinHighlightDiv";
-      this.FiveDayMinHighlightDiv.Visible = false;
-      // 
-      // FiveDayMinPctROI
-      // 
-      this.FiveDayMinPctROI.DataPropertyName = "FiveDayMinPctROI";
-      this.FiveDayMinPctROI.HeaderText = "ROI %";
-      this.FiveDayMinPctROI.Name = "FiveDayMinPctROI";
-      // 
-      // FiveDayMinPctYearROI
-      // 
-      this.FiveDayMinPctYearROI.DataPropertyName = "FiveDayMinPctYearROI";
-      this.FiveDayMinPctYearROI.HeaderText = "Year ROI %";
-      this.FiveDayMinPctYearROI.Name = "FiveDayMinPctYearROI";
-      // 
-      // FiveDayMinPrcDiffPct
-      // 
-      this.FiveDayMinPrcDiffPct.DataPropertyName = "FiveDayMinPrcDiffPct";
-      dataGridViewCellStyle41.Format = "N2";
-      this.FiveDayMinPrcDiffPct.DefaultCellStyle = dataGridViewCellStyle41;
-      this.FiveDayMinPrcDiffPct.HeaderText = "5 Day Movement";
-      this.FiveDayMinPrcDiffPct.Name = "FiveDayMinPrcDiffPct";
-      // 
       // dgvStats
       // 
       this.dgvStats.AllowUserToAddRows = false;
@@ -1250,6 +1176,89 @@
       this.tbxUnitPrice.TabIndex = 6;
       this.tbxUnitPrice.WorkingText = null;
       // 
+      // FiveDayMinASXCode
+      // 
+      this.FiveDayMinASXCode.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+      this.FiveDayMinASXCode.DataPropertyName = "FiveDayMinASXCode";
+      this.FiveDayMinASXCode.HeaderText = "ASX Code";
+      this.FiveDayMinASXCode.Name = "FiveDayMinASXCode";
+      // 
+      // FiveDayMinLastDividendAmount
+      // 
+      this.FiveDayMinLastDividendAmount.DataPropertyName = "FiveDayMinLastDividendAmount";
+      this.FiveDayMinLastDividendAmount.HeaderText = "Last Dividend";
+      this.FiveDayMinLastDividendAmount.Name = "FiveDayMinLastDividendAmount";
+      // 
+      // FiveDayMinLastDivDate
+      // 
+      this.FiveDayMinLastDivDate.DataPropertyName = "FiveDayMinLastDivDate";
+      this.FiveDayMinLastDivDate.HeaderText = "Last Dividend Date";
+      this.FiveDayMinLastDivDate.Name = "FiveDayMinLastDivDate";
+      // 
+      // FiveDayMinPrice
+      // 
+      this.FiveDayMinPrice.DataPropertyName = "FiveDayMinPrice";
+      this.FiveDayMinPrice.HeaderText = "Five Day Minimum Price";
+      this.FiveDayMinPrice.Name = "FiveDayMinPrice";
+      // 
+      // FiveDayMinDaysHeld
+      // 
+      this.FiveDayMinDaysHeld.DataPropertyName = "FiveDayMinDaysHeld";
+      this.FiveDayMinDaysHeld.HeaderText = "Days Since Last Sale";
+      this.FiveDayMinDaysHeld.Name = "FiveDayMinDaysHeld";
+      // 
+      // FiveDayMinTodaysUnitPrice
+      // 
+      this.FiveDayMinTodaysUnitPrice.DataPropertyName = "FiveDayMinTodaysUnitPrice";
+      this.FiveDayMinTodaysUnitPrice.HeaderText = "Todays Unit Price";
+      this.FiveDayMinTodaysUnitPrice.Name = "FiveDayMinTodaysUnitPrice";
+      // 
+      // FiveDayMinPrcSuggestedBuyQty
+      // 
+      this.FiveDayMinPrcSuggestedBuyQty.DataPropertyName = "FiveDayMinPrcSuggestedBuyQty";
+      this.FiveDayMinPrcSuggestedBuyQty.HeaderText = "Suggested Buy Qty";
+      this.FiveDayMinPrcSuggestedBuyQty.Name = "FiveDayMinPrcSuggestedBuyQty";
+      this.FiveDayMinPrcSuggestedBuyQty.Width = 80;
+      // 
+      // FiveDayMinPctGain
+      // 
+      this.FiveDayMinPctGain.DataPropertyName = "FiveDayMinPctGain";
+      this.FiveDayMinPctGain.HeaderText = "% Gain";
+      this.FiveDayMinPctGain.Name = "FiveDayMinPctGain";
+      // 
+      // FiveDayMinPctYear
+      // 
+      this.FiveDayMinPctYear.DataPropertyName = "FiveDayMinPctYear";
+      this.FiveDayMinPctYear.HeaderText = "% Year";
+      this.FiveDayMinPctYear.Name = "FiveDayMinPctYear";
+      // 
+      // FiveDayMinHighlightDiv
+      // 
+      this.FiveDayMinHighlightDiv.DataPropertyName = "FiveDayMinHighlightDiv";
+      this.FiveDayMinHighlightDiv.HeaderText = "FiveDayMinHighlightDiv";
+      this.FiveDayMinHighlightDiv.Name = "FiveDayMinHighlightDiv";
+      this.FiveDayMinHighlightDiv.Visible = false;
+      // 
+      // FiveDayMinPctROI
+      // 
+      this.FiveDayMinPctROI.DataPropertyName = "FiveDayMinPctROI";
+      this.FiveDayMinPctROI.HeaderText = "ROI %";
+      this.FiveDayMinPctROI.Name = "FiveDayMinPctROI";
+      // 
+      // FiveDayMinPctYearROI
+      // 
+      this.FiveDayMinPctYearROI.DataPropertyName = "FiveDayMinPctYearROI";
+      this.FiveDayMinPctYearROI.HeaderText = "Year ROI %";
+      this.FiveDayMinPctYearROI.Name = "FiveDayMinPctYearROI";
+      // 
+      // FiveDayMinPrcDiffPct
+      // 
+      this.FiveDayMinPrcDiffPct.DataPropertyName = "FiveDayMinPrcDiffPct";
+      dataGridViewCellStyle41.Format = "N2";
+      this.FiveDayMinPrcDiffPct.DefaultCellStyle = dataGridViewCellStyle41;
+      this.FiveDayMinPrcDiffPct.HeaderText = "5 Day Movement";
+      this.FiveDayMinPrcDiffPct.Name = "FiveDayMinPrcDiffPct";
+      // 
       // FrmSuggestions
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1373,18 +1382,6 @@
     private System.Windows.Forms.DataGridViewTextBoxColumn ReBuyPctROI;
     private System.Windows.Forms.DataGridViewTextBoxColumn ReBuyPctYearROI;
     private System.Windows.Forms.DataGridViewCheckBoxColumn ReBuyHighlightDiv;
-    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinASXCode;
-    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinLastDividendAmount;
-    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinLastDivDate;
-    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPrice;
-    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinDaysHeld;
-    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinTodaysUnitPrice;
-    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPctGain;
-    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPctYear;
-    private System.Windows.Forms.DataGridViewCheckBoxColumn FiveDayMinHighlightDiv;
-    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPctROI;
-    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPctYearROI;
-    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPrcDiffPct;
     private System.Windows.Forms.DataGridView dgvStats;
     private System.Windows.Forms.BindingSource StatsBindingSource;
     private System.Windows.Forms.DataGridViewTextBoxColumn typeDataGridViewTextBoxColumn;
@@ -1398,5 +1395,18 @@
     private System.Windows.Forms.GroupBox groupBox1;
     private System.Windows.Forms.Label label4;
     private System.Windows.Forms.Label label3;
+    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinASXCode;
+    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinLastDividendAmount;
+    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinLastDivDate;
+    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPrice;
+    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinDaysHeld;
+    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinTodaysUnitPrice;
+    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPrcSuggestedBuyQty;
+    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPctGain;
+    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPctYear;
+    private System.Windows.Forms.DataGridViewCheckBoxColumn FiveDayMinHighlightDiv;
+    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPctROI;
+    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPctYearROI;
+    private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPrcDiffPct;
   }
 }

@@ -16,6 +16,8 @@ namespace ShareTrading
 {
   public partial class FrmSuggestions : Form
   {
+
+    const int TxValue = 11000;
     public FrmSuggestions()
     {
       InitializeComponent();
@@ -535,6 +537,7 @@ namespace ShareTrading
       public decimal FiveDayMinPctROI { get; set; }
       public decimal FiveDayMinPctYearROI { get; set; }
       public decimal FiveDayMinPrcDiffPct { get; set; }
+      public int FiveDayMinPrcSuggestedBuyQty { get; set; }
 
 
     }
@@ -580,6 +583,7 @@ namespace ShareTrading
           displayRec.FiveDayMinPctYearROI = Decimal.Round(((buy.BuyTodaysUnitPrice - displayRec.FiveDayMinPrice) + totalDividends) / displayRec.FiveDayMinPrice * 100 * 365 / daysHeld, 2);
         }
 
+        displayRec.FiveDayMinPrcSuggestedBuyQty = buy.BuyTodaysUnitPrice > 40 ? (int) (TxValue / buy.BuyTodaysUnitPrice / 10) * 10 : (int)(TxValue / buy.BuyTodaysUnitPrice / 100) * 100;
         displayList.Add(displayRec);
       }
 
