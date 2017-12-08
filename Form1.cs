@@ -1141,6 +1141,8 @@ namespace ShareTrading
             tx.PrcClose = decimal.Parse(flds[5]);
             tx.PrcOpen = decimal.Parse(flds[9]);
             tx.PrcLow = flds[10] == "--" ? 0M : decimal.Parse(flds[10]);
+            if (tx.PrcLow == 0)
+            { }
             tx.PrcHigh = flds[11] == "--" ? 0M : decimal.Parse(flds[11]);
             tx.Volume = int.Parse(flds[12]);
             if (tx.ID == 0)

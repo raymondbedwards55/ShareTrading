@@ -567,7 +567,7 @@ namespace ShareTrading
         if (displayRec.FiveDayMinPrice == 0)
           continue;
         displayRec.FiveDayMinPctGain = Decimal.Round((buy.BuyTodaysUnitPrice - displayRec.FiveDayMinPrice) * 100 / displayRec.FiveDayMinPrice, 2);
-        displayRec.FiveDayMinPctYear = Decimal.Round((buy.BuyTodaysUnitPrice - displayRec.FiveDayMinPrice) / displayRec.FiveDayMinPrice * 365 * 100 / daysHeld, 2);
+        displayRec.FiveDayMinPctYear =  Decimal.Round((buy.BuyTodaysUnitPrice - displayRec.FiveDayMinPrice) / displayRec.FiveDayMinPrice * 365 * 100 / daysHeld, 2);
 
         displayRec.FiveDayMinPctROI = 0M;
         displayRec.FiveDayMinPctYearROI = 0M;
@@ -608,8 +608,9 @@ namespace ShareTrading
       lastPriceDate = priceRecords[0].PriceDate;
       if (!DBAccess.GetPriceRecords(paramList, out priceRecords, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P2 AND apd_pricedate > @P3 ", " ORDER BY apd_pricedate DESC ", false))
         return 0M;
-      prcDiffPct = Decimal.Round((priceRecords[0].PrcClose - priceRecords.Select(x => x.PrcHigh).Max()) / priceRecords[0].PrcClose * 100, 2);
-      return priceRecords.Select(x => x.PrcLow).Min();
+      List<DBAccess.ASXPriceDate> nonZeroPrices = priceRecords.FindAll(delegate (DBAccess.ASXPriceDate r1) { return r1.PrcLow != 0; });
+      prcDiffPct = Decimal.Round((nonZeroPrices[0].PrcClose - nonZeroPrices.Select(x => x.PrcHigh).Max()) / nonZeroPrices[0].PrcClose * 100, 2);
+      return nonZeroPrices.Select(x => x.PrcLow).Min();
     }
 
     private void dgvFiveDayMin_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -1007,7 +1008,7 @@ namespace ShareTrading
       List<DBAccess.TransRecords> transList = new List<DBAccess.TransRecords>();
       if (!DBAccess.GetTransRecords(paramList, out transList, DBAccess.TransRecordsFieldList, " AND trn_transdate BETWEEN @P1 AND @P2 ", string.Empty, false))
         return 0M;
-      return transList.Sum(x => x.TradeProfit);
+      return transList.Sum(x => x.TradeProfit) - Decimal.Round(transList.Sum(y => y.BrokerageInc) * 10 / 11, 2);
     }
 
     private decimal getDividends(DateTime start, DateTime end, out decimal frCredits)
@@ -1077,7 +1078,7 @@ namespace ShareTrading
         if (first)
           offset = daysProfit;
         tpEntry.entry = daysProfit - offset + sumToHere - brokerage;
-        sumToHere += daysProfit;
+        sumToHere += daysProfit - brokerage;
         tpEntries.Add(tpEntry);
       }
 
