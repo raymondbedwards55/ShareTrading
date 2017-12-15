@@ -75,14 +75,16 @@
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle37 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle38 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle39 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle48 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle49 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle50 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
       System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
       System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
       System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle41 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle48 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle49 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle50 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle51 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle52 = new System.Windows.Forms.DataGridViewCellStyle();
       this.dgvToSell = new System.Windows.Forms.DataGridView();
       this.ASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.LastDividendAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -157,10 +159,6 @@
       this.ReBuyHighlightDiv = new System.Windows.Forms.DataGridViewCheckBoxColumn();
       this.dgvStats = new System.Windows.Forms.DataGridView();
       this.StatsBindingSource = new System.Windows.Forms.BindingSource(this.components);
-      this.typeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.qtrDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.ytdDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.totalDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.Chart = new System.Windows.Forms.TabPage();
       this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
       this.dtpFrom = new System.Windows.Forms.DateTimePicker();
@@ -168,7 +166,6 @@
       this.groupBox1 = new System.Windows.Forms.GroupBox();
       this.label3 = new System.Windows.Forms.Label();
       this.label4 = new System.Windows.Forms.Label();
-      this.tbxUnitPrice = new ShareTrading.UI.CurrencyTextbox();
       this.FiveDayMinASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.FiveDayMinLastDividendAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.FiveDayMinLastDivDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -182,6 +179,13 @@
       this.FiveDayMinPctROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.FiveDayMinPctYearROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.FiveDayMinPrcDiffPct = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.tbxUnitPrice = new ShareTrading.UI.CurrencyTextbox();
+      this.typeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.today = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.last7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.qtrDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.ytdDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.totalDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
       ((System.ComponentModel.ISupportInitialize)(this.dgvToSell)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.ToSellBindingSource)).BeginInit();
       this.toolStrip1.SuspendLayout();
@@ -241,7 +245,7 @@
       this.dgvToSell.DataSource = this.ToSellBindingSource;
       this.dgvToSell.Location = new System.Drawing.Point(0, 0);
       this.dgvToSell.Name = "dgvToSell";
-      this.dgvToSell.Size = new System.Drawing.Size(1229, 663);
+      this.dgvToSell.Size = new System.Drawing.Size(1261, 698);
       this.dgvToSell.TabIndex = 0;
       this.dgvToSell.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvToSell_CellFormatting);
       this.dgvToSell.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvToSell_ColumnHeaderMouseClick);
@@ -407,7 +411,7 @@
             this.toolStripButtonClose});
       this.toolStrip1.Location = new System.Drawing.Point(0, 0);
       this.toolStrip1.Name = "toolStrip1";
-      this.toolStrip1.Size = new System.Drawing.Size(1661, 25);
+      this.toolStrip1.Size = new System.Drawing.Size(1802, 25);
       this.toolStrip1.TabIndex = 1;
       this.toolStrip1.Text = "toolStrip1";
       // 
@@ -440,10 +444,10 @@
       this.tabSells.Controls.Add(this.FiveDayMinTab);
       this.tabSells.Controls.Add(this.TransactionsTab);
       this.tabSells.Controls.Add(this.Chart);
-      this.tabSells.Location = new System.Drawing.Point(363, 28);
+      this.tabSells.Location = new System.Drawing.Point(515, 28);
       this.tabSells.Name = "tabSells";
       this.tabSells.SelectedIndex = 0;
-      this.tabSells.Size = new System.Drawing.Size(1243, 695);
+      this.tabSells.Size = new System.Drawing.Size(1275, 730);
       this.tabSells.TabIndex = 2;
       this.tabSells.SelectedIndexChanged += new System.EventHandler(this.tabSells_SelectedIndexChanged);
       // 
@@ -453,7 +457,7 @@
       this.Sells.Location = new System.Drawing.Point(4, 22);
       this.Sells.Name = "Sells";
       this.Sells.Padding = new System.Windows.Forms.Padding(3);
-      this.Sells.Size = new System.Drawing.Size(1235, 669);
+      this.Sells.Size = new System.Drawing.Size(1267, 704);
       this.Sells.TabIndex = 0;
       this.Sells.Text = "Sells";
       this.Sells.UseVisualStyleBackColor = true;
@@ -469,7 +473,7 @@
       this.Buys.Location = new System.Drawing.Point(4, 22);
       this.Buys.Name = "Buys";
       this.Buys.Padding = new System.Windows.Forms.Padding(3);
-      this.Buys.Size = new System.Drawing.Size(1235, 669);
+      this.Buys.Size = new System.Drawing.Size(1224, 704);
       this.Buys.TabIndex = 1;
       this.Buys.Text = "Buys";
       this.Buys.UseVisualStyleBackColor = true;
@@ -569,7 +573,7 @@
       this.ReBuys.Controls.Add(this.dgvToReBuy);
       this.ReBuys.Location = new System.Drawing.Point(4, 22);
       this.ReBuys.Name = "ReBuys";
-      this.ReBuys.Size = new System.Drawing.Size(1235, 669);
+      this.ReBuys.Size = new System.Drawing.Size(1224, 704);
       this.ReBuys.TabIndex = 2;
       this.ReBuys.Text = "ReBuys";
       this.ReBuys.UseVisualStyleBackColor = true;
@@ -626,7 +630,7 @@
       this.FiveDayMinTab.Controls.Add(this.dgv5DayMin);
       this.FiveDayMinTab.Location = new System.Drawing.Point(4, 22);
       this.FiveDayMinTab.Name = "FiveDayMinTab";
-      this.FiveDayMinTab.Size = new System.Drawing.Size(1235, 669);
+      this.FiveDayMinTab.Size = new System.Drawing.Size(1224, 704);
       this.FiveDayMinTab.TabIndex = 4;
       this.FiveDayMinTab.Text = "5 Day Min";
       this.FiveDayMinTab.UseVisualStyleBackColor = true;
@@ -656,7 +660,7 @@
       this.dgv5DayMin.DataSource = this.FiveDayMinBindingSource;
       this.dgv5DayMin.Location = new System.Drawing.Point(6, 3);
       this.dgv5DayMin.Name = "dgv5DayMin";
-      this.dgv5DayMin.Size = new System.Drawing.Size(1229, 663);
+      this.dgv5DayMin.Size = new System.Drawing.Size(1218, 698);
       this.dgv5DayMin.TabIndex = 0;
       this.dgv5DayMin.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvFiveDayMin_CellFormatting);
       this.dgv5DayMin.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvFiveDayMin_ColumnHeaderMouseClick);
@@ -670,7 +674,7 @@
       this.TransactionsTab.Controls.Add(this.dgvTransactions);
       this.TransactionsTab.Location = new System.Drawing.Point(4, 22);
       this.TransactionsTab.Name = "TransactionsTab";
-      this.TransactionsTab.Size = new System.Drawing.Size(1235, 669);
+      this.TransactionsTab.Size = new System.Drawing.Size(1224, 704);
       this.TransactionsTab.TabIndex = 3;
       this.TransactionsTab.Text = "Transactions";
       this.TransactionsTab.UseVisualStyleBackColor = true;
@@ -695,7 +699,7 @@
       this.dgvTransactions.DataSource = this.TransactionsBindingSource;
       this.dgvTransactions.Location = new System.Drawing.Point(3, 0);
       this.dgvTransactions.Name = "dgvTransactions";
-      this.dgvTransactions.Size = new System.Drawing.Size(1229, 663);
+      this.dgvTransactions.Size = new System.Drawing.Size(1218, 698);
       this.dgvTransactions.TabIndex = 0;
       this.dgvTransactions.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvTransactions_CellFormatting);
       this.dgvTransactions.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvTransactions_ColumnHeaderMouseClick);
@@ -1037,52 +1041,22 @@
       this.dgvStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       this.dgvStats.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.typeDataGridViewTextBoxColumn,
+            this.today,
+            this.last7,
             this.qtrDataGridViewTextBoxColumn,
             this.ytdDataGridViewTextBoxColumn,
             this.totalDataGridViewTextBoxColumn});
       this.dgvStats.DataSource = this.StatsBindingSource;
-      this.dgvStats.Location = new System.Drawing.Point(0, 127);
+      this.dgvStats.Location = new System.Drawing.Point(0, 133);
       this.dgvStats.Name = "dgvStats";
       this.dgvStats.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
       this.dgvStats.RowHeadersVisible = false;
-      this.dgvStats.Size = new System.Drawing.Size(361, 188);
+      this.dgvStats.Size = new System.Drawing.Size(509, 188);
       this.dgvStats.TabIndex = 3;
       // 
       // StatsBindingSource
       // 
       this.StatsBindingSource.DataSource = typeof(ShareTrading.FrmSuggestions.Stats);
-      // 
-      // typeDataGridViewTextBoxColumn
-      // 
-      this.typeDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-      this.typeDataGridViewTextBoxColumn.DataPropertyName = "type";
-      this.typeDataGridViewTextBoxColumn.HeaderText = "type";
-      this.typeDataGridViewTextBoxColumn.Name = "typeDataGridViewTextBoxColumn";
-      // 
-      // qtrDataGridViewTextBoxColumn
-      // 
-      this.qtrDataGridViewTextBoxColumn.DataPropertyName = "qtr";
-      dataGridViewCellStyle48.Format = "C2";
-      this.qtrDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle48;
-      this.qtrDataGridViewTextBoxColumn.HeaderText = "qtr";
-      this.qtrDataGridViewTextBoxColumn.Name = "qtrDataGridViewTextBoxColumn";
-      // 
-      // ytdDataGridViewTextBoxColumn
-      // 
-      this.ytdDataGridViewTextBoxColumn.DataPropertyName = "ytd";
-      dataGridViewCellStyle49.Format = "C2";
-      this.ytdDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle49;
-      this.ytdDataGridViewTextBoxColumn.HeaderText = "ytd";
-      this.ytdDataGridViewTextBoxColumn.Name = "ytdDataGridViewTextBoxColumn";
-      // 
-      // totalDataGridViewTextBoxColumn
-      // 
-      this.totalDataGridViewTextBoxColumn.DataPropertyName = "total";
-      dataGridViewCellStyle50.Format = "C2";
-      this.totalDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle50;
-      this.totalDataGridViewTextBoxColumn.HeaderText = "total";
-      this.totalDataGridViewTextBoxColumn.Name = "totalDataGridViewTextBoxColumn";
-      this.totalDataGridViewTextBoxColumn.Visible = false;
       // 
       // Chart
       // 
@@ -1091,7 +1065,7 @@
       this.Chart.Location = new System.Drawing.Point(4, 22);
       this.Chart.Name = "Chart";
       this.Chart.Padding = new System.Windows.Forms.Padding(3);
-      this.Chart.Size = new System.Drawing.Size(1235, 669);
+      this.Chart.Size = new System.Drawing.Size(1224, 704);
       this.Chart.TabIndex = 5;
       this.Chart.Text = "Chart";
       this.Chart.UseVisualStyleBackColor = true;
@@ -1102,7 +1076,7 @@
       this.chart1.ChartAreas.Add(chartArea1);
       legend1.Name = "Legend1";
       this.chart1.Legends.Add(legend1);
-      this.chart1.Location = new System.Drawing.Point(17, 33);
+      this.chart1.Location = new System.Drawing.Point(9, 33);
       this.chart1.Name = "chart1";
       this.chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
       series1.ChartArea = "ChartArea1";
@@ -1167,14 +1141,6 @@
       this.label4.Size = new System.Drawing.Size(34, 16);
       this.label4.TabIndex = 4;
       this.label4.Text = "and";
-      // 
-      // tbxUnitPrice
-      // 
-      this.tbxUnitPrice.Location = new System.Drawing.Point(888, 7);
-      this.tbxUnitPrice.Name = "tbxUnitPrice";
-      this.tbxUnitPrice.Size = new System.Drawing.Size(100, 20);
-      this.tbxUnitPrice.TabIndex = 6;
-      this.tbxUnitPrice.WorkingText = null;
       // 
       // FiveDayMinASXCode
       // 
@@ -1259,12 +1225,68 @@
       this.FiveDayMinPrcDiffPct.HeaderText = "5 Day Movement";
       this.FiveDayMinPrcDiffPct.Name = "FiveDayMinPrcDiffPct";
       // 
+      // tbxUnitPrice
+      // 
+      this.tbxUnitPrice.Location = new System.Drawing.Point(888, 7);
+      this.tbxUnitPrice.Name = "tbxUnitPrice";
+      this.tbxUnitPrice.Size = new System.Drawing.Size(100, 20);
+      this.tbxUnitPrice.TabIndex = 6;
+      this.tbxUnitPrice.WorkingText = null;
+      // 
+      // typeDataGridViewTextBoxColumn
+      // 
+      this.typeDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+      this.typeDataGridViewTextBoxColumn.DataPropertyName = "type";
+      this.typeDataGridViewTextBoxColumn.HeaderText = "Type";
+      this.typeDataGridViewTextBoxColumn.Name = "typeDataGridViewTextBoxColumn";
+      // 
+      // today
+      // 
+      this.today.DataPropertyName = "today";
+      dataGridViewCellStyle48.Format = "C2";
+      this.today.DefaultCellStyle = dataGridViewCellStyle48;
+      this.today.HeaderText = "Today";
+      this.today.Name = "today";
+      // 
+      // last7
+      // 
+      this.last7.DataPropertyName = "last7";
+      dataGridViewCellStyle49.Format = "C2";
+      this.last7.DefaultCellStyle = dataGridViewCellStyle49;
+      this.last7.HeaderText = "Last 7 Days";
+      this.last7.Name = "last7";
+      // 
+      // qtrDataGridViewTextBoxColumn
+      // 
+      this.qtrDataGridViewTextBoxColumn.DataPropertyName = "qtr";
+      dataGridViewCellStyle50.Format = "C2";
+      this.qtrDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle50;
+      this.qtrDataGridViewTextBoxColumn.HeaderText = "Qtr to Date";
+      this.qtrDataGridViewTextBoxColumn.Name = "qtrDataGridViewTextBoxColumn";
+      // 
+      // ytdDataGridViewTextBoxColumn
+      // 
+      this.ytdDataGridViewTextBoxColumn.DataPropertyName = "ytd";
+      dataGridViewCellStyle51.Format = "C2";
+      this.ytdDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle51;
+      this.ytdDataGridViewTextBoxColumn.HeaderText = "YTD";
+      this.ytdDataGridViewTextBoxColumn.Name = "ytdDataGridViewTextBoxColumn";
+      // 
+      // totalDataGridViewTextBoxColumn
+      // 
+      this.totalDataGridViewTextBoxColumn.DataPropertyName = "total";
+      dataGridViewCellStyle52.Format = "C2";
+      this.totalDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle52;
+      this.totalDataGridViewTextBoxColumn.HeaderText = "total";
+      this.totalDataGridViewTextBoxColumn.Name = "totalDataGridViewTextBoxColumn";
+      this.totalDataGridViewTextBoxColumn.Visible = false;
+      // 
       // FrmSuggestions
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.AutoSize = true;
-      this.ClientSize = new System.Drawing.Size(1661, 747);
+      this.ClientSize = new System.Drawing.Size(1802, 782);
       this.Controls.Add(this.dgvStats);
       this.Controls.Add(this.tabSells);
       this.Controls.Add(this.toolStrip1);
@@ -1384,10 +1406,6 @@
     private System.Windows.Forms.DataGridViewCheckBoxColumn ReBuyHighlightDiv;
     private System.Windows.Forms.DataGridView dgvStats;
     private System.Windows.Forms.BindingSource StatsBindingSource;
-    private System.Windows.Forms.DataGridViewTextBoxColumn typeDataGridViewTextBoxColumn;
-    private System.Windows.Forms.DataGridViewTextBoxColumn qtrDataGridViewTextBoxColumn;
-    private System.Windows.Forms.DataGridViewTextBoxColumn ytdDataGridViewTextBoxColumn;
-    private System.Windows.Forms.DataGridViewTextBoxColumn totalDataGridViewTextBoxColumn;
     private System.Windows.Forms.TabPage Chart;
     private System.Windows.Forms.DateTimePicker dtpTo;
     private System.Windows.Forms.DateTimePicker dtpFrom;
@@ -1408,5 +1426,11 @@
     private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPctROI;
     private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPctYearROI;
     private System.Windows.Forms.DataGridViewTextBoxColumn FiveDayMinPrcDiffPct;
+    private System.Windows.Forms.DataGridViewTextBoxColumn typeDataGridViewTextBoxColumn;
+    private System.Windows.Forms.DataGridViewTextBoxColumn today;
+    private System.Windows.Forms.DataGridViewTextBoxColumn last7;
+    private System.Windows.Forms.DataGridViewTextBoxColumn qtrDataGridViewTextBoxColumn;
+    private System.Windows.Forms.DataGridViewTextBoxColumn ytdDataGridViewTextBoxColumn;
+    private System.Windows.Forms.DataGridViewTextBoxColumn totalDataGridViewTextBoxColumn;
   }
 }

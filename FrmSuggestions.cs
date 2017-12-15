@@ -341,7 +341,7 @@ namespace ShareTrading
         else
         {
 
-          codeList = codeList.OrderByDescending(x => x.TranDate).ToList();
+          codeList = codeList.OrderByDescending(x => x.TranDate).ThenByDescending(y => y.NABOrderNmbr).ToList();
           // Check if stock has been bought again since this sell
           paramList = new List<PgSqlParameter>();
           paramList.Add(new PgSqlParameter("@P1", codeList[0].ASXCode));
@@ -586,6 +586,8 @@ namespace ShareTrading
         displayRec.FiveDayMinPrcSuggestedBuyQty = buy.BuyTodaysUnitPrice > 40 ? (int) (TxValue / buy.BuyTodaysUnitPrice / 10) * 10 : (int)(TxValue / buy.BuyTodaysUnitPrice / 100) * 100;
         displayList.Add(displayRec);
       }
+      List<string> toBuyASXCodes = buyList.Select(x => x.BuyASXCode).Distinct().ToList();
+      displayList.AddRange(getNeverBought5DayMin(toBuyASXCodes));
 
       displayList = displayList.OrderBy(x => x.FiveDayMinPrcDiffPct).ThenBy(y => y.FiveDayMinASXCode).ToList();
       dgv5DayMin.DataSource = null;
@@ -613,8 +615,89 @@ namespace ShareTrading
       if (!DBAccess.GetPriceRecords(paramList, out priceRecords, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P2 AND apd_pricedate > @P3 ", " ORDER BY apd_pricedate DESC ", false))
         return 0M;
       List<DBAccess.ASXPriceDate> nonZeroPrices = priceRecords.FindAll(delegate (DBAccess.ASXPriceDate r1) { return r1.PrcLow != 0; });
+      if (nonZeroPrices.Count <= 0)
+        return 0M;
       prcDiffPct = Decimal.Round((nonZeroPrices[0].PrcClose - nonZeroPrices.Select(x => x.PrcHigh).Max()) / nonZeroPrices[0].PrcClose * 100, 2);
       return nonZeroPrices.Select(x => x.PrcLow).Min();
+    }
+
+    private List<FiveDayMinSuggestions> getNeverBought5DayMin(List<string> ASXCodesToExclude)
+    {
+      List<FiveDayMinSuggestions> displayList = new List<FiveDayMinSuggestions>();
+      List<DBAccess.CompanyDetails> companyList = new List<DBAccess.CompanyDetails>();
+      if (!DBAccess.GetCompanyDetails(null, out companyList, false, true))
+        return displayList;
+      List<string> allCompanyNames = companyList.Select(x => x.ASXCode).Distinct().Except(ASXCodesToExclude).ToList();
+      foreach (string company in allCompanyNames)
+      {
+        // Get latest available price record from this company
+        List<DBAccess.ASXPriceDate> priceRecords = new List<DBAccess.ASXPriceDate>();
+        if (!DBAccess.GetAllPrices(company, DateTime.MinValue, out priceRecords, DBAccess.ASXPriceDateFieldList))
+          continue;
+
+        FiveDayMinSuggestions displayRec = new FiveDayMinSuggestions();
+        displayRec.FiveDayMinASXCode = company;
+        displayRec.FiveDayMinTodaysUnitPrice = priceRecords[priceRecords.Count - 1].PrcClose;
+
+        // Get Dividend details
+
+        //  Is there a dividend pending - already announced (ie. with ex dividend date +/- 10 days from today)
+        DBAccess.DividendHistory divHist = new DBAccess.DividendHistory();
+        displayRec.FiveDayMinHighlightDiv = false;
+        if (dividendPending(displayRec.FiveDayMinASXCode, -30, 30, out divHist))
+        {
+          displayRec.FiveDayMinLastDividendAmount = Decimal.Round(divHist.GrossDividend / displayRec.FiveDayMinTodaysUnitPrice * 100, 2);
+          displayRec.FiveDayMinLastDivDate = divHist.ExDividend;
+          displayRec.FiveDayMinHighlightDiv = true;
+        }
+        else
+        {
+          // or issued +/- 12 months ago
+          if (dividendPending(displayRec.FiveDayMinASXCode, -374, -354, out divHist))
+          {
+            displayRec.FiveDayMinLastDividendAmount = Decimal.Round(divHist.GrossDividend / displayRec.FiveDayMinTodaysUnitPrice * 100, 2);
+            displayRec.FiveDayMinLastDivDate = divHist.ExDividend;
+            displayRec.FiveDayMinHighlightDiv = true;
+          }
+          else
+          {
+            if (dividendPending(displayRec.FiveDayMinASXCode, -10000, 0, out divHist))
+            {
+              displayRec.FiveDayMinLastDividendAmount = displayRec.FiveDayMinTodaysUnitPrice == 0 ? 0 : Decimal.Round(divHist.GrossDividend / displayRec.FiveDayMinTodaysUnitPrice * 100, 2);
+              displayRec.FiveDayMinLastDivDate = divHist.ExDividend;
+              displayRec.FiveDayMinHighlightDiv = false;
+            }
+          }
+        }
+
+
+          DateTime lastPriceDate = DateTime.MinValue;
+          Decimal prcDiffPct = 0M;
+          displayRec.FiveDayMinPrice = getFiveDayMinPrice(displayRec.FiveDayMinASXCode, out lastPriceDate, out prcDiffPct);
+          displayRec.FiveDayMinPrcDiffPct = prcDiffPct;
+          decimal daysHeld = 5;
+          if (displayRec.FiveDayMinPrice == 0)
+            continue;
+          displayRec.FiveDayMinPctGain = Decimal.Round((displayRec.FiveDayMinTodaysUnitPrice - displayRec.FiveDayMinPrice) * 100 / displayRec.FiveDayMinPrice, 2);
+          displayRec.FiveDayMinPctYear = Decimal.Round((displayRec.FiveDayMinTodaysUnitPrice - displayRec.FiveDayMinPrice) / displayRec.FiveDayMinPrice * 365 * 100 / daysHeld, 2);
+
+          displayRec.FiveDayMinPctROI = 0M;
+          displayRec.FiveDayMinPctYearROI = 0M;
+          // Get the sum of Dividends & sum of Franking Credits between sell date & now
+          decimal totalDividends = 0M;
+          decimal totalFrCredits = 0M;
+          if (calculateDividendTotal(displayRec.FiveDayMinASXCode, lastPriceDate.AddDays(-(double)daysHeld - 2), out totalDividends, out totalFrCredits))
+          {
+            displayRec.FiveDayMinPctROI = Decimal.Round(((displayRec.FiveDayMinTodaysUnitPrice - displayRec.FiveDayMinPrice) + totalDividends) / displayRec.FiveDayMinPrice * 100, 2);
+            displayRec.FiveDayMinPctYearROI = Decimal.Round(((displayRec.FiveDayMinTodaysUnitPrice - displayRec.FiveDayMinPrice) + totalDividends) / displayRec.FiveDayMinPrice * 100 * 365 / daysHeld, 2);
+          }
+          
+          displayRec.FiveDayMinPrcSuggestedBuyQty = displayRec.FiveDayMinTodaysUnitPrice > 40 ? (int)(TxValue / displayRec.FiveDayMinTodaysUnitPrice / 10) * 10 :
+          displayRec.FiveDayMinTodaysUnitPrice == 0 ? 0 : (int)(TxValue / displayRec.FiveDayMinTodaysUnitPrice / 100) * 100;
+          displayList.Add(displayRec);
+
+      }
+      return displayList;
     }
 
     private void dgvFiveDayMin_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -949,6 +1032,8 @@ namespace ShareTrading
       public string type { get; set; }
       public decimal qtr { get; set; }
       public decimal ytd { get; set; }
+      public decimal last7 { get; set; }
+      public decimal today { get; set; }
       public decimal total { get; set; }
     }
 
@@ -957,8 +1042,11 @@ namespace ShareTrading
       List<Stats> statsList = new List<Stats>();
       DateTime startQtr = getStartofQtr();
       DateTime startThisFY = DateTime.MinValue.AddMonths(6).AddYears(DateTime.Today.Year - 1);
+      DateTime startLast7 = DateTime.Today.AddDays(-7);
       decimal frCrQtr = 0M;
       decimal frCrYTD = 0M;
+      decimal frCrLast7 = 0M;
+      decimal frCrToday = 0M;
       for (int i = 0; i < (int)TradingStatsType.max; i++)
       {
         Stats rec = new Stats();
@@ -967,18 +1055,24 @@ namespace ShareTrading
         {
           case 0:
            
-            rec.qtr = getTradingProfit(startQtr, startQtr.AddMonths(3).AddDays(-1));                   // Current Qtr Trading Profit
-            rec.ytd = getTradingProfit(startThisFY, startThisFY.AddMonths(12).AddDays(-1));            // YTD Trading Profit
+            rec.qtr = getTradingProfit(startQtr, startQtr.AddMonths(3).AddDays(0));                   // Current Qtr Trading Profit
+            rec.ytd = getTradingProfit(startThisFY, startThisFY.AddMonths(12).AddDays(0));            // YTD Trading Profit
+            rec.last7 = getTradingProfit(startLast7, DateTime.Today.AddDays(1));
+            rec.today = getTradingProfit(DateTime.Today, DateTime.Today.AddDays(1));
             break;
           case 1:
             // Current Qtr Dividend
-            rec.qtr = getDividends(startQtr, startQtr.AddMonths(3).AddDays(-1), out frCrQtr);
-            rec.ytd = getDividends(startThisFY, startThisFY.AddMonths(12).AddDays(-1), out frCrYTD);         // YTD Dividends
+            rec.qtr = getDividends(startQtr, startQtr.AddMonths(3).AddDays(0), out frCrQtr);
+            rec.ytd = getDividends(startThisFY, startThisFY.AddMonths(12).AddDays(0), out frCrYTD);         // YTD Dividends
+            rec.last7 = getDividends(startLast7, DateTime.Today.AddDays(1), out frCrLast7);         // YTD Dividends
+            rec.today = getDividends(DateTime.Today, DateTime.Today.AddDays(1), out frCrToday);         // YTD Dividends
             break;
           case 2:
             // Current Qtr Franking Credits
             rec.qtr = frCrQtr;
             rec.ytd = frCrYTD;
+            rec.last7 = frCrLast7;
+            rec.today = frCrToday;
             // YTD Franking Credits
             break;
           default:
@@ -1063,7 +1157,7 @@ namespace ShareTrading
       List<PgSqlParameter> paramList = new List<PgSqlParameter>();
       
       paramList.Add(new PgSqlParameter("@P1", dtpFrom.Value));
-      paramList.Add(new PgSqlParameter("@P2", dtpTo.Value));
+      paramList.Add(new PgSqlParameter("@P2", dtpTo.Value.AddDays(1)));
       if (!DBAccess.GetTransRecords(paramList, out transList, DBAccess.TransRecordsFieldList, " AND trn_transdate BETWEEN @P1 AND @P2", " ORDER BY trn_transdate ASC ", false))
         return entryList;
 
@@ -1077,13 +1171,14 @@ namespace ShareTrading
         List<DBAccess.TransRecords> subset = transList.FindAll(delegate (DBAccess.TransRecords r1) { return DateTime.Compare(r1.TranDate, d) == 0; }).ToList();
         decimal brokerage = sumBrokerage(subset);
         chartEntry tpEntry = new chartEntry();
-        tpEntry.date = subset[0].TranDate;
+        tpEntry.date = subset[0].TranDate.AddDays(1);
         decimal daysProfit = subset.Sum(x => x.TradeProfit);
         if (first)
-          offset = daysProfit;
+          offset = daysProfit - brokerage;
         tpEntry.entry = daysProfit - offset + sumToHere - brokerage;
         sumToHere += daysProfit - brokerage;
         tpEntries.Add(tpEntry);
+        first = false;
       }
 
       return tpEntries;
@@ -1122,7 +1217,7 @@ namespace ShareTrading
       {
 
         chartEntry tpEntry = new chartEntry();
-        tpEntry.date = r.ExDividendDate;
+        tpEntry.date = r.ExDividendDate.AddDays(1);
         tpEntry.entry = Decimal.Round(r.GrossDividendPerShare * r.QtyShares, 2) - offset + sumToHere;
         sumToHere += Decimal.Round(r.GrossDividendPerShare * r.QtyShares, 2);
         tpEntries.Add(tpEntry);

@@ -1862,7 +1862,7 @@ namespace ShareTrading
       return GetCompanyDetails(ASXCode, out list, false, false);
     }
     public static Boolean GetCompanyDetails(string ASXCode, out List<CompanyDetails> list, bool incDeleted, bool onWatchlistOnly)
-    { 
+    {
       list = new List<CompanyDetails>();
       using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
       {
