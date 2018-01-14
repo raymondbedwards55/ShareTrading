@@ -1041,7 +1041,7 @@ namespace ShareTrading
     {
       List<Stats> statsList = new List<Stats>();
       DateTime startQtr = getStartofQtr();
-      DateTime startThisFY = DateTime.MinValue.AddMonths(6).AddYears(DateTime.Today.Year - 1);
+      DateTime startThisFY = DateTime.Today.Month <= 6 ? DateTime.MinValue.AddMonths(6).AddYears(DateTime.Today.Year - 2) : DateTime.MinValue.AddMonths(6).AddYears(DateTime.Today.Year - 1);
       DateTime startLast7 = DateTime.Today.AddDays(-7);
       decimal frCrQtr = 0M;
       decimal frCrYTD = 0M;

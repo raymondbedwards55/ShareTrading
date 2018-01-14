@@ -47,3 +47,6 @@ C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.pdb
 C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.FrmEnterSellConfrmationNr.resources
 C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.FrmGatherStats.resources
 C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.FrmEditCompanyDetails.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\HtmlAgilityPack.dll
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\HtmlAgilityPack.pdb
+C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\HtmlAgilityPack.xml

@@ -1136,8 +1136,8 @@ namespace ShareTrading
             tx.PriceDate = DateTime.Today;
             tx.ASXCode = flds[0];
             Console.WriteLine(">>" + tx.ASXCode + "<<");
-            if (tx.ASXCode == "RGC")
-            { }
+            if (tx.ASXCode.Length > 3)
+              tx.ASXCode = tx.ASXCode.Substring(0, 3);
             tx.PrcClose = decimal.Parse(flds[5]);
             tx.PrcOpen = decimal.Parse(flds[9]);
             tx.PrcLow = flds[10] == "--" ? 0M : decimal.Parse(flds[10]);
@@ -1166,14 +1166,19 @@ namespace ShareTrading
         return;
       }
     }
-        private void timer1_Tick(object sender, EventArgs e)
+    private void timer1_Tick(object sender, EventArgs e)
+    {
+      // Is it 6pm yet? Timer checked every 6 hours
+      if (DateTime.Now.Hour >= 22 && DateTime.Now.Hour <= 3)
+      {
+        // Scrape pages - import dividends
+        if (!backgroundWorker1.IsBusy)
         {
-      //DBAccess DB = new DBAccess();
-      //DBAccess.BankBal bal;
-      //DB.GetBankBal(new DateTime(1900, 1, 1));
-      //bal = DB.GetNextBankBal();
-      //TbSOH.Text = bal.TtlDlrSOH.ToString();
-      //TbProfit.Text = (bal.TtlTradeProfit + bal.TtlDividendEarned).ToString();
+          progressBar.Visible = true;
+          backgroundWorker1.RunWorkerAsync();
+        }
+
+      }
     }
 
         private void button5_Click_1(object sender, EventArgs e)
@@ -1467,6 +1472,19 @@ namespace ShareTrading
         rec.SaleBrokerage = Decimal.Round((sell.BrokerageInc * rec.TransQty / sell.TransQty * 10 / 11) + (buy.BrokerageInc * rec.TransQty / buy.TransQty * 10 / 11), 2);
         DBAccess.DBUpdate(rec, "relatedbuyselltrans", typeof(DBAccess.RelatedBuySellTrans));
 
+      }
+    }
+
+    private void marketIndexDataToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      // Get all company names & then scrape for each company asx code
+      List<DBAccess.CompanyDetails> coList = new List<DBAccess.CompanyDetails>();
+      if (DBAccess.GetCompanyDetails(null, out coList))
+      {
+        foreach (DBAccess.CompanyDetails co in coList)
+        {
+          MarketIndexScrape.Run(co.ASXCode);
+        }
       }
     }
   }

@@ -56,6 +56,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\Devart.Data.PostgreSql.dll</HintPath>
     </Reference>
+    <Reference Include="HtmlAgilityPack">
+      <HintPath>.\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="Itenso.Rtf.Converter.Html">
       <HintPath>.\Itenso.Rtf.Converter.Html.dll</HintPath>
     </Reference>
@@ -155,6 +158,7 @@
     <Compile Include="ImportRecentPrices.Designer.cs">
       <DependentUpon>ImportRecentPrices.cs</DependentUpon>
     </Compile>
+    <Compile Include="MarketIndexScrape.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShareAnalV2DataSet.cs">

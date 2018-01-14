@@ -187,7 +187,7 @@ namespace ShareTrading
           command.Connection = conn;
           command.CommandText = buildUpdateList(tableName, classType, memberList);
           for (int i = 1; i < memberList.Count + 1; i++)                                         // Field zero is ID which is system generated
-            command.Parameters.Add(memberList[i - 1].paramName, memberList[i - 1].memberName.Contains("DateModified") ? DateTime.Today : memberList[i - 1].memberValue);
+            command.Parameters.Add(memberList[i - 1].paramName, memberList[i - 1].memberName.Contains("DateModified") ? DateTime.Now : memberList[i - 1].memberValue);
 
           command.Prepare();
           try
@@ -1818,14 +1818,8 @@ namespace ShareTrading
     public class CompanyDetails
     {
       public int ID { get; set; }
-      //public DateTime PriceDate { get; set; }
       public String ASXCode { get; set; }
       public string CompanyName { get; set; }
-      //public DateTime FirstDividendDate { get; set; }
-      //public Decimal FirstDividendPerShare { get; set; }
-      //public DateTime SecondDividendDate { get; set; }
-      //public Decimal SecondDividendPerShare { get; set; }
-      //public Decimal EarningsPerShare { get; set; }
       public DateTime DateCreated { get; set; }
       public DateTime DateModified { get; set; }
       public DateTime DateDeleted { get; set; }
@@ -1924,14 +1918,8 @@ namespace ShareTrading
       {
         CompanyDetails dtls = new CompanyDetails();
         dtls.ID = reader.GetInt32(0);
-        //dtls.PriceDate = reader.GetDateTime(1);
         dtls.ASXCode = reader.GetString(1); ;
         dtls.CompanyName = reader.GetString(2);
-        //dtls.FirstDividendDate = reader.GetDateTime(4);
-        //dtls.FirstDividendPerShare = reader.GetDecimal(5);
-        //dtls.SecondDividendDate = reader.GetDateTime(6);
-        //dtls.SecondDividendPerShare = reader.GetDecimal(7);
-        //dtls.EarningsPerShare = reader.GetDecimal(8);
         dtls.DateCreated = reader.GetDateTime(3);
         dtls.DateModified = reader.GetDateTime(4);
         dtls.DateDeleted = reader.GetDateTime(5);
@@ -1943,10 +1931,185 @@ namespace ShareTrading
     }
 
 
+    // *****************************************  Directors Transactions
+    public class DirectorsTransactions
+    {
+      public int ID { get; set; }
+      public String ASXCode { get; set; }
+      public DateTime TransDate { get; set; }
+      public string Name { get; set; }
+      public string Type { get; set; }
+      public int QtyShares { get; set; }
+      public decimal Price { get; set; }
+      public decimal Value { get; set; }
+      public string Notes { get; set; }
+      public DateTime DateCreated { get; set; }
+      public DateTime DateModified { get; set; }
+      public DateTime DateDeleted { get; set; }
+    }
+
+    public static string DirectorsTransactionsFieldList
+    {
+      get
+      {
+        return string.Join(",", GetColumnNames("directors_transactions").ToArray());
+      }
+    }
+
+    public static Boolean GetDirectorsTransactions(DBAccess.DirectorsTransactions inRec, out List<DirectorsTransactions> list)
+    {
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", inRec.ASXCode));
+      paramList.Add(new PgSqlParameter("@P2", inRec.TransDate));
+      paramList.Add(new PgSqlParameter("@P3", inRec.Type));
+      paramList.Add(new PgSqlParameter("@P4", inRec.Name));
+      paramList.Add(new PgSqlParameter("@P5", inRec.QtyShares));
+      paramList.Add(new PgSqlParameter("@P6", inRec.Price));
+
+      string extraWhere = string.Empty;
+      extraWhere += " AND dt_asxcode = @P1 ";
+      extraWhere += " AND dt_transdate = @P2 ";
+      extraWhere += " AND dt_type = @P3 ";
+      extraWhere += " AND dt_name = @P4 ";
+      extraWhere += " AND dt_qty = @P5 ";
+      extraWhere += " AND dt_price = @P6 ";
+      return GetDirectorsTransactions(paramList, out list, DBAccess.DirectorsTransactionsFieldList, extraWhere, string.Empty, false);
+    }
+
+    public static Boolean GetDirectorsTransactions(string ASXCode, out List<DirectorsTransactions> list)
+    {
+
+      return GetDirectorsTransactions(ASXCode, out list, false, false);
+    }
+    public static Boolean GetDirectorsTransactions(string ASXCode, out List<DirectorsTransactions> list, bool incDeleted, bool onWatchlistOnly)
+    {
+      list = new List<DirectorsTransactions>();
+      using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
+      {
+        try
+        {
+          conn.Open();
+          PgSqlCommand command = new PgSqlCommand();
+          command.Connection = conn;
+          string ASXCodeString = string.Empty;
+          if (!incDeleted)
+          {
+            command.Parameters.Add("@P0", DateTime.MinValue);
+            ASXCodeString += " AND dt_datedeleted = @P0 ";
+          }
+          if (!string.IsNullOrEmpty(ASXCode))
+          {
+            command.Parameters.Add("@P1", ASXCode);
+            ASXCodeString += " AND dt_ASXCode = @P1 ";
+          }
+
+          //if (onWatchlistOnly)
+          //{
+          //  command.Parameters.Add("@P2", "Y");
+          //  ASXCodeString += " AND cod_isonwatchlist = @P2 ";
+          //}
+          command.CommandText = string.Format("SELECT {0} FROM directors_transactions WHERE 1 = 1 {1} ORDER BY dt_ASXCode ", DirectorsTransactionsFieldList.Replace("\r\n", ""), ASXCodeString);
+          command.Prepare();
+          try
+          {
+            PgSqlDataReader priceReader = command.ExecuteReader();
+            list = GetDirectorsTransactions(priceReader);
+          }
+          catch (Exception ex)
+          {
+            Console.Write("Exception " + ex.ToString());
+            return false;
+          }
+        }
+        catch (System.Data.Common.DbException pex)
+        {
+          throw new DatabaseIOException(pex.Message, pex);
+        }
+        finally
+        {
+          if (conn != null)
+            conn.Close();
+        }
+      }
+      if (list.Count <= 0)
+        return false;
+
+      return true;
+    }
+
+    public static bool GetDirectorsTransactions(List<PgSqlParameter> paramList, out List<DirectorsTransactions> list, string reqdFields, string extraWhere, string orderBy, bool incDeleted)
+    {
+      list = new List<DirectorsTransactions>();
+      using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
+      {
+        try
+        {
+          conn.Open();
+          PgSqlCommand command = new PgSqlCommand();
+          command.Connection = conn;
+          if (!incDeleted)
+            command.Parameters.Add("@P0", DateTime.MinValue);
+          if (paramList != null)
+            command.Parameters.AddRange(paramList.ToArray());
+
+          command.CommandText = string.Format("SELECT {1} FROM {0} WHERE dt_datedeleted = @P0 {2} {3} ", "directors_transactions", reqdFields, extraWhere, orderBy);
+          command.Prepare();
+          try
+          {
+            PgSqlDataReader reader = command.ExecuteReader();
+            list = GetDirectorsTransactions(reader);
+          }
+          catch (Exception ex)
+          {
+            Console.Write("Exception " + ex.ToString());
+            return false;
+          }
+        }
+        catch (System.Data.Common.DbException pex)
+        {
+          throw new DatabaseIOException(pex.Message, pex);
+        }
+        finally
+        {
+          if (conn != null)
+            conn.Close();
+        }
+      }
+      if (list.Count <= 0)
+        return false;
+
+      return true;
+    }
+    public static List<DirectorsTransactions> GetDirectorsTransactions(PgSqlDataReader reader)
+    {
+      List<DirectorsTransactions> inputList = new List<DirectorsTransactions>();
+      while (reader.Read())
+      {
+        DirectorsTransactions dtls = new DirectorsTransactions();
+        dtls.ID = reader.GetInt32(0);
+        dtls.ASXCode = reader.GetString(1);
+        dtls.TransDate = reader.GetDateTime(2);
+        dtls.Name = reader.GetString(3);
+        dtls.Type = reader.GetString(4);
+        dtls.QtyShares = reader.GetInt32(5);
+        dtls.Price = reader.GetDecimal(6);
+        dtls.Value = reader.GetDecimal(7);
+        dtls.Notes = reader.GetString(8);
+        dtls.DateCreated = reader.GetDateTime(9);
+        dtls.DateModified = reader.GetDateTime(10);
+        dtls.DateDeleted = reader.GetDateTime(11);
+
+        inputList.Add(dtls);
+      }
+      return inputList;
+    }
 
 
-        //****************************************************************************
-        public class TransImport
+
+
+
+    //****************************************************************************
+    public class TransImport
         {
             public int ID { get; set; }
             public String ASXCode { get; set; }
