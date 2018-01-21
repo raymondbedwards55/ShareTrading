@@ -1935,9 +1935,9 @@ namespace ShareTrading
     public class DirectorsTransactions
     {
       public int ID { get; set; }
-      public String ASXCode { get; set; }
-      public DateTime TransDate { get; set; }
-      public string Name { get; set; }
+      public String ASXCodeDirectors { get; set; }
+      public DateTime TransDateDirectors { get; set; }
+      public string NameDirectors { get; set; }
       public string Type { get; set; }
       public int QtyShares { get; set; }
       public decimal Price { get; set; }
@@ -1959,10 +1959,10 @@ namespace ShareTrading
     public static Boolean GetDirectorsTransactions(DBAccess.DirectorsTransactions inRec, out List<DirectorsTransactions> list)
     {
       List<PgSqlParameter> paramList = new List<PgSqlParameter>();
-      paramList.Add(new PgSqlParameter("@P1", inRec.ASXCode));
-      paramList.Add(new PgSqlParameter("@P2", inRec.TransDate));
+      paramList.Add(new PgSqlParameter("@P1", inRec.ASXCodeDirectors));
+      paramList.Add(new PgSqlParameter("@P2", inRec.TransDateDirectors));
       paramList.Add(new PgSqlParameter("@P3", inRec.Type));
-      paramList.Add(new PgSqlParameter("@P4", inRec.Name));
+      paramList.Add(new PgSqlParameter("@P4", inRec.NameDirectors));
       paramList.Add(new PgSqlParameter("@P5", inRec.QtyShares));
       paramList.Add(new PgSqlParameter("@P6", inRec.Price));
 
@@ -2047,11 +2047,12 @@ namespace ShareTrading
           conn.Open();
           PgSqlCommand command = new PgSqlCommand();
           command.Connection = conn;
+          List<PgSqlParameter> allParams = new List<PgSqlParameter>();
           if (!incDeleted)
-            command.Parameters.Add("@P0", DateTime.MinValue);
+            allParams.Add(new PgSqlParameter("@P0", DateTime.MinValue));
           if (paramList != null)
-            command.Parameters.AddRange(paramList.ToArray());
-
+            allParams.AddRange(paramList.ToArray());
+          command.Parameters.AddRange(allParams.ToArray());
           command.CommandText = string.Format("SELECT {1} FROM {0} WHERE dt_datedeleted = @P0 {2} {3} ", "directors_transactions", reqdFields, extraWhere, orderBy);
           command.Prepare();
           try
@@ -2087,9 +2088,9 @@ namespace ShareTrading
       {
         DirectorsTransactions dtls = new DirectorsTransactions();
         dtls.ID = reader.GetInt32(0);
-        dtls.ASXCode = reader.GetString(1);
-        dtls.TransDate = reader.GetDateTime(2);
-        dtls.Name = reader.GetString(3);
+        dtls.ASXCodeDirectors = reader.GetString(1);
+        dtls.TransDateDirectors = reader.GetDateTime(2);
+        dtls.NameDirectors = reader.GetString(3);
         dtls.Type = reader.GetString(4);
         dtls.QtyShares = reader.GetInt32(5);
         dtls.Price = reader.GetDecimal(6);

@@ -46,7 +46,7 @@ namespace ShareTrading
             int counter = 0;
             List<DBAccess.DirectorsTransactions> list = new List<DBAccess.DirectorsTransactions>();
             DBAccess.DirectorsTransactions rec = new DBAccess.DirectorsTransactions();
-            rec.ASXCode = ASXCode;
+            rec.ASXCodeDirectors = ASXCode;
             bool validLine = true;
             foreach (var td_node in td_nodes)
             {
@@ -58,10 +58,10 @@ namespace ShareTrading
                 case 0:
                   DateTime t = DateTime.MinValue;
                   validLine = DateTime.TryParse(td_node.InnerText.Trim(), out t);
-                  rec.TransDate = t;
+                  rec.TransDateDirectors = t;
                   break;
                 case 1:
-                  rec.Name = td_node.InnerText.Trim();
+                  rec.NameDirectors = td_node.InnerText.Trim();
                   break;
                 case 2:
                   rec.Type = td_node.InnerText.Trim();
@@ -93,7 +93,10 @@ namespace ShareTrading
                 if (validLine)
                 {
                   if (!DBAccess.GetDirectorsTransactions(rec, out list))
-                    DBAccess.DBInsert(rec, "directors_transactions", typeof(DBAccess.DirectorsTransactions));
+                  {
+                    if (!rec.Type.Contains("Issued"))
+                      DBAccess.DBInsert(rec, "directors_transactions", typeof(DBAccess.DirectorsTransactions));
+                  }
                   else
                   {
                     rec.ID = list[0].ID;
@@ -106,16 +109,16 @@ namespace ShareTrading
               else
                 { }
                 rec = new DBAccess.DirectorsTransactions();
-                rec.ASXCode = ASXCode;
+                rec.ASXCodeDirectors = ASXCode;
                 counter = 0;
                 validLine = true;
               }
               else
                 counter++;
 
-              Console.WriteLine(" =======  td =============");
-              Console.WriteLine("LINK: {0}", td_node.GetAttributeValue("href", ""));
-              Console.WriteLine("TEXT: {0}", td_node.InnerText.Trim());
+              //Console.WriteLine(" =======  td =============");
+              //Console.WriteLine("LINK: {0}", td_node.GetAttributeValue("href", ""));
+              //Console.WriteLine("TEXT: {0}", td_node.InnerText.Trim());
             }
           }
         }

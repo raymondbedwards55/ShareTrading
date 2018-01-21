@@ -218,6 +218,7 @@
     </Compile>
     <None Include="Properties\DataSources\DBAccess.CompanyDetails.datasource" />
     <None Include="Properties\DataSources\DBAccess.datasource" />
+    <None Include="Properties\DataSources\DBAccess.DirectorsTransactions.datasource" />
     <None Include="Properties\DataSources\DBAccess.GLCodes.datasource" />
     <None Include="Properties\DataSources\DBAccess.GLType.datasource" />
     <None Include="Properties\DataSources\DBAccess.TransRecords.datasource" />

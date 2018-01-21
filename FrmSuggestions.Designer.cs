@@ -80,11 +80,12 @@
       System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
       System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle41 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle48 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle49 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle50 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle51 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle52 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle53 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle48 = new System.Windows.Forms.DataGridViewCellStyle();
       this.dgvToSell = new System.Windows.Forms.DataGridView();
       this.ASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.LastDividendAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -179,13 +180,33 @@
       this.FiveDayMinPctROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.FiveDayMinPctYearROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.FiveDayMinPrcDiffPct = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.tbxUnitPrice = new ShareTrading.UI.CurrencyTextbox();
       this.typeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.today = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.last7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.qtrDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.ytdDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.totalDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.Directors = new System.Windows.Forms.TabPage();
+      this.dgvDirectors = new System.Windows.Forms.DataGridView();
+      this.DirectorsBindingSource = new System.Windows.Forms.BindingSource(this.components);
+      this.label5 = new System.Windows.Forms.Label();
+      this.dtpDirFrom = new System.Windows.Forms.DateTimePicker();
+      this.dtpDirTo = new System.Windows.Forms.DateTimePicker();
+      this.label6 = new System.Windows.Forms.Label();
+      this.chbWatchlistOnly = new System.Windows.Forms.CheckBox();
+      this.iDDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.ASXCodeDirectors = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.TransDateDirectors = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.NameDirectors = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.QtyShares = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.Price = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.Value = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.Notes = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.DateCreated = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.DateModified = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.DateDeleted = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.tbxUnitPrice = new ShareTrading.UI.CurrencyTextbox();
       ((System.ComponentModel.ISupportInitialize)(this.dgvToSell)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.ToSellBindingSource)).BeginInit();
       this.toolStrip1.SuspendLayout();
@@ -208,6 +229,9 @@
       this.Chart.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
       this.groupBox1.SuspendLayout();
+      this.Directors.SuspendLayout();
+      ((System.ComponentModel.ISupportInitialize)(this.dgvDirectors)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.DirectorsBindingSource)).BeginInit();
       this.SuspendLayout();
       // 
       // dgvToSell
@@ -444,6 +468,7 @@
       this.tabSells.Controls.Add(this.FiveDayMinTab);
       this.tabSells.Controls.Add(this.TransactionsTab);
       this.tabSells.Controls.Add(this.Chart);
+      this.tabSells.Controls.Add(this.Directors);
       this.tabSells.Location = new System.Drawing.Point(515, 28);
       this.tabSells.Name = "tabSells";
       this.tabSells.SelectedIndex = 0;
@@ -473,7 +498,7 @@
       this.Buys.Location = new System.Drawing.Point(4, 22);
       this.Buys.Name = "Buys";
       this.Buys.Padding = new System.Windows.Forms.Padding(3);
-      this.Buys.Size = new System.Drawing.Size(1224, 704);
+      this.Buys.Size = new System.Drawing.Size(1267, 704);
       this.Buys.TabIndex = 1;
       this.Buys.Text = "Buys";
       this.Buys.UseVisualStyleBackColor = true;
@@ -573,7 +598,7 @@
       this.ReBuys.Controls.Add(this.dgvToReBuy);
       this.ReBuys.Location = new System.Drawing.Point(4, 22);
       this.ReBuys.Name = "ReBuys";
-      this.ReBuys.Size = new System.Drawing.Size(1224, 704);
+      this.ReBuys.Size = new System.Drawing.Size(1267, 704);
       this.ReBuys.TabIndex = 2;
       this.ReBuys.Text = "ReBuys";
       this.ReBuys.UseVisualStyleBackColor = true;
@@ -630,7 +655,7 @@
       this.FiveDayMinTab.Controls.Add(this.dgv5DayMin);
       this.FiveDayMinTab.Location = new System.Drawing.Point(4, 22);
       this.FiveDayMinTab.Name = "FiveDayMinTab";
-      this.FiveDayMinTab.Size = new System.Drawing.Size(1224, 704);
+      this.FiveDayMinTab.Size = new System.Drawing.Size(1267, 704);
       this.FiveDayMinTab.TabIndex = 4;
       this.FiveDayMinTab.Text = "5 Day Min";
       this.FiveDayMinTab.UseVisualStyleBackColor = true;
@@ -660,7 +685,7 @@
       this.dgv5DayMin.DataSource = this.FiveDayMinBindingSource;
       this.dgv5DayMin.Location = new System.Drawing.Point(6, 3);
       this.dgv5DayMin.Name = "dgv5DayMin";
-      this.dgv5DayMin.Size = new System.Drawing.Size(1218, 698);
+      this.dgv5DayMin.Size = new System.Drawing.Size(1261, 698);
       this.dgv5DayMin.TabIndex = 0;
       this.dgv5DayMin.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvFiveDayMin_CellFormatting);
       this.dgv5DayMin.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvFiveDayMin_ColumnHeaderMouseClick);
@@ -674,7 +699,7 @@
       this.TransactionsTab.Controls.Add(this.dgvTransactions);
       this.TransactionsTab.Location = new System.Drawing.Point(4, 22);
       this.TransactionsTab.Name = "TransactionsTab";
-      this.TransactionsTab.Size = new System.Drawing.Size(1224, 704);
+      this.TransactionsTab.Size = new System.Drawing.Size(1267, 704);
       this.TransactionsTab.TabIndex = 3;
       this.TransactionsTab.Text = "Transactions";
       this.TransactionsTab.UseVisualStyleBackColor = true;
@@ -699,7 +724,7 @@
       this.dgvTransactions.DataSource = this.TransactionsBindingSource;
       this.dgvTransactions.Location = new System.Drawing.Point(3, 0);
       this.dgvTransactions.Name = "dgvTransactions";
-      this.dgvTransactions.Size = new System.Drawing.Size(1218, 698);
+      this.dgvTransactions.Size = new System.Drawing.Size(1261, 698);
       this.dgvTransactions.TabIndex = 0;
       this.dgvTransactions.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvTransactions_CellFormatting);
       this.dgvTransactions.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvTransactions_ColumnHeaderMouseClick);
@@ -1065,7 +1090,7 @@
       this.Chart.Location = new System.Drawing.Point(4, 22);
       this.Chart.Name = "Chart";
       this.Chart.Padding = new System.Windows.Forms.Padding(3);
-      this.Chart.Size = new System.Drawing.Size(1224, 704);
+      this.Chart.Size = new System.Drawing.Size(1267, 704);
       this.Chart.TabIndex = 5;
       this.Chart.Text = "Chart";
       this.Chart.UseVisualStyleBackColor = true;
@@ -1225,14 +1250,6 @@
       this.FiveDayMinPrcDiffPct.HeaderText = "5 Day Movement";
       this.FiveDayMinPrcDiffPct.Name = "FiveDayMinPrcDiffPct";
       // 
-      // tbxUnitPrice
-      // 
-      this.tbxUnitPrice.Location = new System.Drawing.Point(888, 7);
-      this.tbxUnitPrice.Name = "tbxUnitPrice";
-      this.tbxUnitPrice.Size = new System.Drawing.Size(100, 20);
-      this.tbxUnitPrice.TabIndex = 6;
-      this.tbxUnitPrice.WorkingText = null;
-      // 
       // typeDataGridViewTextBoxColumn
       // 
       this.typeDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
@@ -1243,43 +1260,230 @@
       // today
       // 
       this.today.DataPropertyName = "today";
-      dataGridViewCellStyle48.Format = "C2";
-      this.today.DefaultCellStyle = dataGridViewCellStyle48;
+      dataGridViewCellStyle49.Format = "C2";
+      this.today.DefaultCellStyle = dataGridViewCellStyle49;
       this.today.HeaderText = "Today";
       this.today.Name = "today";
       // 
       // last7
       // 
       this.last7.DataPropertyName = "last7";
-      dataGridViewCellStyle49.Format = "C2";
-      this.last7.DefaultCellStyle = dataGridViewCellStyle49;
+      dataGridViewCellStyle50.Format = "C2";
+      this.last7.DefaultCellStyle = dataGridViewCellStyle50;
       this.last7.HeaderText = "Last 7 Days";
       this.last7.Name = "last7";
       // 
       // qtrDataGridViewTextBoxColumn
       // 
       this.qtrDataGridViewTextBoxColumn.DataPropertyName = "qtr";
-      dataGridViewCellStyle50.Format = "C2";
-      this.qtrDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle50;
+      dataGridViewCellStyle51.Format = "C2";
+      this.qtrDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle51;
       this.qtrDataGridViewTextBoxColumn.HeaderText = "Qtr to Date";
       this.qtrDataGridViewTextBoxColumn.Name = "qtrDataGridViewTextBoxColumn";
       // 
       // ytdDataGridViewTextBoxColumn
       // 
       this.ytdDataGridViewTextBoxColumn.DataPropertyName = "ytd";
-      dataGridViewCellStyle51.Format = "C2";
-      this.ytdDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle51;
+      dataGridViewCellStyle52.Format = "C2";
+      this.ytdDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle52;
       this.ytdDataGridViewTextBoxColumn.HeaderText = "YTD";
       this.ytdDataGridViewTextBoxColumn.Name = "ytdDataGridViewTextBoxColumn";
       // 
       // totalDataGridViewTextBoxColumn
       // 
       this.totalDataGridViewTextBoxColumn.DataPropertyName = "total";
-      dataGridViewCellStyle52.Format = "C2";
-      this.totalDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle52;
+      dataGridViewCellStyle53.Format = "C2";
+      this.totalDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle53;
       this.totalDataGridViewTextBoxColumn.HeaderText = "total";
       this.totalDataGridViewTextBoxColumn.Name = "totalDataGridViewTextBoxColumn";
       this.totalDataGridViewTextBoxColumn.Visible = false;
+      // 
+      // Directors
+      // 
+      this.Directors.Controls.Add(this.chbWatchlistOnly);
+      this.Directors.Controls.Add(this.label6);
+      this.Directors.Controls.Add(this.dtpDirTo);
+      this.Directors.Controls.Add(this.label5);
+      this.Directors.Controls.Add(this.dtpDirFrom);
+      this.Directors.Controls.Add(this.dgvDirectors);
+      this.Directors.Location = new System.Drawing.Point(4, 22);
+      this.Directors.Name = "Directors";
+      this.Directors.Size = new System.Drawing.Size(1267, 704);
+      this.Directors.TabIndex = 6;
+      this.Directors.Text = "Director\'s";
+      this.Directors.UseVisualStyleBackColor = true;
+      // 
+      // dgvDirectors
+      // 
+      this.dgvDirectors.AutoGenerateColumns = false;
+      this.dgvDirectors.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+      this.dgvDirectors.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.iDDataGridViewTextBoxColumn,
+            this.ASXCodeDirectors,
+            this.TransDateDirectors,
+            this.NameDirectors,
+            this.Type,
+            this.QtyShares,
+            this.Price,
+            this.Value,
+            this.Notes,
+            this.DateCreated,
+            this.DateModified,
+            this.DateDeleted});
+      this.dgvDirectors.DataSource = this.DirectorsBindingSource;
+      this.dgvDirectors.Location = new System.Drawing.Point(3, 32);
+      this.dgvDirectors.Name = "dgvDirectors";
+      this.dgvDirectors.Size = new System.Drawing.Size(1261, 669);
+      this.dgvDirectors.TabIndex = 0;
+      this.dgvDirectors.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvDirectors_ColumnHeaderMouseClick);
+      // 
+      // DirectorsBindingSource
+      // 
+      this.DirectorsBindingSource.AllowNew = false;
+      this.DirectorsBindingSource.DataSource = typeof(ShareTrading.DBAccess.DirectorsTransactions);
+      // 
+      // label5
+      // 
+      this.label5.AutoSize = true;
+      this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.label5.Location = new System.Drawing.Point(279, 13);
+      this.label5.Name = "label5";
+      this.label5.Size = new System.Drawing.Size(160, 16);
+      this.label5.TabIndex = 6;
+      this.label5.Text = "Transactions between";
+      // 
+      // dtpDirFrom
+      // 
+      this.dtpDirFrom.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.dtpDirFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+      this.dtpDirFrom.Location = new System.Drawing.Point(445, 8);
+      this.dtpDirFrom.Name = "dtpDirFrom";
+      this.dtpDirFrom.Size = new System.Drawing.Size(122, 22);
+      this.dtpDirFrom.TabIndex = 5;
+      this.dtpDirFrom.Value = new System.DateTime(2017, 11, 22, 0, 0, 0, 0);
+      this.dtpDirFrom.ValueChanged += new System.EventHandler(this.dtpDirFrom_ValueChanged);
+      // 
+      // dtpDirTo
+      // 
+      this.dtpDirTo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.dtpDirTo.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+      this.dtpDirTo.Location = new System.Drawing.Point(623, 8);
+      this.dtpDirTo.Name = "dtpDirTo";
+      this.dtpDirTo.Size = new System.Drawing.Size(122, 22);
+      this.dtpDirTo.TabIndex = 7;
+      this.dtpDirTo.Value = new System.DateTime(2017, 11, 22, 0, 0, 0, 0);
+      this.dtpDirTo.ValueChanged += new System.EventHandler(this.dtpDirTo_ValueChanged);
+      // 
+      // label6
+      // 
+      this.label6.AutoSize = true;
+      this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.label6.Location = new System.Drawing.Point(573, 13);
+      this.label6.Name = "label6";
+      this.label6.Size = new System.Drawing.Size(34, 16);
+      this.label6.TabIndex = 8;
+      this.label6.Text = "and";
+      // 
+      // chbWatchlistOnly
+      // 
+      this.chbWatchlistOnly.AutoSize = true;
+      this.chbWatchlistOnly.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.chbWatchlistOnly.Location = new System.Drawing.Point(49, 8);
+      this.chbWatchlistOnly.Name = "chbWatchlistOnly";
+      this.chbWatchlistOnly.Size = new System.Drawing.Size(129, 20);
+      this.chbWatchlistOnly.TabIndex = 9;
+      this.chbWatchlistOnly.Text = "WatchList Only";
+      this.chbWatchlistOnly.UseVisualStyleBackColor = true;
+      this.chbWatchlistOnly.CheckedChanged += new System.EventHandler(this.chbWatchlistOnly_CheckedChanged);
+      // 
+      // iDDataGridViewTextBoxColumn
+      // 
+      this.iDDataGridViewTextBoxColumn.DataPropertyName = "ID";
+      this.iDDataGridViewTextBoxColumn.HeaderText = "ID";
+      this.iDDataGridViewTextBoxColumn.Name = "iDDataGridViewTextBoxColumn";
+      this.iDDataGridViewTextBoxColumn.Visible = false;
+      // 
+      // ASXCodeDirectors
+      // 
+      this.ASXCodeDirectors.DataPropertyName = "ASXCodeDirectors";
+      this.ASXCodeDirectors.HeaderText = "ASXCode";
+      this.ASXCodeDirectors.Name = "ASXCodeDirectors";
+      // 
+      // TransDateDirectors
+      // 
+      this.TransDateDirectors.DataPropertyName = "TransDateDirectors";
+      this.TransDateDirectors.HeaderText = "TransDate";
+      this.TransDateDirectors.Name = "TransDateDirectors";
+      // 
+      // NameDirectors
+      // 
+      this.NameDirectors.DataPropertyName = "NameDirectors";
+      this.NameDirectors.HeaderText = "Name";
+      this.NameDirectors.Name = "NameDirectors";
+      this.NameDirectors.Width = 200;
+      // 
+      // Type
+      // 
+      this.Type.DataPropertyName = "Type";
+      this.Type.HeaderText = "Type";
+      this.Type.Name = "Type";
+      // 
+      // QtyShares
+      // 
+      this.QtyShares.DataPropertyName = "QtyShares";
+      this.QtyShares.HeaderText = "Qty Shares";
+      this.QtyShares.Name = "QtyShares";
+      // 
+      // Price
+      // 
+      this.Price.DataPropertyName = "Price";
+      this.Price.HeaderText = "Price per Share";
+      this.Price.Name = "Price";
+      // 
+      // Value
+      // 
+      this.Value.DataPropertyName = "Value";
+      dataGridViewCellStyle48.Format = "C2";
+      dataGridViewCellStyle48.NullValue = null;
+      this.Value.DefaultCellStyle = dataGridViewCellStyle48;
+      this.Value.HeaderText = "Value";
+      this.Value.Name = "Value";
+      // 
+      // Notes
+      // 
+      this.Notes.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+      this.Notes.DataPropertyName = "Notes";
+      this.Notes.HeaderText = "Notes";
+      this.Notes.Name = "Notes";
+      // 
+      // DateCreated
+      // 
+      this.DateCreated.DataPropertyName = "DateCreated";
+      this.DateCreated.HeaderText = "DateCreated";
+      this.DateCreated.Name = "DateCreated";
+      this.DateCreated.Visible = false;
+      // 
+      // DateModified
+      // 
+      this.DateModified.DataPropertyName = "DateModified";
+      this.DateModified.HeaderText = "DateModified";
+      this.DateModified.Name = "DateModified";
+      this.DateModified.Visible = false;
+      // 
+      // DateDeleted
+      // 
+      this.DateDeleted.DataPropertyName = "DateDeleted";
+      this.DateDeleted.HeaderText = "DateDeleted";
+      this.DateDeleted.Name = "DateDeleted";
+      this.DateDeleted.Visible = false;
+      // 
+      // tbxUnitPrice
+      // 
+      this.tbxUnitPrice.Location = new System.Drawing.Point(888, 7);
+      this.tbxUnitPrice.Name = "tbxUnitPrice";
+      this.tbxUnitPrice.Size = new System.Drawing.Size(100, 20);
+      this.tbxUnitPrice.TabIndex = 6;
+      this.tbxUnitPrice.WorkingText = null;
       // 
       // FrmSuggestions
       // 
@@ -1323,6 +1527,10 @@
       ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
       this.groupBox1.ResumeLayout(false);
       this.groupBox1.PerformLayout();
+      this.Directors.ResumeLayout(false);
+      this.Directors.PerformLayout();
+      ((System.ComponentModel.ISupportInitialize)(this.dgvDirectors)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.DirectorsBindingSource)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -1432,5 +1640,25 @@
     private System.Windows.Forms.DataGridViewTextBoxColumn qtrDataGridViewTextBoxColumn;
     private System.Windows.Forms.DataGridViewTextBoxColumn ytdDataGridViewTextBoxColumn;
     private System.Windows.Forms.DataGridViewTextBoxColumn totalDataGridViewTextBoxColumn;
+    private System.Windows.Forms.TabPage Directors;
+    private System.Windows.Forms.DataGridView dgvDirectors;
+    private System.Windows.Forms.BindingSource DirectorsBindingSource;
+    private System.Windows.Forms.CheckBox chbWatchlistOnly;
+    private System.Windows.Forms.Label label6;
+    private System.Windows.Forms.DateTimePicker dtpDirTo;
+    private System.Windows.Forms.Label label5;
+    private System.Windows.Forms.DateTimePicker dtpDirFrom;
+    private System.Windows.Forms.DataGridViewTextBoxColumn iDDataGridViewTextBoxColumn;
+    private System.Windows.Forms.DataGridViewTextBoxColumn ASXCodeDirectors;
+    private System.Windows.Forms.DataGridViewTextBoxColumn TransDateDirectors;
+    private System.Windows.Forms.DataGridViewTextBoxColumn NameDirectors;
+    private System.Windows.Forms.DataGridViewTextBoxColumn Type;
+    private System.Windows.Forms.DataGridViewTextBoxColumn QtyShares;
+    private System.Windows.Forms.DataGridViewTextBoxColumn Price;
+    private System.Windows.Forms.DataGridViewTextBoxColumn Value;
+    private System.Windows.Forms.DataGridViewTextBoxColumn Notes;
+    private System.Windows.Forms.DataGridViewTextBoxColumn DateCreated;
+    private System.Windows.Forms.DataGridViewTextBoxColumn DateModified;
+    private System.Windows.Forms.DataGridViewTextBoxColumn DateDeleted;
   }
 }

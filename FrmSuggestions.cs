@@ -37,6 +37,12 @@ namespace ShareTrading
       dtpLastDivDate.Text = dtpLastDivDate.Value.AddYears(-1).ToString();
       dtpLastDivDate.Enabled = true;
 
+      // Directors transactions
+      dtpDirFrom.Value = DateTime.Today.AddMonths(-12);
+      dtpDirTo.Value = DateTime.Today;
+      chbWatchlistOnly.Checked = true;
+      populateDirectors();
+
       
     }
 
@@ -224,6 +230,7 @@ namespace ShareTrading
       populateTransactions();
       populateStats();
       populateChart();
+      populateDirectors();
     }
 
     private int _previousIndex;
@@ -1025,6 +1032,92 @@ namespace ShareTrading
         populateTransactions();
       }
     }
+    //  ****  Directors' Transactions Tab
+    private void populateDirectors()
+    {
+      if (DateTime.Compare(dtpDirFrom.Value, dtpDirTo.Value) > 0)
+      {
+        MessageBox.Show("Please ensure that 'from' date is earlier than 'to' date");
+        return;
+      }
+      List<DBAccess.DirectorsTransactions> displayList = new List<DBAccess.DirectorsTransactions>();
+      // Get all the shares we have stock of
+      List<DBAccess.DirectorsTransactions> transList = null;
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", dtpDirFrom .Value)); // DateTime.Today.AddMonths(-12)));
+      paramList.Add(new PgSqlParameter("@P2", dtpDirTo.Value));     // DateTime.Today.AddDays(1)));
+    
+      //// if only want 'watchlist', then get the lsit of ASX Codes
+      //string extraWhere = string.Empty;
+      
+      string extraWhere = " AND dt_type NOT IN ('Issued') AND dt_transdate BETWEEN @P1 AND @P2 ";
+      if (chbWatchlistOnly.Checked)
+      {
+        List<DBAccess.CompanyDetails> coList = new List<DBAccess.CompanyDetails>();
+        if (DBAccess.GetCompanyDetails(null, out coList, false, true))
+        {
+          List<string> coNames = coList.Select(x => x.ASXCode).ToList();
+          extraWhere += string.Format(" AND dt_asxcode IN ({0}) ",string.Format("'{0}'", string.Join("', '", coNames.ToArray()))) ;
+        }
+
+
+      }
+
+      if (!DBAccess.GetDirectorsTransactions(paramList, out transList, DBAccess.DirectorsTransactionsFieldList, extraWhere, " ORDER BY dt_transdate DESC, dt_ASXCode", false))
+      {
+        MessageBox.Show("No Directors Transactions found", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        return;
+      }
+      // 
+      dgvDirectors.DataSource = null;
+      DirectorsBindingSource.DataSource = transList;
+      dgvDirectors.DataSource = DirectorsBindingSource;
+      dgvDirectors.Refresh();
+
+    }
+
+
+
+     private void dgvDirectors_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+    {
+      if (e.ColumnIndex == _previousIndex)
+        _sortDirection ^= true; // toggle direction
+
+      dgvDirectors.DataSource = SortDirectorsData(
+          (List<DBAccess.DirectorsTransactions>)DirectorsBindingSource.DataSource, dgvDirectors.Columns[e.ColumnIndex].Name, _sortDirection);
+
+      _previousIndex = e.ColumnIndex;
+    }
+
+    public List<DBAccess.DirectorsTransactions> SortDirectorsData(List<DBAccess.DirectorsTransactions> list, string column, bool ascending)
+    {
+      try
+      {
+        return ascending ?
+           /* RefreshId( */ list.OrderBy(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /* ) */ :
+           /* RefreshId( */ list.OrderByDescending(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /*) */;
+      }
+      catch
+      { }
+      return list;
+    }
+    private void chbWatchlistOnly_CheckedChanged(object sender, EventArgs e)
+    {
+      populateDirectors();
+    }
+    private void dtpDirFrom_ValueChanged(object sender, EventArgs e)
+    {
+      if (DateTime.Compare(dtpDirFrom.Value, dtpDirTo.Value) <= 0)
+        populateDirectors();
+    }
+
+    private void dtpDirTo_ValueChanged(object sender, EventArgs e)
+    {
+      if (DateTime.Compare(dtpDirFrom.Value, dtpDirTo.Value) <= 0)
+        populateDirectors();
+
+    }
+
 
     // ***************************  Stats *********************
     public class Stats
@@ -1226,6 +1319,8 @@ namespace ShareTrading
 
       return tpEntries;
     }
+
+
   }
   public enum TradingStatsType
   {
