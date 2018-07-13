@@ -64,6 +64,8 @@ namespace ShareTrading
         Close();
       }
 
+      if (!backgroundWorkerONight.IsBusy)
+        backgroundWorkerONight.RunWorkerAsync();
      }
 
     private void Form1_Load(object sender, EventArgs e)
@@ -231,7 +233,7 @@ namespace ShareTrading
 
                 //                if (ASXPriceDate.ASXCode != "LL")
                 //                   continue;
-                int ID = rec.ID;
+                long ID = rec.ID;
                 DBAccess.DivPaid dp = CommonFunctions.CheckForDividends(rec.ASXCode, rec.PriceDate, runningSimulation);
                 //if (dp != null)
                 //    DayDivTotal = dp.TtlDividend + DayDivTotal;
@@ -1475,17 +1477,107 @@ namespace ShareTrading
       }
     }
 
+    // **********************************  Overnight Processes ************************************************
+
     private void marketIndexDataToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+          MarketIndexScrape.Run();          // get Directors Transactions for last 100 days
+
+    }
+
+    private void companyDataToolStripMenuItem_Click(object sender, EventArgs e)
     {
       // Get all company names & then scrape for each company asx code
       List<DBAccess.CompanyDetails> coList = new List<DBAccess.CompanyDetails>();
+      DateTime _thisDate = DateTime.Today;
       if (DBAccess.GetCompanyDetails(null, out coList))
       {
         foreach (DBAccess.CompanyDetails co in coList)
         {
-          MarketIndexScrape.Run(co.ASXCode);
+          MarketIndexScrape.Run( co, _thisDate);
+          System.Threading.Thread.Sleep(6000);
+          //break;
         }
       }
+      // Get Recommendations
+      MarketIndexScrape.Recommendations();
+
+    }
+
+    private void backgroundWorkerONight_DoWork(object sender, DoWorkEventArgs e)
+    {
+      // Has it already been run today?
+      DBAccess.SystemVars nextRunRec = new DBAccess.SystemVars();
+      nextRunRec.Description = "NEXT_RUN";
+      nextRunRec = DBAccess.GetSpecificSystemVarRecord(nextRunRec);
+      if (nextRunRec == null)
+      {
+        nextRunRec = new DBAccess.SystemVars();
+        nextRunRec.Description = "NEXT_RUN";
+        nextRunRec.VarDate = DateTime.Today.AddDays(-1).AddHours(16);
+        nextRunRec.Status = string.Format("Never run");
+        nextRunRec.Notes = string.Empty;
+        nextRunRec.DateCreated = DateTime.Now;
+        nextRunRec.DateModified = DateTime.Now;
+        DBAccess.DBInsert(nextRunRec, "system_vars", typeof(DBAccess.SystemVars));
+      }
+      //
+      DateTime curTime = DateTime.Now;
+      DateTime tradingStart = DateTime.Today.AddHours(10);
+      DateTime tradingEnd = DateTime.Today.AddHours(12);
+      while (DateTime.Compare(tradingStart, curTime) <= 0 && DateTime.Compare(curTime, tradingEnd) <=  0 && DateTime.Compare(nextRunRec.VarDate, curTime) <= 0)
+      {
+        long nrMilliseconds = (((tradingEnd.Hour - curTime.Hour) * 3600) + ((tradingEnd.Minute - curTime.Minute) * 60) + (tradingEnd.Second - curTime.Second)) * 1000;
+        System.Threading.Thread.Sleep((int)nrMilliseconds);
+        curTime = DateTime.Now;
+      }
+      MarketIndexScrape.Run();          // get Directors Transactions for last 100 days
+
+      // Get all company names & then scrape for each company asx code
+
+      List<DBAccess.CompanyDetails> coList = new List<DBAccess.CompanyDetails>();
+      DateTime _thisDate = DateTime.Today;
+      if (DBAccess.GetCompanyDetails(null, out coList))
+      {
+        foreach (DBAccess.CompanyDetails co in coList)
+        {
+          MarketIndexScrape.Run(co, _thisDate);
+          System.Threading.Thread.Sleep(6000);
+          //break;
+        }
+      }
+      // Get Recommendations
+      MarketIndexScrape.Recommendations();
+
+    }
+
+    private void backgroundWorkerONight_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+    {
+      DBAccess.SystemVars nextRunRec = new DBAccess.SystemVars();
+      nextRunRec.Description = "NEXT_RUN";
+      nextRunRec = DBAccess.GetSpecificSystemVarRecord(nextRunRec);
+      if (nextRunRec == null)
+      {
+        nextRunRec.Description = "NEXT_RUN";
+        nextRunRec.VarDate = DateTime.Today.AddDays(-1).AddHours(16);
+        nextRunRec.Status = string.Format("First Run");
+        nextRunRec.Notes = string.Empty;
+        nextRunRec.DateCreated = DateTime.Now;
+        nextRunRec.DateModified = DateTime.Now;
+
+        DBAccess.DBInsert(nextRunRec, "system_vars", typeof(DBAccess.SystemVars));
+      }
+      else
+      {
+        nextRunRec.VarDate = DateTime.Today.AddDays(1).AddHours(16);
+        nextRunRec.Status = string.Format("Next Run");
+        nextRunRec.Notes = string.Format("Last Run finished at {0}", DateTime.Now.ToString());
+        nextRunRec.DateCreated = DateTime.Now;
+        nextRunRec.DateModified = DateTime.Now;
+        DBAccess.DBUpdate(nextRunRec, "system_vars", typeof(DBAccess.SystemVars));
+
+      }
+
     }
   }
 }

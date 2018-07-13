@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
       this.components = new System.ComponentModel.Container();
-      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-      System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-      System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+      System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+      System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
       this.button5 = new System.Windows.Forms.Button();
       this.dataGridView2 = new System.Windows.Forms.DataGridView();
       this.dataGridView1 = new System.Windows.Forms.DataGridView();
@@ -45,6 +45,7 @@
       this.importYahooDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItem_importDivHistory = new System.Windows.Forms.ToolStripMenuItem();
       this.importPriceHistoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.marketIndexDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.importNABPricesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.importNABTransactionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.importNABDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -80,7 +81,8 @@
       this.statusLabel = new System.Windows.Forms.Label();
       this.shareAnalV2DataSetBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.btnUpdateBrokerage = new System.Windows.Forms.Button();
-      this.marketIndexDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.companyDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.backgroundWorkerONight = new System.ComponentModel.BackgroundWorker();
       ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.DgvSuggestedBuys)).BeginInit();
@@ -123,7 +125,6 @@
       // 
       // timer1
       // 
-      this.timer1.Enabled = true;
       this.timer1.Interval = 21600;
       this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
       // 
@@ -179,7 +180,8 @@
             this.importRecentPricesToolStripMenuItem1,
             this.toolStripMenuItem_importDivHistory,
             this.importPriceHistoryToolStripMenuItem,
-            this.marketIndexDataToolStripMenuItem});
+            this.marketIndexDataToolStripMenuItem,
+            this.companyDataToolStripMenuItem});
       this.importYahooDataToolStripMenuItem.Name = "importYahooDataToolStripMenuItem";
       this.importYahooDataToolStripMenuItem.Size = new System.Drawing.Size(119, 20);
       this.importYahooDataToolStripMenuItem.Text = "Import Yahoo Data";
@@ -197,6 +199,13 @@
       this.importPriceHistoryToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
       this.importPriceHistoryToolStripMenuItem.Text = "Import Price History";
       this.importPriceHistoryToolStripMenuItem.Click += new System.EventHandler(this.importPriceHistoryToolStripMenuItem_Click);
+      // 
+      // marketIndexDataToolStripMenuItem
+      // 
+      this.marketIndexDataToolStripMenuItem.Name = "marketIndexDataToolStripMenuItem";
+      this.marketIndexDataToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
+      this.marketIndexDataToolStripMenuItem.Text = "Directors Transactions";
+      this.marketIndexDataToolStripMenuItem.Click += new System.EventHandler(this.marketIndexDataToolStripMenuItem_Click);
       // 
       // importNABPricesToolStripMenuItem
       // 
@@ -232,7 +241,7 @@
       // suggestionsToolStripMenuItem
       // 
       this.suggestionsToolStripMenuItem.Name = "suggestionsToolStripMenuItem";
-      this.suggestionsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.suggestionsToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
       this.suggestionsToolStripMenuItem.Text = "Suggestions";
       this.suggestionsToolStripMenuItem.Click += new System.EventHandler(this.suggestionsToolStripMenuItem_Click);
       // 
@@ -410,7 +419,7 @@
       // toMYOBToolStripMenuItem
       // 
       this.toMYOBToolStripMenuItem.Name = "toMYOBToolStripMenuItem";
-      this.toMYOBToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.toMYOBToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
       this.toMYOBToolStripMenuItem.Text = "ToMYOB";
       this.toMYOBToolStripMenuItem.Click += new System.EventHandler(this.toMYOBToolStripMenuItem_Click);
       // 
@@ -443,17 +452,17 @@
       // 
       // chart1
       // 
-      chartArea6.Name = "ChartArea1";
-      this.chart1.ChartAreas.Add(chartArea6);
-      legend6.Name = "Legend1";
-      this.chart1.Legends.Add(legend6);
+      chartArea3.Name = "ChartArea1";
+      this.chart1.ChartAreas.Add(chartArea3);
+      legend3.Name = "Legend1";
+      this.chart1.Legends.Add(legend3);
       this.chart1.Location = new System.Drawing.Point(12, 142);
       this.chart1.Name = "chart1";
-      series6.ChartArea = "ChartArea1";
-      series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-      series6.Legend = "Legend1";
-      series6.Name = "Series1";
-      this.chart1.Series.Add(series6);
+      series3.ChartArea = "ChartArea1";
+      series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+      series3.Legend = "Legend1";
+      series3.Name = "Series1";
+      this.chart1.Series.Add(series3);
       this.chart1.Size = new System.Drawing.Size(797, 350);
       this.chart1.TabIndex = 47;
       this.chart1.Text = "Suggested Sells";
@@ -501,12 +510,17 @@
       this.btnUpdateBrokerage.UseVisualStyleBackColor = true;
       this.btnUpdateBrokerage.Click += new System.EventHandler(this.btnUpdateBrokerage_Click);
       // 
-      // marketIndexDataToolStripMenuItem
+      // companyDataToolStripMenuItem
       // 
-      this.marketIndexDataToolStripMenuItem.Name = "marketIndexDataToolStripMenuItem";
-      this.marketIndexDataToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
-      this.marketIndexDataToolStripMenuItem.Text = "Market Index Data";
-      this.marketIndexDataToolStripMenuItem.Click += new System.EventHandler(this.marketIndexDataToolStripMenuItem_Click);
+      this.companyDataToolStripMenuItem.Name = "companyDataToolStripMenuItem";
+      this.companyDataToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
+      this.companyDataToolStripMenuItem.Text = "Company Data";
+      this.companyDataToolStripMenuItem.Click += new System.EventHandler(this.companyDataToolStripMenuItem_Click);
+      // 
+      // backgroundWorkerONight
+      // 
+      this.backgroundWorkerONight.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorkerONight_DoWork);
+      this.backgroundWorkerONight.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorkerONight_RunWorkerCompleted);
       // 
       // Form1
       // 
@@ -605,6 +619,8 @@
     private System.Windows.Forms.ToolStripMenuItem editCompanyDetailsToolStripMenuItem;
     private System.Windows.Forms.Button btnUpdateBrokerage;
     private System.Windows.Forms.ToolStripMenuItem marketIndexDataToolStripMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem companyDataToolStripMenuItem;
+    private System.ComponentModel.BackgroundWorker backgroundWorkerONight;
   }
 }
 

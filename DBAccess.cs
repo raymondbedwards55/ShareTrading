@@ -145,9 +145,13 @@ namespace ShareTrading
           PgSqlCommand command = new PgSqlCommand();
           command.Connection = conn;
           command.CommandText = buildInsertList(tableName, classType, memberList);
-          for (int i = 1; i < memberList.Count + 1; i++)                                         // Field zero is ID which is system generated
-            command.Parameters.Add(memberList[i - 1].paramName, memberList[i-1].memberName.Contains("DateCreated") || memberList[i - 1].memberName.Contains("DateModified") ? DateTime.Now : memberList[i - 1].memberValue);
 
+          for (int i = 1; i < memberList.Count + 1; i++)                                         // Field zero is ID which is system generated
+          {
+            if (memberList[i -1].memberName.Contains("ate"))
+            { }
+            command.Parameters.Add(memberList[i - 1].paramName, memberList[i - 1].memberName.Contains("DateCreated") || memberList[i - 1].memberName.Contains("DateModified") ? DateTime.Now : memberList[i - 1].memberValue);
+          }
           command.Prepare();
           try
           {
@@ -1500,7 +1504,7 @@ namespace ShareTrading
     //  **************************************************************************************************
     public class ASXPriceDate
     {
-      public int ID { get; set; }
+      public long ID { get; set; }
       public DateTime PriceDate { get; set; }
       public String ASXCode { get; set; }
       public Decimal PrcOpen { get; set; }
@@ -1524,6 +1528,8 @@ namespace ShareTrading
       public DateTime DateCreated { get; set; }
       public DateTime DateModified { get; set; }
       public DateTime DateDeleted { get; set; }
+      public String RecalcReqd { get; set; }
+
     }
    
 
@@ -1609,7 +1615,7 @@ namespace ShareTrading
         else
         {
 
-          PrcDte.ID = priceReader.GetInt32(0);
+          PrcDte.ID = priceReader.GetInt64(0);
           PrcDte.PriceDate = priceReader.GetDateTime(1);
           PrcDte.ASXCode = priceReader.GetString(2); ;
           PrcDte.PrcOpen = priceReader.GetDecimal(3);
@@ -1633,6 +1639,7 @@ namespace ShareTrading
           PrcDte.DateCreated = priceReader.GetDateTime(21);
           PrcDte.DateModified = priceReader.GetDateTime(22);
           PrcDte.DateDeleted = priceReader.GetDateTime(23);
+          PrcDte.RecalcReqd = priceReader.GetString(24);
         }
 
         inputList.Add(PrcDte);
@@ -1640,12 +1647,27 @@ namespace ShareTrading
 
       return inputList;
     }
-
     public static ASXPriceDate GetSpecificASXPriceRecord(string ASXCode, DateTime dt)
+    {
+      return GetSpecificASXPriceRecord(ASXCode, dt, false);
+    }
+
+    public static ASXPriceDate GetSpecificASXPriceRecord(string ASXCode, DateTime dt, bool exact)
     {
       List<ASXPriceDate> list;
       if (GetAllPrices(ASXCode, dt, out list, ASXPriceDateFieldList))
-        return list[0];
+      {
+        if (!exact)
+          return list[0];
+        else
+        {
+          List<ASXPriceDate> spec = list.FindAll(delegate (ASXPriceDate r1) { return DateTime.Compare(r1.PriceDate, dt) == 0; });
+          if (spec.Count > 0)
+            return spec[0];
+          else
+            return null;
+        }
+      }
       else
         return null;
     }
@@ -1824,6 +1846,7 @@ namespace ShareTrading
       public DateTime DateModified { get; set; }
       public DateTime DateDeleted { get; set; }
       public Boolean OnWatchList { get; set; }
+      public int GICSSubIndusId { get; set; }
     }
 
     public static  string  CompanyDetailsFieldList
@@ -1924,6 +1947,7 @@ namespace ShareTrading
         dtls.DateModified = reader.GetDateTime(4);
         dtls.DateDeleted = reader.GetDateTime(5);
         dtls.OnWatchList = reader.GetBoolean(6);
+        dtls.GICSSubIndusId = reader.GetInt32(0);
 
         inputList.Add(dtls);
       }
@@ -1934,7 +1958,7 @@ namespace ShareTrading
     // *****************************************  Directors Transactions
     public class DirectorsTransactions
     {
-      public int ID { get; set; }
+      public long ID { get; set; }
       public String ASXCodeDirectors { get; set; }
       public DateTime TransDateDirectors { get; set; }
       public string NameDirectors { get; set; }
@@ -1961,18 +1985,18 @@ namespace ShareTrading
       List<PgSqlParameter> paramList = new List<PgSqlParameter>();
       paramList.Add(new PgSqlParameter("@P1", inRec.ASXCodeDirectors));
       paramList.Add(new PgSqlParameter("@P2", inRec.TransDateDirectors));
-      paramList.Add(new PgSqlParameter("@P3", inRec.Type));
-      paramList.Add(new PgSqlParameter("@P4", inRec.NameDirectors));
-      paramList.Add(new PgSqlParameter("@P5", inRec.QtyShares));
-      paramList.Add(new PgSqlParameter("@P6", inRec.Price));
+      paramList.Add(new PgSqlParameter("@P3", inRec.NameDirectors));
+      paramList.Add(new PgSqlParameter("@P4", inRec.Type));
+      //paramList.Add(new PgSqlParameter("@P5", inRec.QtyShares));
+      //paramList.Add(new PgSqlParameter("@P6", inRec.Price));
 
       string extraWhere = string.Empty;
       extraWhere += " AND dt_asxcode = @P1 ";
       extraWhere += " AND dt_transdate = @P2 ";
-      extraWhere += " AND dt_type = @P3 ";
-      extraWhere += " AND dt_name = @P4 ";
-      extraWhere += " AND dt_qty = @P5 ";
-      extraWhere += " AND dt_price = @P6 ";
+      extraWhere += " AND dt_type = @P4 ";
+      extraWhere += " AND dt_name = @P3 ";
+      //extraWhere += " AND dt_qty = @P5 ";
+      //extraWhere += " AND dt_price = @P6 ";
       return GetDirectorsTransactions(paramList, out list, DBAccess.DirectorsTransactionsFieldList, extraWhere, string.Empty, false);
     }
 
@@ -2087,7 +2111,7 @@ namespace ShareTrading
       while (reader.Read())
       {
         DirectorsTransactions dtls = new DirectorsTransactions();
-        dtls.ID = reader.GetInt32(0);
+        dtls.ID = reader.GetInt64(0);
         dtls.ASXCodeDirectors = reader.GetString(1);
         dtls.TransDateDirectors = reader.GetDateTime(2);
         dtls.NameDirectors = reader.GetString(3);
@@ -2433,9 +2457,455 @@ namespace ShareTrading
       }
       return inputList;
     }
+ 
+// *************************************  GICS Sub Industry Code  ******************************************
+public class GICSSubIndustryCode
+{
+  public int ID { get; set; }
+  public string Name { get; set; }
+  public int IndusCodeId { get; set; }
+  public DateTime DateCreated { get; set; }
+  public DateTime DateModified { get; set; }
+  public DateTime DateDeleted { get; set; }
+}
+public static string GICSSubIndusList
+{
+  get
+  {
+    return string.Join(",", GetColumnNames("sub_industry_code").ToArray());
   }
 }
-// *************************************************************************************************
+
+    public static GICSSubIndustryCode GetSpecificSubIndusRecord(string name)
+    {
+      List<GICSSubIndustryCode> list;
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", name));
+      string where = " AND sic_name = @P1 ";
+
+      if (GetSubIndusRecords(paramList, out list, GICSSubIndusList, where, string.Empty))
+        return list[0];
+      else
+      {
+        List<PgSqlParameter> paramList1 = new List<PgSqlParameter>();
+        paramList1.Add(new PgSqlParameter("@P1", name));
+
+        GICSSubIndustryCode entry = new GICSSubIndustryCode();
+        entry.DateCreated = DateTime.Now;
+        entry.DateCreated = DateTime.MinValue;
+        entry.DateModified = entry.DateCreated;
+        entry.IndusCodeId = 0;
+        entry.Name = name;
+        if (DBInsert(entry, "sub_industry_code", typeof(GICSSubIndustryCode)))
+        {
+          if (GetSubIndusRecords(paramList1, out list, GICSSubIndusList, where, string.Empty))
+            return list[0];
+          else
+            return null;
+        }
+        else
+          return null;
+
+      }
+        
+    }
+
+    public static bool GetSubIndusRecords(List<PgSqlParameter> paramList, out List<GICSSubIndustryCode> list, string reqdFields, string extraWhere, string orderBy)
+{
+  list = null;
+  return GetSubIndusRecords(paramList, out list, reqdFields, extraWhere, orderBy, false);
+}
+public static bool GetSubIndusRecords(List<PgSqlParameter> paramList, out List<GICSSubIndustryCode> list, string reqdFields, string extraWhere, string orderBy, bool incDeleted)
+{
+  list = new List<GICSSubIndustryCode>();
+  using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
+  {
+    try
+    {
+      conn.Open();
+      PgSqlCommand command = new PgSqlCommand();
+      command.Connection = conn;
+      if (!incDeleted)
+        command.Parameters.Add("@P0", DateTime.MinValue);
+      if (paramList != null)
+        command.Parameters.AddRange(paramList.ToArray());
+
+      if (incDeleted)
+        command.CommandText = string.Format("SELECT {1} FROM {0} WHERE 1 = 1  {2} {3} ", "sub_industry_code", reqdFields, extraWhere, orderBy);
+      else
+        command.CommandText = string.Format("SELECT {1} FROM {0} WHERE sic_datedeleted = @P0 {2} {3} ", "sub_industry_code", reqdFields, extraWhere, orderBy);
+      command.Prepare();
+      try
+      {
+        PgSqlDataReader reader = command.ExecuteReader();
+        list = GetSubIndusRecords(reader);
+      }
+      catch (Exception ex)
+      {
+        Console.Write("Exception " + ex.ToString());
+        return false;
+      }
+    }
+    catch (System.Data.Common.DbException pex)
+    {
+      throw new DatabaseIOException(pex.Message, pex);
+    }
+    finally
+    {
+      if (conn != null)
+        conn.Close();
+    }
+  }
+  if (list.Count <= 0)
+    return false;
+
+  return true;
+}
+
+public static List<GICSSubIndustryCode> GetSubIndusRecords(PgSqlDataReader reader)
+{
+  List<GICSSubIndustryCode> inputList = new List<GICSSubIndustryCode>();
+  while (reader.Read())
+  {
+        GICSSubIndustryCode dtls = new GICSSubIndustryCode();
+
+      dtls.ID = reader.GetInt32(0);
+      dtls.Name = reader.GetString(1);
+      dtls.IndusCodeId = reader.GetInt32(2);
+      dtls.DateCreated = reader.GetDateTime(3);
+      dtls.DateModified = reader.GetDateTime(4);
+      dtls.DateDeleted = reader.GetDateTime(5);
+
+    inputList.Add(dtls);
+  }
+  return inputList;
+}
+
+    // *************************************  Company History  ******************************************
+    public class CompanyHistory
+    {
+      public long ID { get; set; }
+      public string ASXCode { get; set; }
+      public DateTime HistoryDate { get; set; }
+      public string MarketCap { get; set; }
+      public int AvgVol { get; set; }
+      public decimal TrailingPE { get; set; }
+      public decimal ForwardPE { get; set; }
+      public decimal Beta { get; set; }
+      public decimal DebtEquity { get; set; }
+      public DateTime DateCreated { get; set; }
+      public DateTime DateModified { get; set; }
+      public DateTime DateDeleted { get; set; }
+    }
+    public static string CompanyHistoryList
+    {
+      get
+      {
+        return string.Join(",", GetColumnNames("company_history").ToArray());
+      }
+    }
+
+    public static bool GetCompanyHistoryRecords(List<PgSqlParameter> paramList, out List<CompanyHistory> list, string reqdFields, string extraWhere, string orderBy)
+    {
+      list = null;
+      return GetCompanyHistoryRecords(paramList, out list, reqdFields, extraWhere, orderBy, false);
+    }
+    public static bool GetCompanyHistoryRecords(List<PgSqlParameter> paramList, out List<CompanyHistory> list, string reqdFields, string extraWhere, string orderBy, bool incDeleted)
+    {
+      list = new List<CompanyHistory>();
+      using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
+      {
+        try
+        {
+          conn.Open();
+          PgSqlCommand command = new PgSqlCommand();
+          command.Connection = conn;
+          if (!incDeleted)
+            command.Parameters.Add("@P0", DateTime.MinValue);
+          if (paramList != null)
+            command.Parameters.AddRange(paramList.ToArray());
+
+          if (incDeleted)
+            command.CommandText = string.Format("SELECT {1} FROM {0} WHERE 1 = 1  {2} {3} ", "company_history", reqdFields, extraWhere, orderBy);
+          else
+            command.CommandText = string.Format("SELECT {1} FROM {0} WHERE ch_datedeleted = @P0 {2} {3} ", "company_history", reqdFields, extraWhere, orderBy);
+          command.Prepare();
+          try
+          {
+            PgSqlDataReader reader = command.ExecuteReader();
+            list = GetCompanyHistoryRecords(reader);
+          }
+          catch (Exception ex)
+          {
+            Console.Write("Exception " + ex.ToString());
+            return false;
+          }
+        }
+        catch (System.Data.Common.DbException pex)
+        {
+          throw new DatabaseIOException(pex.Message, pex);
+        }
+        finally
+        {
+          if (conn != null)
+            conn.Close();
+        }
+      }
+      if (list.Count <= 0)
+        return false;
+
+      return true;
+    }
+
+    public static List<CompanyHistory> GetCompanyHistoryRecords(PgSqlDataReader reader)
+    {
+      List<CompanyHistory> inputList = new List<CompanyHistory>();
+      while (reader.Read())
+      {
+        CompanyHistory dtls = new CompanyHistory();
+
+        dtls.ID = reader.GetInt64(0);
+        dtls.ASXCode = reader.GetString(1);
+        dtls.HistoryDate = reader.GetDateTime(2);
+        dtls.MarketCap = reader.GetString(3);
+        dtls.AvgVol = reader.GetInt32(4);
+        dtls.TrailingPE = reader.GetDecimal(5);
+        dtls.ForwardPE = reader.GetDecimal(6);
+        dtls.Beta = reader.GetDecimal(7);
+        dtls.DebtEquity = reader.GetDecimal(8);
+        dtls.DateCreated = reader.GetDateTime(9);
+        dtls.DateModified = reader.GetDateTime(10);
+        dtls.DateDeleted = reader.GetDateTime(11);
+
+        inputList.Add(dtls);
+      }
+      return inputList;
+    }
+    // *************************************  Brokers recommendations  ******************************************
+    public class BrokersRecommendations
+    {
+      public long ID { get; set; }
+      public string ASXCode { get; set; }
+      public DateTime HistoryDate { get; set; }
+      public string Consensus { get; set; }
+      public int Buy { get; set; }
+      public int Sell { get; set; }
+      public int Hold { get; set; }
+      public decimal Price { get; set; }
+      public DateTime DateCreated { get; set; }
+      public DateTime DateModified { get; set; }
+      public DateTime DateDeleted { get; set; }
+    }
+    public static string BrokersRecommendationsList
+    {
+      get
+      {
+        return string.Join(",", GetColumnNames("brokers_recommendations").ToArray());
+      }
+    }
+
+    public static BrokersRecommendations GetSpecificBrokersRecommendationRecord(BrokersRecommendations rec)
+    {
+      List<BrokersRecommendations> list = new List<BrokersRecommendations>();
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", rec.HistoryDate));
+      paramList.Add(new PgSqlParameter("@P2", rec.ASXCode));
+      string sqlWhere = " AND br_transdate = @P1 AND br_asxcode = @P2 ";
+      if (GetBrokersrecommendationsRecords(paramList, out list, BrokersRecommendationsList, sqlWhere, string.Empty))
+        return list[0];
+      else
+        return null;
+    }
+    public static bool GetBrokersrecommendationsRecords(List<PgSqlParameter> paramList, out List<BrokersRecommendations> list, string reqdFields, string extraWhere, string orderBy)
+    {
+      list = null;
+      return GetBrokersRecommendationsRecords(paramList, out list, reqdFields, extraWhere, orderBy, false);
+    }
+    public static bool GetBrokersRecommendationsRecords(List<PgSqlParameter> paramList, out List<BrokersRecommendations> list, string reqdFields, string extraWhere, string orderBy, bool incDeleted)
+    {
+      list = new List<BrokersRecommendations>();
+      using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
+      {
+        try
+        {
+          conn.Open();
+          PgSqlCommand command = new PgSqlCommand();
+          command.Connection = conn;
+          if (!incDeleted)
+            command.Parameters.Add("@P0", DateTime.MinValue);
+          if (paramList != null)
+            command.Parameters.AddRange(paramList.ToArray());
+
+          if (incDeleted)
+            command.CommandText = string.Format("SELECT {1} FROM {0} WHERE 1 = 1  {2} {3} ", "brokers_recommendations", reqdFields, extraWhere, orderBy);
+          else
+            command.CommandText = string.Format("SELECT {1} FROM {0} WHERE br_datedeleted = @P0 {2} {3} ", "brokers_recommendations", reqdFields, extraWhere, orderBy);
+          command.Prepare();
+          try
+          {
+            PgSqlDataReader reader = command.ExecuteReader();
+            list = GetBrokersRecommendationsRecords(reader);
+          }
+          catch (Exception ex)
+          {
+            Console.Write("Exception " + ex.ToString());
+            return false;
+          }
+        }
+        catch (System.Data.Common.DbException pex)
+        {
+          throw new DatabaseIOException(pex.Message, pex);
+        }
+        finally
+        {
+          if (conn != null)
+            conn.Close();
+        }
+      }
+      if (list.Count <= 0)
+        return false;
+
+      return true;
+    }
+
+    public static List<BrokersRecommendations> GetBrokersRecommendationsRecords(PgSqlDataReader reader)
+    {
+      List<BrokersRecommendations> inputList = new List<BrokersRecommendations>();
+      while (reader.Read())
+      {
+        BrokersRecommendations dtls = new BrokersRecommendations();
+
+        dtls.ID = reader.GetInt64(0);
+        dtls.ASXCode = reader.GetString(1);
+        dtls.HistoryDate = reader.GetDateTime(2);
+        dtls.Consensus = reader.GetString(3);
+        dtls.Buy = reader.GetInt32(4);
+        dtls.Sell = reader.GetInt32(5);
+        dtls.Hold = reader.GetInt32(6);
+        dtls.Price = reader.GetDecimal(7);
+        dtls.DateCreated = reader.GetDateTime(8);
+        dtls.DateModified = reader.GetDateTime(9);
+        dtls.DateDeleted = reader.GetDateTime(10);
+
+        inputList.Add(dtls);
+      }
+      return inputList;
+    }
+    // *************************************  System Variables  ******************************************
+    public class SystemVars
+    {
+      public int ID { get; set; }
+      public string Description { get; set; }
+      public string Status { get; set; }
+      public DateTime VarDate { get; set; }
+      public string Notes { get; set; }
+      public int IntVar1 { get; set; }
+      public int IntVar2 { get; set; }
+      public decimal DecVar1 { get; set; }
+      public decimal DecVar2 { get; set; }
+      public DateTime DateCreated { get; set; }
+      public DateTime DateModified { get; set; }
+      public DateTime DateDeleted { get; set; }
+    }
+    public static string SystemVarsList
+    {
+      get
+      {
+        return string.Join(",", GetColumnNames("system_vars").ToArray());
+      }
+    }
+
+    public static SystemVars GetSpecificSystemVarRecord(SystemVars rec)
+    {
+      List<SystemVars> list = new List<SystemVars>();
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", rec.Description));
+      string sqlWhere = " AND sv_desc = @P1  ";
+      if (GetSystemVarRecords(paramList, out list, SystemVarsList, sqlWhere, string.Empty))
+        return list[0];
+      else
+        return null;
+    }
+    public static bool GetSystemVarRecords(List<PgSqlParameter> paramList, out List<SystemVars> list, string reqdFields, string extraWhere, string orderBy)
+    {
+      list = null;
+      return GetSystemVarRecords(paramList, out list, reqdFields, extraWhere, orderBy, false);
+    }
+    public static bool GetSystemVarRecords(List<PgSqlParameter> paramList, out List<SystemVars> list, string reqdFields, string extraWhere, string orderBy, bool incDeleted)
+    {
+      list = new List<SystemVars>();
+      using (PgSqlConnection conn = new PgSqlConnection(DBConnectString()))
+      {
+        try
+        {
+          conn.Open();
+          PgSqlCommand command = new PgSqlCommand();
+          command.Connection = conn;
+          if (!incDeleted)
+            command.Parameters.Add("@P0", DateTime.MinValue);
+          if (paramList != null)
+            command.Parameters.AddRange(paramList.ToArray());
+
+          if (incDeleted)
+            command.CommandText = string.Format("SELECT {1} FROM {0} WHERE 1 = 1  {2} {3} ", "system_vars", reqdFields, extraWhere, orderBy);
+          else
+            command.CommandText = string.Format("SELECT {1} FROM {0} WHERE sv_datedeleted = @P0 {2} {3} ", "system_vars", reqdFields, extraWhere, orderBy);
+          command.Prepare();
+          try
+          {
+            PgSqlDataReader reader = command.ExecuteReader();
+            list = GetSystemVarsRecords(reader);
+          }
+          catch (Exception ex)
+          {
+            Console.Write("Exception " + ex.ToString());
+            return false;
+          }
+        }
+        catch (System.Data.Common.DbException pex)
+        {
+          throw new DatabaseIOException(pex.Message, pex);
+        }
+        finally
+        {
+          if (conn != null)
+            conn.Close();
+        }
+      }
+      if (list.Count <= 0)
+        return false;
+
+      return true;
+    }
+
+    public static List<SystemVars> GetSystemVarsRecords(PgSqlDataReader reader)
+    {
+      List<SystemVars> inputList = new List<SystemVars>();
+      while (reader.Read())
+      {
+        SystemVars dtls = new SystemVars();
+
+        dtls.ID = reader.GetInt32(0);
+        dtls.Description = reader.GetString(1);
+        dtls.Status = reader.GetString(2);
+        dtls.VarDate = reader.GetDateTime(3);
+        dtls.Notes = reader.GetString(4);
+        dtls.IntVar1 = reader.GetInt32(5);
+        dtls.IntVar2 = reader.GetInt32(6);
+        dtls.DecVar1 = reader.GetInt32(7);
+        dtls.DecVar2 = reader.GetDecimal(8);
+        dtls.DateCreated = reader.GetDateTime(9);
+        dtls.DateModified = reader.GetDateTime(10);
+        dtls.DateDeleted = reader.GetDateTime(11);
+
+        inputList.Add(dtls);
+      }
+      return inputList;
+    }
+    // *************************************************************************************************
+
+  }
+}
 
 
 
