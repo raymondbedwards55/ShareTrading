@@ -154,6 +154,7 @@ namespace ShareTrading
                 Decimal.TryParse(PrcLow, out prcLow);
                 Decimal.TryParse(OpenPrc, out prcOpen);
                 int.TryParse(Volume, out vol);
+        ASXPriceDate.RecalcReqd = "Y";
                 DBAccess.ASXprcInsert(ASXPriceDate);
             }
         }

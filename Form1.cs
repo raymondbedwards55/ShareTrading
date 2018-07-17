@@ -1140,6 +1140,8 @@ namespace ShareTrading
             Console.WriteLine(">>" + tx.ASXCode + "<<");
             if (tx.ASXCode.Length > 3)
               tx.ASXCode = tx.ASXCode.Substring(0, 3);
+            if (tx.PrcClose != decimal.Parse(flds[5]) || tx.PrcLow != (flds[10] == "--" ? 0M : decimal.Parse(flds[10])) || tx.PrcHigh != (flds[11] == "--" ? 0M : decimal.Parse(flds[11])))
+              tx.RecalcReqd = "Y";
             tx.PrcClose = decimal.Parse(flds[5]);
             tx.PrcOpen = decimal.Parse(flds[9]);
             tx.PrcLow = flds[10] == "--" ? 0M : decimal.Parse(flds[10]);

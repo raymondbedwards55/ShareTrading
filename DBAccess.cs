@@ -1530,6 +1530,10 @@ namespace ShareTrading
       public DateTime DateDeleted { get; set; }
       public String RecalcReqd { get; set; }
 
+      public ASXPriceDate()
+      {
+        RecalcReqd = "N";
+      }
     }
    
 

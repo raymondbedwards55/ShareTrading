@@ -132,6 +132,7 @@ namespace ShareTrading
                             Decimal.TryParse(X[11], out prcHigh);
                             Decimal.TryParse(X[10], out prcLow);
                             int.TryParse(X[12], out vol);
+              ASXPriceDate.RecalcReqd = "Y";
                             DBAccess.ASXprcInsert(ASXPriceDate);
                             /* Do something with X */
 

@@ -88,6 +88,7 @@ namespace ShareTrading
                         String x = yrDataMatch.Groups[5].Value.Replace(",", "");
                         int.TryParse(x, out vol);
                         Decimal.TryParse(yrDataMatch.Groups[6].Value, out adjClose);
+            ASXPriceDate.RecalcReqd = "Y";
                         DBAccess.ASXprcInsert(ASXPriceDate);
                     }
                     else

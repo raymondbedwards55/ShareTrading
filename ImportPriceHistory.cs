@@ -37,10 +37,13 @@ namespace ShareTrading
             rec.PrcLow = decimal.Parse(flds[4]);
             rec.PriceDate = DateTime.ParseExact(flds[1], "yyyyMMdd", null);
             rec.Volume = int.Parse(flds[6]);
+            rec.RecalcReqd = "Y";
             DBAccess.ASXprcInsert(rec);
           }
           else
           {
+            if (rec.PrcClose != decimal.Parse(flds[5])|| rec.PrcHigh != decimal.Parse(flds[3]) || rec.PrcLow != decimal.Parse(flds[4]))
+              rec.RecalcReqd = "Y";
             rec.PrcClose = decimal.Parse(flds[5]);
             rec.PrcOpen = decimal.Parse(flds[2]);
             rec.PrcHigh = decimal.Parse(flds[3]);

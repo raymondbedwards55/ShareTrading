@@ -20,29 +20,29 @@ namespace ShareTrading
     public static void Run(DBAccess.CompanyDetails _thisCompany, DateTime _thisDate )
     {
 
-      //string response = GetPage(string.Format("https://www.marketindex.com.au/asx/{0}", _thisCompany.ASXCode));    // Daily Company Stats
-      //if (response != null)
-      //{
-      //  string GICSIndustrySubCode = parseResearch(response);
-      //  if (!string.IsNullOrEmpty(GICSIndustrySubCode))
-      //  {
-      //    _thisCompany.GICSSubIndusId = DBAccess.GetSpecificSubIndusRecord(GICSIndustrySubCode).ID;
-      //    DBAccess.DBUpdate(_thisCompany, "companydetails", typeof(DBAccess.GICSSubIndustryCode));
-      //  }
-      //}
+      string response = GetPage(string.Format("https://www.marketindex.com.au/asx/{0}", _thisCompany.ASXCode));    // Daily Company Stats
+      if (response != null)
+      {
+        string GICSIndustrySubCode = parseResearch(response);
+        if (!string.IsNullOrEmpty(GICSIndustrySubCode))
+        {
+          _thisCompany.GICSSubIndusId = DBAccess.GetSpecificSubIndusRecord(GICSIndustrySubCode).ID;
+          DBAccess.DBUpdate(_thisCompany, "companydetails", typeof(DBAccess.GICSSubIndustryCode));
+        }
+      }
 
-      string response = GetPage(string.Format("https://finance.yahoo.com/quote/{0}.AX/history?p={0}.AX", _thisCompany.ASXCode));    // Price History
+      response = GetPage(string.Format("https://finance.yahoo.com/quote/{0}.AX/history?p={0}.AX", _thisCompany.ASXCode));    // Price History
       if (response != null)
         parseHistoricalData(response, _thisCompany);  // Update prices
 
-      //response = GetPage(string.Format("https://finance.yahoo.com/quote/{0}.AX/key-statistics?p={0}.AX", _thisCompany.ASXCode));    // Daily Company Stats
-      //if (response != null)
-      //  parseCompanyData(response, _thisCompany, _thisDate);
+      response = GetPage(string.Format("https://finance.yahoo.com/quote/{0}.AX/key-statistics?p={0}.AX", _thisCompany.ASXCode));    // Daily Company Stats
+      if (response != null)
+        parseCompanyData(response, _thisCompany, _thisDate);
 
-      ////response = GetPage(string.Format("https://www.asx.com.au/asx/share-price-research/company/{0}/details", _thisCompany.ASXCode));    // Daily Company Stats
+      //response = GetPage(string.Format("https://www.asx.com.au/asx/share-price-research/company/{0}/details", _thisCompany.ASXCode));    // Daily Company Stats
       ////if (response != null)
       ////  parseResearch  (response);
-      //updateMinMaxPrices(_thisCompany);
+      updateMinMaxPrices(_thisCompany);
 
     }
 
@@ -560,7 +560,6 @@ namespace ShareTrading
                   apd = new DBAccess.ASXPriceDate();
                   apd.ASXCode = thisCompany.ASXCode;
                   apd.PrcOpen = rec.open;
-                  apd.PrcHigh = rec.high;
                   apd.PriceDate = rec.dt;
                   apd.PrcHigh = rec.high;
                   apd.PrcLow = rec.low;
