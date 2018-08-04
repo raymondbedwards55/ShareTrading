@@ -63,9 +63,7 @@ namespace ShareTrading
         MessageBox.Show("Unable to connect to database", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
         Close();
       }
-
-      if (!backgroundWorkerONight.IsBusy)
-        backgroundWorkerONight.RunWorkerAsync();
+      timer1.Start();
      }
 
     private void Form1_Load(object sender, EventArgs e)
@@ -1172,8 +1170,14 @@ namespace ShareTrading
     }
     private void timer1_Tick(object sender, EventArgs e)
     {
+      Console.WriteLine("Starting Timer " + DateTime.Now.ToString());
+      timer1.Interval = 2160000;
+      if (!backgroundWorkerONight.IsBusy)
+        backgroundWorkerONight.RunWorkerAsync();
+
+      timer1.Enabled = false;
       // Is it 6pm yet? Timer checked every 6 hours
-      if (DateTime.Now.Hour >= 22 && DateTime.Now.Hour <= 3)
+      if (DateTime.Now.Hour >= 18 || DateTime.Now.Hour <= 3)
       {
         // Scrape pages - import dividends
         if (!backgroundWorker1.IsBusy)
@@ -1508,48 +1512,59 @@ namespace ShareTrading
 
     private void backgroundWorkerONight_DoWork(object sender, DoWorkEventArgs e)
     {
-      // Has it already been run today?
-      DBAccess.SystemVars nextRunRec = new DBAccess.SystemVars();
-      nextRunRec.Description = "NEXT_RUN";
-      nextRunRec = DBAccess.GetSpecificSystemVarRecord(nextRunRec);
-      if (nextRunRec == null)
+      Console.WriteLine("Starting Overnight Processing " + DateTime.Now.ToString());
+      try
       {
-        nextRunRec = new DBAccess.SystemVars();
+        // Has it already been run today?
+        DBAccess.SystemVars nextRunRec = new DBAccess.SystemVars();
         nextRunRec.Description = "NEXT_RUN";
-        nextRunRec.VarDate = DateTime.Today.AddDays(-1).AddHours(16);
-        nextRunRec.Status = string.Format("Never run");
-        nextRunRec.Notes = string.Empty;
-        nextRunRec.DateCreated = DateTime.Now;
-        nextRunRec.DateModified = DateTime.Now;
-        DBAccess.DBInsert(nextRunRec, "system_vars", typeof(DBAccess.SystemVars));
-      }
-      //
-      DateTime curTime = DateTime.Now;
-      DateTime tradingStart = DateTime.Today.AddHours(10);
-      DateTime tradingEnd = DateTime.Today.AddHours(12);
-      while (DateTime.Compare(tradingStart, curTime) <= 0 && DateTime.Compare(curTime, tradingEnd) <=  0 && DateTime.Compare(nextRunRec.VarDate, curTime) <= 0)
-      {
-        long nrMilliseconds = (((tradingEnd.Hour - curTime.Hour) * 3600) + ((tradingEnd.Minute - curTime.Minute) * 60) + (tradingEnd.Second - curTime.Second)) * 1000;
-        System.Threading.Thread.Sleep((int)nrMilliseconds);
-        curTime = DateTime.Now;
-      }
-      MarketIndexScrape.Run();          // get Directors Transactions for last 100 days
-
-      // Get all company names & then scrape for each company asx code
-
-      List<DBAccess.CompanyDetails> coList = new List<DBAccess.CompanyDetails>();
-      DateTime _thisDate = DateTime.Today;
-      if (DBAccess.GetCompanyDetails(null, out coList))
-      {
-        foreach (DBAccess.CompanyDetails co in coList)
+        nextRunRec = DBAccess.GetSpecificSystemVarRecord(nextRunRec);
+        if (nextRunRec == null)
         {
-          MarketIndexScrape.Run(co, _thisDate);
-          System.Threading.Thread.Sleep(6000);
-          //break;
+          nextRunRec = new DBAccess.SystemVars();
+          nextRunRec.Description = "NEXT_RUN";
+          nextRunRec.VarDate = DateTime.Today.AddDays(-1).AddHours(16);
+          nextRunRec.Status = string.Format("Never run");
+          nextRunRec.Notes = string.Empty;
+          nextRunRec.DateCreated = DateTime.Now;
+          nextRunRec.DateModified = DateTime.Now;
+          DBAccess.DBInsert(nextRunRec, "system_vars", typeof(DBAccess.SystemVars));
         }
+        //
+        DateTime curTime = DateTime.Now;
+        DateTime tradingStart = DateTime.Today.AddHours(10);
+        DateTime tradingEnd = DateTime.Today.AddHours(11);
+        while (DateTime.Compare(tradingStart, curTime) <= 0 && DateTime.Compare(curTime, tradingEnd) <= 0 && DateTime.Compare(nextRunRec.VarDate, curTime) <= 0)
+        {
+          Console.WriteLine("Waiting ...  " + DateTime.Now.ToString());
+          long nrMilliseconds = (((tradingEnd.Hour - curTime.Hour) * 3600) + ((tradingEnd.Minute - curTime.Minute) * 60) + (tradingEnd.Second - curTime.Second)) * 1000;
+          System.Threading.Thread.Sleep((int)nrMilliseconds);
+          curTime = DateTime.Now;
+        }
+        Console.WriteLine("About to run Directors " + DateTime.Now.ToString());
+        MarketIndexScrape.Run();          // get Directors Transactions for last 100 days
+
+        // Get all company names & then scrape for each company asx code
+        Console.WriteLine("About to run Company Data Collection " + DateTime.Now.ToString());
+        List<DBAccess.CompanyDetails> coList = new List<DBAccess.CompanyDetails>();
+        DateTime _thisDate = DateTime.Today;
+        if (DBAccess.GetCompanyDetails(null, out coList))
+        {
+          foreach (DBAccess.CompanyDetails co in coList)
+          {
+            MarketIndexScrape.Run(co, _thisDate);
+            System.Threading.Thread.Sleep(6000);
+            //break;
+          }
+        }
+        Console.WriteLine("About to run recommendations " + DateTime.Now.ToString());
+        // Get Recommendations
+        MarketIndexScrape.Recommendations();
       }
-      // Get Recommendations
-      MarketIndexScrape.Recommendations();
+      catch
+      {
+        Console.WriteLine("Overnight Process failed somewhere " + DateTime.Now.ToString() );
+      }
 
     }
 

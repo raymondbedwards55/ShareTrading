@@ -117,7 +117,7 @@ namespace ShareTrading
 
     public static void Recommendations()
     {
-      return;
+      //return;
       DateTime startDate = DateTime.Today;
       // get last record written in recommendations table
       List<PgSqlParameter> paramList = new List<PgSqlParameter>();
@@ -139,13 +139,13 @@ namespace ShareTrading
         string response = GetPage(string.Format("https://www.marketindex.com.au/analysis/consensus-recommendations-{0}", startDate.ToString("dd-MMMM-yyyy")));    // Brokers Recommendations
         if (response != null)
           parseRecommendations(response, startDate);
-        startDate.AddDays(1);
+        startDate = startDate.AddDays(1);
       }
 
     }
     public static void Run()
     {
-      return;
+      //return;
       String response = GetPage( "https://www.marketindex.com.au/directors-transactions"/* ASXCode */);
       if (response == null)
       {
@@ -182,7 +182,7 @@ namespace ShareTrading
             bool validLine = true;
             foreach (var td_node in td_nodes)
             {
-              Console.WriteLine(">id>>" + td_node.ParentNode.ParentNode.ParentNode.Id);
+              Console.WriteLine(">Directors>>" + td_node.InnerText + "<<");
               //if (td_node.ParentNode.ParentNode.ParentNode.Id != "director-transactions-table")
               //  continue;
               switch (counter)
@@ -334,7 +334,7 @@ namespace ShareTrading
               valList[idx].coValue = tdEntry.InnerText.Replace("\n", "").Replace("%", "").Replace("$", "").Replace(",", "").Replace(" ", "");
               needNext = false;
             }
-            Console.WriteLine("**" + tdEntry.InnerText + "**");
+            Console.WriteLine("CompanyData**" + tdEntry.InnerText + "**");
             for (int j = 0; j < valList.Count; j++)
               if (tdEntry.InnerText.Contains(valList[j].coText))
               {
@@ -342,7 +342,7 @@ namespace ShareTrading
                 idx = j;
                 break;
               }
-            Console.WriteLine(">" + tdEntry.InnerHtml + "<>" + tdEntry.InnerText + "<");
+            //Console.WriteLine(">" + tdEntry.InnerHtml + "<>" + tdEntry.InnerText + "<");
           }
           idx = 0;
           needNext = false;
@@ -445,7 +445,7 @@ namespace ShareTrading
           dailyStats rec = new dailyStats();
           foreach (HtmlAgilityPack.HtmlNode spanEntry in spanNodeCollection)
           {
-            Console.WriteLine(">>" + spanEntry.InnerText + "<<");
+            Console.WriteLine("Historical>>" + spanEntry.InnerText + "<<");
             if (spanEntry.InnerText.Equals("Volume"))
             {
               tableFound = true;
@@ -636,7 +636,7 @@ namespace ShareTrading
           }
             if (tdEntry.InnerText.Contains("GICS"))
               needNext = true;
-          Console.WriteLine(">" + tdEntry.InnerHtml + "<>" + tdEntry.InnerText + "<");
+          Console.WriteLine("Research>" + tdEntry.InnerHtml + "<>" + tdEntry.InnerText + "<");
         }
         needNext = false;
         return GICSSubCode;
@@ -662,102 +662,105 @@ namespace ShareTrading
         if (htmlDoc.DocumentNode != null)
         {
           HtmlAgilityPack.HtmlNodeCollection tdNodeCollection = htmlDoc.DocumentNode.SelectNodes("//td");
-          int counter = 0;
-          DBAccess.BrokersRecommendations rec = new DBAccess.BrokersRecommendations();
-          foreach (HtmlAgilityPack.HtmlNode tdEntry in tdNodeCollection)
+          if (tdNodeCollection != null)
           {
-            Console.WriteLine(">>" + tdEntry.InnerText + "<<");
-            if (counter == 0 && tdEntry.InnerText.Contains("Prev"))
-              break;
-            rec.HistoryDate = recommendationDate;
-            bool validLine = true;
-            switch (counter)
+            int counter = 0;
+            DBAccess.BrokersRecommendations rec = new DBAccess.BrokersRecommendations();
+            foreach (HtmlAgilityPack.HtmlNode tdEntry in tdNodeCollection)
             {
-              case 0:           //  ASX Code
-                rec.ASXCode = tdEntry.InnerText;
+              Console.WriteLine("Recommendations>>" + tdEntry.InnerText + "<<");
+              if (counter == 0 && tdEntry.InnerText.Contains("Prev"))
                 break;
-              case 1:         //  Company Name
-                break;
-              case 2:        // Price
-                decimal prc = 0M;
-                validLine = decimal.TryParse(tdEntry.InnerText.Trim().Replace("$", ""), out prc);
-                if (validLine)
-                  rec.Price = prc;
-                //}
-                break;
-              case 3:         // Buy
-                if (validLine)
-                {
-                  int i = 0;
-                  validLine = int.TryParse(tdEntry.InnerText.Trim(), out i);
-                  if (validLine)
-                    rec.Buy = i;
-                }
-                break;
-              case 4:         // Hold
-                if (validLine)
-                {
-                  int i = 0;
-                  validLine = int.TryParse(tdEntry.InnerText.Trim(), out i);
-                  if (validLine)
-                    rec.Hold = i;
-                }
-                break;
-              case 5:       // Sell
-                if (validLine)
-                {
-                  int i = 0;
-                  validLine = int.TryParse(tdEntry.InnerText.Trim(), out i);
-                  if (validLine)
-                    rec.Sell = i;
-                }
-                break;
-              case 6:       // Consensus
-                rec.Consensus = tdEntry.InnerText;
-                break;
-              default:
-                break;
-
-            }
-            if (counter >= 6)
-            {
-              List<DBAccess.BrokersRecommendations> list = new List<DBAccess.BrokersRecommendations>();
-              if (validLine)
+              rec.HistoryDate = recommendationDate;
+              bool validLine = true;
+              switch (counter)
               {
-                DBAccess.BrokersRecommendations br = DBAccess.GetSpecificBrokersRecommendationRecord(rec);
-                if (br == null)
+                case 0:           //  ASX Code
+                  rec.ASXCode = tdEntry.InnerText;
+                  break;
+                case 1:         //  Company Name
+                  break;
+                case 2:        // Price
+                  decimal prc = 0M;
+                  validLine = decimal.TryParse(tdEntry.InnerText.Trim().Replace("$", ""), out prc);
+                  if (validLine)
+                    rec.Price = prc;
+                  //}
+                  break;
+                case 3:         // Buy
+                  if (validLine)
+                  {
+                    int i = 0;
+                    validLine = int.TryParse(tdEntry.InnerText.Trim(), out i);
+                    if (validLine)
+                      rec.Buy = i;
+                  }
+                  break;
+                case 4:         // Hold
+                  if (validLine)
+                  {
+                    int i = 0;
+                    validLine = int.TryParse(tdEntry.InnerText.Trim(), out i);
+                    if (validLine)
+                      rec.Hold = i;
+                  }
+                  break;
+                case 5:       // Sell
+                  if (validLine)
+                  {
+                    int i = 0;
+                    validLine = int.TryParse(tdEntry.InnerText.Trim(), out i);
+                    if (validLine)
+                      rec.Sell = i;
+                  }
+                  break;
+                case 6:       // Consensus
+                  rec.Consensus = tdEntry.InnerText;
+                  break;
+                default:
+                  break;
+
+              }
+              if (counter >= 6)
+              {
+                List<DBAccess.BrokersRecommendations> list = new List<DBAccess.BrokersRecommendations>();
+                if (validLine)
                 {
-                  rec.DateCreated = DateTime.Now;
-                  rec.DateModified = DateTime.Now;
-                  rec.DateDeleted = DateTime.MinValue;
-                  DBAccess.DBInsert(rec, "brokers_recommendations", typeof(DBAccess.BrokersRecommendations));
+                  DBAccess.BrokersRecommendations br = DBAccess.GetSpecificBrokersRecommendationRecord(rec);
+                  if (br == null)
+                  {
+                    rec.DateCreated = DateTime.Now;
+                    rec.DateModified = DateTime.Now;
+                    rec.DateDeleted = DateTime.MinValue;
+                    DBAccess.DBInsert(rec, "brokers_recommendations", typeof(DBAccess.BrokersRecommendations));
+                  }
+                  else
+                  {
+                    br.Buy = rec.Buy;
+                    br.Sell = rec.Sell;
+                    br.Hold = rec.Hold;
+                    br.Price = rec.Price;
+                    br.Consensus = rec.Consensus;
+                    br.DateModified = DateTime.Now;
+                    DBAccess.DBUpdate(br, "brokers_recommendations", typeof(DBAccess.BrokersRecommendations));
+                  }
                 }
                 else
                 {
-                  br.Buy = rec.Buy;
-                  br.Sell = rec.Sell;
-                  br.Hold = rec.Hold;
-                  br.Price = rec.Price;
-                  br.Consensus = rec.Consensus;
-                  br.DateModified = DateTime.Now;
-                  DBAccess.DBUpdate(br, "brokers_recommendations", typeof(DBAccess.BrokersRecommendations));
                 }
+
+                counter = 0;
+                validLine = true;
+                rec = new DBAccess.BrokersRecommendations();
+
               }
               else
-              {
-              }
+                counter++;
 
-              counter = 0;
-              validLine = true;
-              rec = new DBAccess.BrokersRecommendations();
-
+              //Console.WriteLine(" =======  td =============");
+              //Console.WriteLine("LINK: {0}", td_node.GetAttributeValue("href", ""));
+              //Console.WriteLine("TEXT: {0}", td_node.InnerText.Trim());
             }
-            else
-              counter++;
-
-            //Console.WriteLine(" =======  td =============");
-            //Console.WriteLine("LINK: {0}", td_node.GetAttributeValue("href", ""));
-            //Console.WriteLine("TEXT: {0}", td_node.InnerText.Trim());
           }
         }
       }
@@ -776,8 +779,13 @@ namespace ShareTrading
       try
       {
         WebResponse response = request.GetResponse();
+        if ((((HttpWebResponse)response).StatusDescription) != "OK")
+        {
+          Console.WriteLine("getPage  FAILED " + url + "< Status>" + ((HttpWebResponse)response).StatusDescription);
+          return null;
+        }
         // Display the status.
-        Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+        Console.WriteLine("getPage" + url + "< Status>" + ((HttpWebResponse)response).StatusDescription);
         // Get the stream containing content returned by the server.
         Stream dataStream = response.GetResponseStream();
         // Open the stream using a StreamReader for easy access.
