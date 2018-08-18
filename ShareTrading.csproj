@@ -120,6 +120,12 @@
     <Compile Include="Form2.Designer.cs">
       <DependentUpon>Form2.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmBrokersRec.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmBrokersRec.Designer.cs">
+      <DependentUpon>FrmBrokersRec.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmEditCompanyDetails.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -137,6 +143,12 @@
     </Compile>
     <Compile Include="FrmGatherStats.Designer.cs">
       <DependentUpon>FrmGatherStats.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmStatus.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmStatus.Designer.cs">
+      <DependentUpon>FrmStatus.cs</DependentUpon>
     </Compile>
     <Compile Include="FrmSuggestions.cs">
       <SubType>Form</SubType>
@@ -188,6 +200,9 @@
     <EmbeddedResource Include="Form2.resx">
       <DependentUpon>Form2.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FrmBrokersRec.resx">
+      <DependentUpon>FrmBrokersRec.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmEditCompanyDetails.resx">
       <DependentUpon>FrmEditCompanyDetails.cs</DependentUpon>
     </EmbeddedResource>
@@ -196,6 +211,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FrmGatherStats.resx">
       <DependentUpon>FrmGatherStats.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmStatus.resx">
+      <DependentUpon>FrmStatus.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmSuggestions.resx">
       <DependentUpon>FrmSuggestions.cs</DependentUpon>
@@ -222,6 +240,8 @@
     <None Include="Properties\DataSources\DBAccess.GLCodes.datasource" />
     <None Include="Properties\DataSources\DBAccess.GLType.datasource" />
     <None Include="Properties\DataSources\DBAccess.TransRecords.datasource" />
+    <None Include="Properties\DataSources\FrmBrokersRec.datasource" />
+    <None Include="Properties\DataSources\FrmStatus.statusLine.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.BuySuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.FiveDayMinSuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.ReBuySuggestions.datasource" />
@@ -229,6 +249,7 @@
     <None Include="Properties\DataSources\FrmSuggestions.Stats.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.Suggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.Transactions.datasource" />
+    <None Include="Properties\DataSources\recommendation.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -2744,11 +2744,14 @@ public static List<GICSSubIndustryCode> GetSubIndusRecords(PgSqlDataReader reade
             command.CommandText = string.Format("SELECT {1} FROM {0} WHERE 1 = 1  {2} {3} ", "brokers_recommendations", reqdFields, extraWhere, orderBy);
           else
             command.CommandText = string.Format("SELECT {1} FROM {0} WHERE br_datedeleted = @P0 {2} {3} ", "brokers_recommendations", reqdFields, extraWhere, orderBy);
+          Console.WriteLine(command.CommandText);
           command.Prepare();
           try
           {
             PgSqlDataReader reader = command.ExecuteReader();
-            list = GetBrokersRecommendationsRecords(reader);
+            bool justDate = reqdFields.Contains("DISTINCT(br_transdate)");
+
+            list = GetBrokersRecommendationsRecords(reader, justDate);
           }
           catch (Exception ex)
           {
@@ -2772,13 +2775,19 @@ public static List<GICSSubIndustryCode> GetSubIndusRecords(PgSqlDataReader reade
       return true;
     }
 
-    public static List<BrokersRecommendations> GetBrokersRecommendationsRecords(PgSqlDataReader reader)
+    public static List<BrokersRecommendations> GetBrokersRecommendationsRecords(PgSqlDataReader reader, bool justDate)
     {
+
       List<BrokersRecommendations> inputList = new List<BrokersRecommendations>();
       while (reader.Read())
       {
         BrokersRecommendations dtls = new BrokersRecommendations();
-
+        if (justDate)
+        {
+          dtls.HistoryDate = reader.GetDateTime(0);
+          inputList.Add(dtls);
+          continue;
+        }
         dtls.ID = reader.GetInt64(0);
         dtls.ASXCode = reader.GetString(1);
         dtls.HistoryDate = reader.GetDateTime(2);

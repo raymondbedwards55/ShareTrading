@@ -50,3 +50,5 @@ C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.FrmEditCompany
 C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\HtmlAgilityPack.dll
 C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\HtmlAgilityPack.pdb
 C:\Dvl\SpecialProjects\Shares\ShareTrading\bin\Debug\HtmlAgilityPack.xml
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.FrmStatus.resources
+C:\Dvl\SpecialProjects\Shares\ShareTrading\obj\Debug\ShareTrading.FrmBrokersRec.resources

@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Devart.Data.PostgreSql;
 
 using System.Windows.Forms;
+using ShareTrading.Common.Src;
+
 //using System.Data.OleDb;
 using Devart.Data.PostgreSql;
 
@@ -1175,7 +1177,6 @@ namespace ShareTrading
       if (!backgroundWorkerONight.IsBusy)
         backgroundWorkerONight.RunWorkerAsync();
 
-      timer1.Enabled = false;
       // Is it 6pm yet? Timer checked every 6 hours
       if (DateTime.Now.Hour >= 18 || DateTime.Now.Hour <= 3)
       {
@@ -1533,7 +1534,7 @@ namespace ShareTrading
         //
         DateTime curTime = DateTime.Now;
         DateTime tradingStart = DateTime.Today.AddHours(10);
-        DateTime tradingEnd = DateTime.Today.AddHours(11);
+        DateTime tradingEnd = DateTime.Today.AddHours(17);
         while (DateTime.Compare(tradingStart, curTime) <= 0 && DateTime.Compare(curTime, tradingEnd) <= 0 && DateTime.Compare(nextRunRec.VarDate, curTime) <= 0)
         {
           Console.WriteLine("Waiting ...  " + DateTime.Now.ToString());
@@ -1542,24 +1543,50 @@ namespace ShareTrading
           curTime = DateTime.Now;
         }
         Console.WriteLine("About to run Directors " + DateTime.Now.ToString());
-        MarketIndexScrape.Run();          // get Directors Transactions for last 100 days
+        try
+        {
+          MarketIndexScrape.Run();          // get Directors Transactions for last 100 days
+          updateSystemVars(SystemsVars.directorsTransactions.ToString(), DateTime.Now, "OK", String.Empty);
+        }
+        catch
+        {
+          updateSystemVars(SystemsVars.directorsTransactions.ToString(), DateTime.Now, "Failed", String.Empty);
+        }
 
         // Get all company names & then scrape for each company asx code
         Console.WriteLine("About to run Company Data Collection " + DateTime.Now.ToString());
-        List<DBAccess.CompanyDetails> coList = new List<DBAccess.CompanyDetails>();
-        DateTime _thisDate = DateTime.Today;
-        if (DBAccess.GetCompanyDetails(null, out coList))
+        try
         {
-          foreach (DBAccess.CompanyDetails co in coList)
+          List<DBAccess.CompanyDetails> coList = new List<DBAccess.CompanyDetails>();
+          DateTime _thisDate = DateTime.Today;
+          if (DBAccess.GetCompanyDetails(null, out coList))
           {
-            MarketIndexScrape.Run(co, _thisDate);
-            System.Threading.Thread.Sleep(6000);
-            //break;
+            foreach (DBAccess.CompanyDetails co in coList)
+            {
+              MarketIndexScrape.Run(co, _thisDate);
+              System.Threading.Thread.Sleep(6000);
+              //break;
+            }
           }
+          updateSystemVars(SystemsVars.companyData.ToString(), DateTime.Now, "OK", String.Empty);
+        }
+        catch
+        {
+          updateSystemVars(SystemsVars.companyData.ToString(), DateTime.Now, "Failed", String.Empty);
+
         }
         Console.WriteLine("About to run recommendations " + DateTime.Now.ToString());
         // Get Recommendations
-        MarketIndexScrape.Recommendations();
+        try
+        {
+          updateSystemVars(SystemsVars.brokersRecommendations.ToString(), DateTime.Now, "OK", String.Empty);
+          MarketIndexScrape.Recommendations();
+        }
+        catch
+        {
+          updateSystemVars(SystemsVars.brokersRecommendations.ToString(), DateTime.Now, "Failed", String.Empty);
+
+        }
       }
       catch
       {
@@ -1571,11 +1598,12 @@ namespace ShareTrading
     private void backgroundWorkerONight_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
     {
       DBAccess.SystemVars nextRunRec = new DBAccess.SystemVars();
-      nextRunRec.Description = "NEXT_RUN";
+      nextRunRec.Description = EnumHelper.GetEnumDescription(SystemsVars.nextOnightRun);
       nextRunRec = DBAccess.GetSpecificSystemVarRecord(nextRunRec);
       if (nextRunRec == null)
       {
-        nextRunRec.Description = "NEXT_RUN";
+        nextRunRec = new DBAccess.SystemVars();
+        nextRunRec.Description = EnumHelper.GetEnumDescription(SystemsVars.nextOnightRun);
         nextRunRec.VarDate = DateTime.Today.AddDays(-1).AddHours(16);
         nextRunRec.Status = string.Format("First Run");
         nextRunRec.Notes = string.Empty;
@@ -1596,6 +1624,63 @@ namespace ShareTrading
       }
 
     }
+
+    private void updateSystemVars(string desc, DateTime varDate, string status, string notes)
+    {
+      DBAccess.SystemVars nextRunRec = new DBAccess.SystemVars();
+      nextRunRec.Description = desc;
+      nextRunRec = DBAccess.GetSpecificSystemVarRecord(nextRunRec);
+      if (nextRunRec == null)
+      {
+        nextRunRec = new DBAccess.SystemVars();
+        nextRunRec.Description = desc;
+        nextRunRec.VarDate = varDate;
+        nextRunRec.Status = status;
+        nextRunRec.Notes = notes;
+        nextRunRec.DateCreated = DateTime.Now;
+        nextRunRec.DateModified = DateTime.Now;
+
+        DBAccess.DBInsert(nextRunRec, "system_vars", typeof(DBAccess.SystemVars));
+      }
+      else
+      {
+        nextRunRec.VarDate = varDate;
+        nextRunRec.Status = string.Format(status);
+        nextRunRec.Notes = string.Format("Last Run finished at {0}", DateTime.Now.ToString());
+        nextRunRec.DateCreated = DateTime.Now;
+        nextRunRec.DateModified = DateTime.Now;
+        DBAccess.DBUpdate(nextRunRec, "system_vars", typeof(DBAccess.SystemVars));
+
+      }
+    }
+
+    private void overnightRunStatusToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      FrmStatus frm = new FrmStatus();
+      frm.ShowDialog();
+
+    }
+
+    private void brokersRecommendationsToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      FrmBrokersRec frm = new FrmBrokersRec();
+      frm.ShowDialog();
+
+    }
+  }
+  public enum SystemsVars
+  {
+    [Description("Next Onight Run")]
+    nextOnightRun = 0,
+    [Description("Dividends")]
+    dividends = 1,
+    [Description("Directors Transactions")]
+    directorsTransactions = 2,
+    [Description("Brokers Recommendations")]
+    brokersRecommendations = 3,
+    [Description("Company Data")]
+    companyData = 4,
+
   }
 }
 

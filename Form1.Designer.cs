@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
       this.components = new System.ComponentModel.Container();
-      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-      System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-      System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+      System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+      System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+      System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
       this.button5 = new System.Windows.Forms.Button();
       this.dataGridView2 = new System.Windows.Forms.DataGridView();
       this.dataGridView1 = new System.Windows.Forms.DataGridView();
@@ -79,10 +79,12 @@
       this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
       this.backgroundWorkerPrcHst = new System.ComponentModel.BackgroundWorker();
       this.statusLabel = new System.Windows.Forms.Label();
-      this.shareAnalV2DataSetBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.btnUpdateBrokerage = new System.Windows.Forms.Button();
       this.companyDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.backgroundWorkerONight = new System.ComponentModel.BackgroundWorker();
+      this.overnightRunStatusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.shareAnalV2DataSetBindingSource = new System.Windows.Forms.BindingSource(this.components);
+      this.brokersRecommendationsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.DgvSuggestedBuys)).BeginInit();
@@ -233,7 +235,9 @@
       // homeToolStripMenuItem
       // 
       this.homeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.suggestionsToolStripMenuItem});
+            this.suggestionsToolStripMenuItem,
+            this.overnightRunStatusToolStripMenuItem,
+            this.brokersRecommendationsToolStripMenuItem});
       this.homeToolStripMenuItem.Name = "homeToolStripMenuItem";
       this.homeToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
       this.homeToolStripMenuItem.Text = "Home";
@@ -241,7 +245,7 @@
       // suggestionsToolStripMenuItem
       // 
       this.suggestionsToolStripMenuItem.Name = "suggestionsToolStripMenuItem";
-      this.suggestionsToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+      this.suggestionsToolStripMenuItem.Size = new System.Drawing.Size(216, 22);
       this.suggestionsToolStripMenuItem.Text = "Suggestions";
       this.suggestionsToolStripMenuItem.Click += new System.EventHandler(this.suggestionsToolStripMenuItem_Click);
       // 
@@ -452,17 +456,17 @@
       // 
       // chart1
       // 
-      chartArea6.Name = "ChartArea1";
-      this.chart1.ChartAreas.Add(chartArea6);
-      legend6.Name = "Legend1";
-      this.chart1.Legends.Add(legend6);
+      chartArea2.Name = "ChartArea1";
+      this.chart1.ChartAreas.Add(chartArea2);
+      legend2.Name = "Legend1";
+      this.chart1.Legends.Add(legend2);
       this.chart1.Location = new System.Drawing.Point(12, 142);
       this.chart1.Name = "chart1";
-      series6.ChartArea = "ChartArea1";
-      series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-      series6.Legend = "Legend1";
-      series6.Name = "Series1";
-      this.chart1.Series.Add(series6);
+      series2.ChartArea = "ChartArea1";
+      series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+      series2.Legend = "Legend1";
+      series2.Name = "Series1";
+      this.chart1.Series.Add(series2);
       this.chart1.Size = new System.Drawing.Size(797, 350);
       this.chart1.TabIndex = 47;
       this.chart1.Text = "Suggested Sells";
@@ -521,6 +525,20 @@
       // 
       this.backgroundWorkerONight.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorkerONight_DoWork);
       this.backgroundWorkerONight.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorkerONight_RunWorkerCompleted);
+      // 
+      // overnightRunStatusToolStripMenuItem
+      // 
+      this.overnightRunStatusToolStripMenuItem.Name = "overnightRunStatusToolStripMenuItem";
+      this.overnightRunStatusToolStripMenuItem.Size = new System.Drawing.Size(216, 22);
+      this.overnightRunStatusToolStripMenuItem.Text = "Overnight Run Status";
+      this.overnightRunStatusToolStripMenuItem.Click += new System.EventHandler(this.overnightRunStatusToolStripMenuItem_Click);
+      // 
+      // brokersRecommendationsToolStripMenuItem
+      // 
+      this.brokersRecommendationsToolStripMenuItem.Name = "brokersRecommendationsToolStripMenuItem";
+      this.brokersRecommendationsToolStripMenuItem.Size = new System.Drawing.Size(216, 22);
+      this.brokersRecommendationsToolStripMenuItem.Text = "Brokers Recommendations";
+      this.brokersRecommendationsToolStripMenuItem.Click += new System.EventHandler(this.brokersRecommendationsToolStripMenuItem_Click);
       // 
       // Form1
       // 
@@ -621,6 +639,8 @@
     private System.Windows.Forms.ToolStripMenuItem marketIndexDataToolStripMenuItem;
     private System.Windows.Forms.ToolStripMenuItem companyDataToolStripMenuItem;
     private System.ComponentModel.BackgroundWorker backgroundWorkerONight;
+    private System.Windows.Forms.ToolStripMenuItem overnightRunStatusToolStripMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem brokersRecommendationsToolStripMenuItem;
   }
 }
 
