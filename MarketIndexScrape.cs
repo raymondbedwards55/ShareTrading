@@ -19,7 +19,7 @@ namespace ShareTrading
 
     public static void Run(DBAccess.CompanyDetails _thisCompany, DateTime _thisDate )
     {
-
+      
       string response = GetPage(string.Format("https://www.marketindex.com.au/asx/{0}", _thisCompany.ASXCode));    // Daily Company Stats
       if (response != null)
       {
@@ -182,7 +182,7 @@ namespace ShareTrading
             bool validLine = true;
             foreach (var td_node in td_nodes)
             {
-              Console.WriteLine(">Directors>>" + td_node.InnerText + "<<");
+              //Console.WriteLine(">Directors>>" + td_node.InnerText + "<<");
               //if (td_node.ParentNode.ParentNode.ParentNode.Id != "director-transactions-table")
               //  continue;
               switch (counter)
@@ -334,7 +334,7 @@ namespace ShareTrading
               valList[idx].coValue = tdEntry.InnerText.Replace("\n", "").Replace("%", "").Replace("$", "").Replace(",", "").Replace(" ", "");
               needNext = false;
             }
-            Console.WriteLine("CompanyData**" + tdEntry.InnerText + "**");
+            //Console.WriteLine("CompanyData**" + tdEntry.InnerText + "**");
             for (int j = 0; j < valList.Count; j++)
               if (tdEntry.InnerText.Contains(valList[j].coText))
               {
@@ -422,6 +422,7 @@ namespace ShareTrading
     }
     public static void parseHistoricalData(string response, DBAccess.CompanyDetails thisCompany)
     {
+      int counter = 0;
       List<dailyStats> statsList = new List<dailyStats>();
 
       HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
@@ -440,12 +441,12 @@ namespace ShareTrading
         if (htmlDoc.DocumentNode != null)
         {
           HtmlAgilityPack.HtmlNodeCollection spanNodeCollection = htmlDoc.DocumentNode.SelectNodes("//span");
-          int counter = 0;
+          int countUpdates = 0;
           bool tableFound = false;
           dailyStats rec = new dailyStats();
           foreach (HtmlAgilityPack.HtmlNode spanEntry in spanNodeCollection)
           {
-            Console.WriteLine("Historical>>" + spanEntry.InnerText + "<<");
+            //Console.WriteLine("Historical>>" + spanEntry.InnerText + "<<");
             if (spanEntry.InnerText.Equals("Volume"))
             {
               tableFound = true;
@@ -587,6 +588,9 @@ namespace ShareTrading
                   apd.DateModified = DateTime.Now;
                   DBAccess.DBUpdate(apd, "asxpricedate", typeof(DBAccess.ASXPriceDate));
                   rec = new dailyStats();
+                  countUpdates++;
+                  if (countUpdates > 5)
+                    return;                     //  only update a max of 5 historical records
                 }
               }
               else
@@ -636,7 +640,7 @@ namespace ShareTrading
           }
             if (tdEntry.InnerText.Contains("GICS"))
               needNext = true;
-          Console.WriteLine("Research>" + tdEntry.InnerHtml + "<>" + tdEntry.InnerText + "<");
+          //Console.WriteLine("Research>" + tdEntry.InnerHtml + "<>" + tdEntry.InnerText + "<");
         }
         needNext = false;
         return GICSSubCode;
@@ -668,7 +672,7 @@ namespace ShareTrading
             DBAccess.BrokersRecommendations rec = new DBAccess.BrokersRecommendations();
             foreach (HtmlAgilityPack.HtmlNode tdEntry in tdNodeCollection)
             {
-              Console.WriteLine("Recommendations>>" + tdEntry.InnerText + "<<");
+              //Console.WriteLine("Recommendations>>" + tdEntry.InnerText + "<<");
               if (counter == 0 && tdEntry.InnerText.Contains("Prev"))
                 break;
               rec.HistoryDate = recommendationDate;
@@ -781,11 +785,11 @@ namespace ShareTrading
         WebResponse response = request.GetResponse();
         if ((((HttpWebResponse)response).StatusDescription) != "OK")
         {
-          Console.WriteLine("getPage  FAILED " + url + "< Status>" + ((HttpWebResponse)response).StatusDescription);
+          //Console.WriteLine("getPage  FAILED " + url + "< Status>" + ((HttpWebResponse)response).StatusDescription);
           return null;
         }
         // Display the status.
-        Console.WriteLine("getPage" + url + "< Status>" + ((HttpWebResponse)response).StatusDescription);
+        //Console.WriteLine("getPage" + url + "< Status>" + ((HttpWebResponse)response).StatusDescription);
         // Get the stream containing content returned by the server.
         Stream dataStream = response.GetResponseStream();
         // Open the stream using a StreamReader for easy access.

@@ -1174,20 +1174,41 @@ namespace ShareTrading
     {
       Console.WriteLine("Starting Timer " + DateTime.Now.ToString());
       timer1.Interval = 2160000;
-      if (!backgroundWorkerONight.IsBusy)
+      if (!backgroundWorkerONight.IsBusy && timeToRun(SystemsVars.nextOnightRun))
         backgroundWorkerONight.RunWorkerAsync();
 
-      // Is it 6pm yet? Timer checked every 6 hours
-      if (DateTime.Now.Hour >= 18 || DateTime.Now.Hour <= 3)
-      {
-        // Scrape pages - import dividends
-        if (!backgroundWorker1.IsBusy)
-        {
-          progressBar.Visible = true;
-          backgroundWorker1.RunWorkerAsync();
-        }
+      //// Is it 6pm yet? Timer checked every 6 hours
+      //if (DateTime.Now.Hour >= 18 || DateTime.Now.Hour <= 3)
+      //{
+      //  // Scrape pages - import dividends
+      //  if (!backgroundWorker1.IsBusy && timeToRun(SystemsVars.dividends))
+      //  {
+      //    progressBar.Visible = true;
+      //    backgroundWorker1.RunWorkerAsync();
+      //  }
 
+      //}
+    }
+
+    private bool timeToRun(SystemsVars type)
+    {
+      // Has it already been run today?
+      DBAccess.SystemVars nextRunRec = new DBAccess.SystemVars();
+      nextRunRec.Description = EnumHelper.GetEnumDescription(type);
+      nextRunRec = DBAccess.GetSpecificSystemVarRecord(nextRunRec);
+      if (nextRunRec == null)
+      {
+        nextRunRec = new DBAccess.SystemVars();
+        nextRunRec.Description = EnumHelper.GetEnumDescription(type);
+        nextRunRec.VarDate = DateTime.Today.AddDays(-1).AddHours(16);
+        nextRunRec.Status = string.Format("Never run");
+        nextRunRec.Notes = string.Empty;
+        nextRunRec.DateCreated = DateTime.Now;
+        nextRunRec.DateModified = DateTime.Now;
+        DBAccess.DBInsert(nextRunRec, "system_vars", typeof(DBAccess.SystemVars));
       }
+      nextRunRec = DBAccess.GetSpecificSystemVarRecord(nextRunRec);
+      return DateTime.Compare(DateTime.Now, nextRunRec.VarDate) > 0;
     }
 
         private void button5_Click_1(object sender, EventArgs e)
@@ -1308,7 +1329,14 @@ namespace ShareTrading
       foreach (DBAccess.ASXPriceDate rec in coList)
       {
         Console.WriteLine(">" + rec.ASXCode + "<");
-        ImportDividendHistory.ImportDividends(rec.ASXCode);
+        try
+        {
+          ImportDividendHistory.ImportDividends(rec.ASXCode);
+        }
+        catch
+        {
+
+        }
         if (counter > 100)
           counter = 0;
         backgroundWorker1.ReportProgress(counter++);
@@ -1329,6 +1357,7 @@ namespace ShareTrading
     {
       MessageBox.Show("Dividend History Import Completed", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
       progressBar.Visible = false;
+      updateSystemVars(SystemsVars.dividends.ToString(), DateTime.Today.AddDays(-1).AddHours(16), "OK", String.Empty);
 
     }
 
@@ -1518,22 +1547,12 @@ namespace ShareTrading
       {
         // Has it already been run today?
         DBAccess.SystemVars nextRunRec = new DBAccess.SystemVars();
-        nextRunRec.Description = "NEXT_RUN";
+        nextRunRec.Description = EnumHelper.GetEnumDescription(SystemsVars.nextOnightRun);
         nextRunRec = DBAccess.GetSpecificSystemVarRecord(nextRunRec);
         if (nextRunRec == null)
-        {
-          nextRunRec = new DBAccess.SystemVars();
-          nextRunRec.Description = "NEXT_RUN";
-          nextRunRec.VarDate = DateTime.Today.AddDays(-1).AddHours(16);
-          nextRunRec.Status = string.Format("Never run");
-          nextRunRec.Notes = string.Empty;
-          nextRunRec.DateCreated = DateTime.Now;
-          nextRunRec.DateModified = DateTime.Now;
-          DBAccess.DBInsert(nextRunRec, "system_vars", typeof(DBAccess.SystemVars));
-        }
-        //
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.nextOnightRun), DateTime.Now, "Never Run", string.Empty);        //
         DateTime curTime = DateTime.Now;
-        DateTime tradingStart = DateTime.Today.AddHours(10);
+        DateTime tradingStart = DateTime.Today.AddHours(12);
         DateTime tradingEnd = DateTime.Today.AddHours(17);
         while (DateTime.Compare(tradingStart, curTime) <= 0 && DateTime.Compare(curTime, tradingEnd) <= 0 && DateTime.Compare(nextRunRec.VarDate, curTime) <= 0)
         {
@@ -1546,11 +1565,11 @@ namespace ShareTrading
         try
         {
           MarketIndexScrape.Run();          // get Directors Transactions for last 100 days
-          updateSystemVars(SystemsVars.directorsTransactions.ToString(), DateTime.Now, "OK", String.Empty);
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.directorsTransactions), DateTime.Today.AddDays(1).AddHours(16), "OK", String.Empty);
         }
         catch
         {
-          updateSystemVars(SystemsVars.directorsTransactions.ToString(), DateTime.Now, "Failed", String.Empty);
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.directorsTransactions), DateTime.Today.AddDays(1).AddHours(16), "Failed", String.Empty);
         }
 
         // Get all company names & then scrape for each company asx code
@@ -1563,28 +1582,53 @@ namespace ShareTrading
           {
             foreach (DBAccess.CompanyDetails co in coList)
             {
-              MarketIndexScrape.Run(co, _thisDate);
-              System.Threading.Thread.Sleep(6000);
+              try
+              {
+                Console.WriteLine(string.Format(">>{0}<<", co.ASXCode));
+                MarketIndexScrape.Run(co, _thisDate);
+                System.Threading.Thread.Sleep(6000);
+              }
+              catch { Console.WriteLine(string.Format("{0} Failed (Marketscrape)", co.ASXCode)); }
+              //break;
+              try
+              {
+                ImportDividendHistory.ImportDividends(co.ASXCode);
+                System.Threading.Thread.Sleep(6000);
+              }
+              catch { Console.WriteLine(string.Format("{0} Failed (Dividends)", co.ASXCode)); }
               //break;
             }
           }
-          updateSystemVars(SystemsVars.companyData.ToString(), DateTime.Now, "OK", String.Empty);
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.companyData), DateTime.Today.AddDays(1).AddHours(16), "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
         }
         catch
         {
-          updateSystemVars(SystemsVars.companyData.ToString(), DateTime.Now, "Failed", String.Empty);
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.companyData), DateTime.Today.AddDays(1).AddHours(16), "Failed", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
 
         }
         Console.WriteLine("About to run recommendations " + DateTime.Now.ToString());
         // Get Recommendations
         try
         {
-          updateSystemVars(SystemsVars.brokersRecommendations.ToString(), DateTime.Now, "OK", String.Empty);
           MarketIndexScrape.Recommendations();
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.brokersRecommendations), DateTime.Today.AddDays(1).AddHours(16), "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
         }
         catch
         {
-          updateSystemVars(SystemsVars.brokersRecommendations.ToString(), DateTime.Now, "Failed", String.Empty);
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.brokersRecommendations), DateTime.Today.AddDays(1).AddHours(16), "Failed", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
+
+        }
+
+        // dividends
+        Console.WriteLine("About to run Dividends " + DateTime.Now.ToString());
+        try
+        {
+
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.dividends), DateTime.Today.AddDays(1).AddHours(16), "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
+        }
+        catch
+        {
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.dividends), DateTime.Today.AddDays(1).AddHours(16), "Failed", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
 
         }
       }
@@ -1597,32 +1641,7 @@ namespace ShareTrading
 
     private void backgroundWorkerONight_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
     {
-      DBAccess.SystemVars nextRunRec = new DBAccess.SystemVars();
-      nextRunRec.Description = EnumHelper.GetEnumDescription(SystemsVars.nextOnightRun);
-      nextRunRec = DBAccess.GetSpecificSystemVarRecord(nextRunRec);
-      if (nextRunRec == null)
-      {
-        nextRunRec = new DBAccess.SystemVars();
-        nextRunRec.Description = EnumHelper.GetEnumDescription(SystemsVars.nextOnightRun);
-        nextRunRec.VarDate = DateTime.Today.AddDays(-1).AddHours(16);
-        nextRunRec.Status = string.Format("First Run");
-        nextRunRec.Notes = string.Empty;
-        nextRunRec.DateCreated = DateTime.Now;
-        nextRunRec.DateModified = DateTime.Now;
-
-        DBAccess.DBInsert(nextRunRec, "system_vars", typeof(DBAccess.SystemVars));
-      }
-      else
-      {
-        nextRunRec.VarDate = DateTime.Today.AddDays(1).AddHours(16);
-        nextRunRec.Status = string.Format("Next Run");
-        nextRunRec.Notes = string.Format("Last Run finished at {0}", DateTime.Now.ToString());
-        nextRunRec.DateCreated = DateTime.Now;
-        nextRunRec.DateModified = DateTime.Now;
-        DBAccess.DBUpdate(nextRunRec, "system_vars", typeof(DBAccess.SystemVars));
-
-      }
-
+      updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.nextOnightRun), DateTime.Now, "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
     }
 
     private void updateSystemVars(string desc, DateTime varDate, string status, string notes)
@@ -1670,16 +1689,20 @@ namespace ShareTrading
   }
   public enum SystemsVars
   {
+    [Description ("Status Start")]
+    statusStart = 0,
     [Description("Next Onight Run")]
-    nextOnightRun = 0,
+    nextOnightRun = 1,
     [Description("Dividends")]
-    dividends = 1,
+    dividends = 2,
     [Description("Directors Transactions")]
-    directorsTransactions = 2,
+    directorsTransactions = 3,
     [Description("Brokers Recommendations")]
-    brokersRecommendations = 3,
+    brokersRecommendations = 4,
     [Description("Company Data")]
-    companyData = 4,
+    companyData = 5,
+    [Description("Status Max")]
+    statusMax =19,
 
   }
 }

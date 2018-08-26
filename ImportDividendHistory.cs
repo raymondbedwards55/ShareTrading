@@ -15,6 +15,7 @@ namespace ShareTrading
 
     public static void ImportDividends(string ASXCode)
     {
+      //ASXCode = "WPL";
       DBAccess.DividendHistory Dividend = new DBAccess.DividendHistory();
       String DateFld = @"<td>([0-9\-]+)</td>";
       String DlrsFld = @"<td>\$([0-9\-\.]+)</td>";
@@ -24,7 +25,10 @@ namespace ShareTrading
       string pct1 = @"<td>([0-9\-\.\%]*)</td>";
       //ASXCode = "WPL";
       String response = GetPage( ASXCode );
+      if (response == null)
+        return;
       Dividend.ASXCode = ASXCode;
+      int countUpdates = 0;
       while (true)
       {
         Match match = Regex.Match(response, "<tr   style='background-color:#...;(.*)");
@@ -47,7 +51,6 @@ namespace ShareTrading
             String Fld8 = yrDataMatch.Groups[8].Value;
             String Fld9 = yrDataMatch.Groups[9].Value;
             String Fld10 = yrDataMatch.Groups[10].Value;
-
             Dividend.ExDividend = ConvertToDate(Fld1);
             // Check if data already in table
             List<DBAccess.DividendHistory> divList = new List<DBAccess.DividendHistory>();
@@ -82,6 +85,9 @@ namespace ShareTrading
               Decimal.TryParse(Fld7, out val);
               Dividend.GrossDividend = val;
               DBAccess.DividendHistoryUpdate(Dividend);
+              countUpdates++;
+              if (countUpdates > 5)
+                break;
 
             }
             // Will this dividend be paid?
@@ -120,6 +126,8 @@ namespace ShareTrading
         divPd.GrossDividendPerShare = div.GrossDividend;
         divPd.AmtPaidPerShare = div.Amount;
         divPd.QtyShares = soh;
+        divPd.DateCreated = DateTime.Now;
+        divPd.DateModified = DateTime.Now;
         DBAccess.DBInsert(divPd, "dividendpaid", typeof(DBAccess.DivPaid));
       }
       else
@@ -133,7 +141,7 @@ namespace ShareTrading
         divPd.GrossDividendPerShare = div.GrossDividend;
         divPd.AmtPaidPerShare = div.Amount;
         divPd.QtyShares = soh;
-
+        divPd.DateModified = DateTime.Now;
         DBAccess.DBUpdate(divPd, "dividendpaid", typeof(DBAccess.DivPaid));
       }
 
@@ -154,28 +162,36 @@ namespace ShareTrading
     public static String GetPage(String ThisASXCode)
     {
       // Create a request for the URL. 
-      WebRequest request = WebRequest.Create(
+      try
+      {
+        WebRequest request = WebRequest.Create(
         "http://dividends.com.au/dividend-history/?enter_code=" + ThisASXCode);
-      // If required by the server, set the credentials.
-      request.Credentials = CredentialCache.DefaultCredentials;
-      // Get the response.
-      WebResponse response = request.GetResponse();
-      // Display the status.
-      Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-      // Get the stream containing content returned by the server.
-      Stream dataStream = response.GetResponseStream();
-      // Open the stream using a StreamReader for easy access.
-      StreamReader reader = new StreamReader(dataStream);
-      // Read the content.
-      string responseFromServer = reader.ReadToEnd();
-      // Display the content.
-      //                Console.WriteLine(responseFromServer);
-      //                // Clean up the streams and the response.
-      reader.Close();
-      response.Close();
+        // If required by the server, set the credentials.
+        request.Credentials = CredentialCache.DefaultCredentials;
+        // Get the response.
+        WebResponse response = request.GetResponse();
+        // Display the status.
+        Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+        // Get the stream containing content returned by the server.
+        Stream dataStream = response.GetResponseStream();
+        // Open the stream using a StreamReader for easy access.
+        StreamReader reader = new StreamReader(dataStream);
+        // Read the content.
+        string responseFromServer = reader.ReadToEnd();
+        // Display the content.
+        //                Console.WriteLine(responseFromServer);
+        //                // Clean up the streams and the response.
+        reader.Close();
+        response.Close();
 
 
-      return responseFromServer;
+        return responseFromServer;
+      }
+      catch
+      {
+        Console.WriteLine(string.Format("{0} GetPage failed", ThisASXCode));
+        return null;
+      }
     }
   }
 }
