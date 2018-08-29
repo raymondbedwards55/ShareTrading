@@ -25,40 +25,40 @@ using Devart.Data.PostgreSql;
 
 namespace ShareTrading
 {
-    public partial class Form1 : Form
+  public partial class Form1 : Form
+  {
+
+    public DBAccess DB;
+    private Decimal MarginLending = (Decimal)0.065;
+    private Decimal MinMargin = (Decimal)0.05;
+    private Decimal BuyResistance = (Decimal)0.0;
+    private int PeriodForLow = 60;
+    private int PeriodForHigh = 60;
+    private bool MaxBuys = true;
+    private bool MaxSells = true;
+    private int MaxRebuyCount = 3;  // The maximum number of parcels of any stock
+    private bool ChaseDividends = true;  // Buy close to dividends to look for dividend or short gains
+    private Decimal MarginLoanRebuyLimit = (Decimal).1;  //After we reach this limit (eg say.1) no more buys are allowed
+    private Decimal TargetBuyReturn = (Decimal).005;  // THis is used as the log target for Buys
+    private Decimal TargetSellReturn = (Decimal).02;  // THis is used as the log target for Sells
+    private bool BuyOnDaysMin = true; //  Only buy on 5,0 .. days min if allowed
+
+
+    public Decimal MaxMarginLoan = 0;
+    public Decimal CorrespondingSOH = 0;
+
+    public DateTime StartDate = new DateTime(2016, 1, 1);
+    public DateTime EndDate = new DateTime(2016, 12, 15);
+    public Decimal StartBal = 300000;
+    public Decimal AddSellMrgn = (Decimal)1.015;
+    public Decimal AddBuyMrgn = (Decimal).985;
+    public Decimal RebuyMargin = (Decimal)0.80;
+    public Decimal MarginLendingBarrier = (Decimal)3;
+
+
+    public Form1()
     {
-
-        public DBAccess DB;
-        private Decimal MarginLending = (Decimal)0.065;
-        private Decimal MinMargin = (Decimal)0.05;
-        private Decimal BuyResistance = (Decimal)0.0;
-        private int PeriodForLow = 60;
-        private int PeriodForHigh = 60;
-        private bool MaxBuys = true;
-        private bool MaxSells = true;
-        private int MaxRebuyCount = 3;  // The maximum number of parcels of any stock
-        private bool ChaseDividends = true;  // Buy close to dividends to look for dividend or short gains
-        private Decimal MarginLoanRebuyLimit = (Decimal).1;  //After we reach this limit (eg say.1) no more buys are allowed
-        private Decimal TargetBuyReturn = (Decimal).005;  // THis is used as the log target for Buys
-        private Decimal TargetSellReturn = (Decimal).02;  // THis is used as the log target for Sells
-        private bool BuyOnDaysMin = true; //  Only buy on 5,0 .. days min if allowed
-
-
-        public Decimal MaxMarginLoan = 0;
-        public Decimal CorrespondingSOH = 0;
-
-        public DateTime StartDate = new DateTime(2016, 1, 1);
-        public DateTime EndDate = new DateTime(2016, 12, 15);
-        public Decimal StartBal = 300000;
-        public Decimal AddSellMrgn = (Decimal)1.015;
-        public Decimal AddBuyMrgn = (Decimal).985;
-        public Decimal RebuyMargin = (Decimal)0.80;
-        public Decimal MarginLendingBarrier = (Decimal)3;
-
-
-        public Form1()
-        {
-            InitializeComponent();
+      InitializeComponent();
       //DB = new DBAccess();
       if (!DBAccess.CheckConnection(/* "localhost", 5432 */))
       {
@@ -66,17 +66,17 @@ namespace ShareTrading
         Close();
       }
       timer1.Start();
-     }
+    }
 
     private void Form1_Load(object sender, EventArgs e)
-        {
+    {
 
-        }
+    }
 
-        private void PlotChart()
-        {
+    private void PlotChart()
+    {
 
-        }
+    }
 
     private void FillGrid()
     {
@@ -167,714 +167,714 @@ namespace ShareTrading
       }
     }
 
-        // NAB Brokerage rules
-        private static decimal CalcBrokerage(decimal transVal)
-        {
-            if (transVal <= (decimal)5000.0)
-                return (decimal)14.95;
-            else if (transVal <= (decimal)20000.0)
-                return (decimal)19.95;
-            else
-                return (decimal)(transVal * (decimal).0011);
-        }
+    // NAB Brokerage rules
+    private static decimal CalcBrokerage(decimal transVal)
+    {
+      if (transVal <= (decimal)5000.0)
+        return (decimal)14.95;
+      else if (transVal <= (decimal)20000.0)
+        return (decimal)19.95;
+      else
+        return (decimal)(transVal * (decimal).0011);
+    }
 
 
-        private void TrialSimulation(object sender, EventArgs e)
+    private void TrialSimulation(object sender, EventArgs e)
+    {
+      //AddSellMrgn = (Decimal)1.015;
+      // AddBuyMrgn = (Decimal).985;
+      // RebuyMargin = (Decimal)0.7;
+      MarginLendingBarrier = (Decimal)3;
+      for (AddSellMrgn = (Decimal)1.005; AddSellMrgn < (Decimal)1.010; AddSellMrgn += (Decimal).005)
+      {
+        for (AddBuyMrgn = (Decimal)0.990; AddBuyMrgn < (Decimal)1.0; AddBuyMrgn += (Decimal).005)
         {
-            //AddSellMrgn = (Decimal)1.015;
-            // AddBuyMrgn = (Decimal).985;
-            // RebuyMargin = (Decimal)0.7;
-            MarginLendingBarrier = (Decimal)3;
-            for (AddSellMrgn = (Decimal)1.005; AddSellMrgn < (Decimal)1.010; AddSellMrgn += (Decimal).005)
+          for (RebuyMargin = (Decimal)0.96; RebuyMargin <= (Decimal).99; RebuyMargin += (Decimal).01)
+          {
+            for (TargetSellReturn = (Decimal)0.008; TargetSellReturn <= (Decimal).03; TargetSellReturn += (Decimal).002)
             {
-                for (AddBuyMrgn = (Decimal)0.990; AddBuyMrgn < (Decimal)1.0; AddBuyMrgn += (Decimal).005)
-                {
-                    for (RebuyMargin = (Decimal)0.96; RebuyMargin <= (Decimal).99; RebuyMargin += (Decimal).01)
-                    {
-                        for (TargetSellReturn = (Decimal)0.008; TargetSellReturn <= (Decimal).03; TargetSellReturn += (Decimal).002)
-                        {
-                            for (TargetBuyReturn = (Decimal)0.002; TargetBuyReturn <= (Decimal).03; TargetBuyReturn += (Decimal).002)
-                            {
-                                RangeTest(true);
-                            }
-                        }
-                    }
-                }
+              for (TargetBuyReturn = (Decimal)0.002; TargetBuyReturn <= (Decimal).03; TargetBuyReturn += (Decimal).002)
+              {
+                RangeTest(true);
+              }
             }
+          }
         }
+      }
+    }
 
-        private void RangeTest(bool runningSimulation)
-        {
-            DBAccess.TransRecords TransRecords;
+    private void RangeTest(bool runningSimulation)
+    {
+      DBAccess.TransRecords TransRecords;
       List<DBAccess.TransRecords> transList = null;
-            //DB = new DBAccess();
-            //DBAccess.connection.Open();
-            DBAccess.PrepareForSimulation();
+      //DB = new DBAccess();
+      //DBAccess.connection.Open();
+      DBAccess.PrepareForSimulation();
       List<DBAccess.ASXPriceDate> allPrices = new List<DBAccess.ASXPriceDate>();
-            DBAccess.GetAllPrices(null, StartDate, out allPrices, DBAccess.ASXPriceDateFieldList);
-            DateTime lastDate = StartDate;
-            //  Set up the starting Account Bal
-            DBAccess.BankBal bankBal = new DBAccess.BankBal();
-            bankBal.BalDate = lastDate;
-            bankBal.AcctBal = StartBal;
-            DBAccess.BankBalInsert(bankBal, runningSimulation);
-            Decimal DayDivTotal = (Decimal)0.0;
+      DBAccess.GetAllPrices(null, StartDate, out allPrices, DBAccess.ASXPriceDateFieldList);
+      DateTime lastDate = StartDate;
+      //  Set up the starting Account Bal
+      DBAccess.BankBal bankBal = new DBAccess.BankBal();
+      bankBal.BalDate = lastDate;
+      bankBal.AcctBal = StartBal;
+      DBAccess.BankBalInsert(bankBal, runningSimulation);
+      Decimal DayDivTotal = (Decimal)0.0;
 
-            foreach(DBAccess.ASXPriceDate rec in allPrices)
-            {
-                DBAccess.DividendHistory dividendHistory = null;
+      foreach (DBAccess.ASXPriceDate rec in allPrices)
+      {
+        DBAccess.DividendHistory dividendHistory = null;
         List<DBAccess.DividendHistory> list = new List<DBAccess.DividendHistory>();
         if (DBAccess.GetDividends(rec.ASXCode, lastDate, out list, DBAccess.dirn.lessThan))
           dividendHistory = list[0]; ;
-                if (dividendHistory == null)
-                    continue;
-                //                if (dividendHistory.GrossDividend > ASXPriceDate.PrcClose * (Decimal).02)
-                //                    continue;
+        if (dividendHistory == null)
+          continue;
+        //                if (dividendHistory.GrossDividend > ASXPriceDate.PrcClose * (Decimal).02)
+        //                    continue;
 
-                //                if (ASXPriceDate.ASXCode != "LL")
-                //                   continue;
-                long ID = rec.ID;
-                DBAccess.DivPaid dp = CommonFunctions.CheckForDividends(rec.ASXCode, rec.PriceDate, runningSimulation);
-                //if (dp != null)
-                //    DayDivTotal = dp.TtlDividend + DayDivTotal;
-                if (rec.PriceDate > lastDate)
-                {
-                    if (MaxMarginLoan < bankBal.MarginLoan)
-                    {
-                        MaxMarginLoan = bankBal.MarginLoan;
-                        CorrespondingSOH = bankBal.TtlDlrSOH;
-                    }
+        //                if (ASXPriceDate.ASXCode != "LL")
+        //                   continue;
+        long ID = rec.ID;
+        DBAccess.DivPaid dp = CommonFunctions.CheckForDividends(rec.ASXCode, rec.PriceDate, runningSimulation);
+        //if (dp != null)
+        //    DayDivTotal = dp.TtlDividend + DayDivTotal;
+        if (rec.PriceDate > lastDate)
+        {
+          if (MaxMarginLoan < bankBal.MarginLoan)
+          {
+            MaxMarginLoan = bankBal.MarginLoan;
+            CorrespondingSOH = bankBal.TtlDlrSOH;
+          }
 
-                    if (rec.PriceDate == EndDate)
-                    {
-                        DBAccess.SimulationPerformance Performance = new DBAccess.SimulationPerformance();
-                        Performance.EndDate = EndDate;
-                        Performance.StartDate = StartDate;
-                        Performance.BuyPriceTargetPct = AddBuyMrgn;
-                        Performance.SellPriceTargetPct = AddSellMrgn;
-                        Performance.MarginLendingBarrier = MarginLendingBarrier;
-                        Performance.MaxMarginLoan = MaxMarginLoan;
-                        if (CorrespondingSOH > 0)
-                            Performance.MaxMarginLoanPctOfSOH = MaxMarginLoan / CorrespondingSOH;
-                        Performance.MinPriceDays = 5;
-                        Performance.NetProfit = bankBal.TtlDlrSOH + bankBal.AcctBal - StartBal - bankBal.MarginLoan + bankBal.TtlDividendEarned;
-                        Performance.RebuyPct = RebuyMargin;
-                        Performance.MaxRebuyCount = MaxRebuyCount;
-                        Performance.ChaseDividends = ChaseDividends;
-                        Performance.MarginLoanRebuyLimit = MarginLoanRebuyLimit;
-                        Performance.TargetBuyReturn = TargetBuyReturn;
-                        Performance.TargetSellReturn = TargetSellReturn;
-                        Performance.BuyOnDaysMin = BuyOnDaysMin;
-                        Performance.MaxSells = MaxSells;
-                        Performance.MaxBuys = MaxBuys;
-                        DBAccess.SimulationPerformanceInsert(Performance);
-                        MaxMarginLoan = 0;
-                        CorrespondingSOH = 0;
-                        return;
-                    }
+          if (rec.PriceDate == EndDate)
+          {
+            DBAccess.SimulationPerformance Performance = new DBAccess.SimulationPerformance();
+            Performance.EndDate = EndDate;
+            Performance.StartDate = StartDate;
+            Performance.BuyPriceTargetPct = AddBuyMrgn;
+            Performance.SellPriceTargetPct = AddSellMrgn;
+            Performance.MarginLendingBarrier = MarginLendingBarrier;
+            Performance.MaxMarginLoan = MaxMarginLoan;
+            if (CorrespondingSOH > 0)
+              Performance.MaxMarginLoanPctOfSOH = MaxMarginLoan / CorrespondingSOH;
+            Performance.MinPriceDays = 5;
+            Performance.NetProfit = bankBal.TtlDlrSOH + bankBal.AcctBal - StartBal - bankBal.MarginLoan + bankBal.TtlDividendEarned;
+            Performance.RebuyPct = RebuyMargin;
+            Performance.MaxRebuyCount = MaxRebuyCount;
+            Performance.ChaseDividends = ChaseDividends;
+            Performance.MarginLoanRebuyLimit = MarginLoanRebuyLimit;
+            Performance.TargetBuyReturn = TargetBuyReturn;
+            Performance.TargetSellReturn = TargetSellReturn;
+            Performance.BuyOnDaysMin = BuyOnDaysMin;
+            Performance.MaxSells = MaxSells;
+            Performance.MaxBuys = MaxBuys;
+            DBAccess.SimulationPerformanceInsert(Performance);
+            MaxMarginLoan = 0;
+            CorrespondingSOH = 0;
+            return;
+          }
           List<DBAccess.BankBal> balList = new List<DBAccess.BankBal>();
-                    if (DBAccess.GetAllBankBalRecords(lastDate, out balList, string.Empty, runningSimulation, DBAccess.dirn.equals  ))
-                        bankBal = balList[0];
+          if (DBAccess.GetAllBankBalRecords(lastDate, out balList, string.Empty, runningSimulation, DBAccess.dirn.equals))
+            bankBal = balList[0];
 
-                    bankBal.TtlDlrSOH = DBAccess.UpdateCurrentSOH(bankBal, runningSimulation);
-                    bankBal.TtlTradeProfit = bankBal.TtlTradeProfit + bankBal.DayTradeProfit;
-                    //                    bankBal.MarginLoan = MarginLoanBal;
-                    //                    bankBal.AcctBal = AcctBal;
-                    bankBal.BalDate = lastDate;
-                    bankBal.DlrDaysInvested = StartBal - bankBal.AcctBal + bankBal.MarginLoan;
-                    bankBal.TtlDlrDaysInvested = bankBal.TtlDlrDaysInvested + bankBal.DlrDaysInvested;
-                    bankBal.DayDividend = DayDivTotal;
-                    bankBal.TtlDividendEarned = bankBal.TtlDividendEarned + DayDivTotal;
-                    DBAccess.BankBalUpdate(bankBal);
+          bankBal.TtlDlrSOH = DBAccess.UpdateCurrentSOH(bankBal, runningSimulation);
+          bankBal.TtlTradeProfit = bankBal.TtlTradeProfit + bankBal.DayTradeProfit;
+          //                    bankBal.MarginLoan = MarginLoanBal;
+          //                    bankBal.AcctBal = AcctBal;
+          bankBal.BalDate = lastDate;
+          bankBal.DlrDaysInvested = StartBal - bankBal.AcctBal + bankBal.MarginLoan;
+          bankBal.TtlDlrDaysInvested = bankBal.TtlDlrDaysInvested + bankBal.DlrDaysInvested;
+          bankBal.DayDividend = DayDivTotal;
+          bankBal.TtlDividendEarned = bankBal.TtlDividendEarned + DayDivTotal;
+          DBAccess.BankBalUpdate(bankBal);
 
-                    // Now move forward & Reset the Day stuff
-                    lastDate = rec.PriceDate;
-                    DayDivTotal = (Decimal)0.0;
-                    bankBal.BalDate = lastDate;
-                    bankBal.DayTradeProfit = 0;
-                    bankBal.DlrDaysInvested = 0;
-                    bankBal.TtlDlrDaysInvested = 0;
-                    bankBal.DayDividend = 0;
-                    DBAccess.BankBalInsert(bankBal, runningSimulation);
-                }
-                bool didSell = false;
-                if (!DBAccess.GetAllTransRecords(rec.ASXCode, DateTime.MinValue, out transList, DBAccess.TransRecordsFieldList, string.Empty, runningSimulation))
-                    continue;
-                else
-                {
-          
-                    // Sellls  ------------------------------------------------------------
-                    foreach (DBAccess.TransRecords transRec in transList)  // get transaction where we bought these
-                    {
-                        Decimal SellPrice = 0;
-                        DateTime TransDate = transRec.TranDate;
-                        // Difference in days, hours, and minutes.
-                        TimeSpan ts = lastDate - TransDate;
-                        // Difference in days.
-                        Double DaysHeld = (Double)ts.Days;
+          // Now move forward & Reset the Day stuff
+          lastDate = rec.PriceDate;
+          DayDivTotal = (Decimal)0.0;
+          bankBal.BalDate = lastDate;
+          bankBal.DayTradeProfit = 0;
+          bankBal.DlrDaysInvested = 0;
+          bankBal.TtlDlrDaysInvested = 0;
+          bankBal.DayDividend = 0;
+          DBAccess.BankBalInsert(bankBal, runningSimulation);
+        }
+        bool didSell = false;
+        if (!DBAccess.GetAllTransRecords(rec.ASXCode, DateTime.MinValue, out transList, DBAccess.TransRecordsFieldList, string.Empty, runningSimulation))
+          continue;
+        else
+        {
 
-                        Decimal TargetPrice = 0;
-                        TargetPrice = transRec.UnitPrice * (Decimal)(1.005 + ((Double)TargetSellReturn * Math.Sqrt(DaysHeld)));
-                        if (rec.PrcOpen >= TargetPrice)
-                        {
-                            SellPrice = rec.PrcOpen;
-                            if (transRec.SOH <= 0)
-                                continue;
-                            DBAccess.TransRecords SellTrn = SellTransaction(rec.ASXCode, transRec.TransQty, SellPrice, lastDate, transRec, "SellOnOpen4Return", runningSimulation);
-                            didSell = true;
-                            Decimal NewBuyTarget = rec.PrcOpen * (Decimal)(0.995 - ((Double)TargetBuyReturn * Math.Sqrt(1)));
-                            if (rec.PrcLow < NewBuyTarget && MaxBuys)  //  If MayBBuys && Can only buy during the remainder of the day
-                            {
-                                int BuyQty = CommonFunctions.GetBuyQty(bankBal, NewBuyTarget, MarginLendingBarrier);
-                                BuyTransaction(rec.ASXCode, BuyQty, NewBuyTarget, lastDate, "SDBuyAfterSell", runningSimulation);
-                            }
-                            break;
-                        }
-                        if (rec.PrcHigh >= TargetPrice)
-                        {
-                            if (transRec.SOH <= 0)
-                                continue;
-                            DBAccess.TransRecords SellTrn = SellTransaction(rec.ASXCode, transRec.TransQty, TargetPrice, lastDate, transRec, "SellOnDayHigh", runningSimulation);
-                            didSell = true;
-                        }
-                    }
-                }
-                if (didSell)
-                    continue;
+          // Sellls  ------------------------------------------------------------
+          foreach (DBAccess.TransRecords transRec in transList)  // get transaction where we bought these
+          {
+            Decimal SellPrice = 0;
+            DateTime TransDate = transRec.TranDate;
+            // Difference in days, hours, and minutes.
+            TimeSpan ts = lastDate - TransDate;
+            // Difference in days.
+            Double DaysHeld = (Double)ts.Days;
 
-                // Buys ------------------------------------
+            Decimal TargetPrice = 0;
+            TargetPrice = transRec.UnitPrice * (Decimal)(1.005 + ((Double)TargetSellReturn * Math.Sqrt(DaysHeld)));
+            if (rec.PrcOpen >= TargetPrice)
+            {
+              SellPrice = rec.PrcOpen;
+              if (transRec.SOH <= 0)
+                continue;
+              DBAccess.TransRecords SellTrn = SellTransaction(rec.ASXCode, transRec.TransQty, SellPrice, lastDate, transRec, "SellOnOpen4Return", runningSimulation);
+              didSell = true;
+              Decimal NewBuyTarget = rec.PrcOpen * (Decimal)(0.995 - ((Double)TargetBuyReturn * Math.Sqrt(1)));
+              if (rec.PrcLow < NewBuyTarget && MaxBuys)  //  If MayBBuys && Can only buy during the remainder of the day
+              {
+                int BuyQty = CommonFunctions.GetBuyQty(bankBal, NewBuyTarget, MarginLendingBarrier);
+                BuyTransaction(rec.ASXCode, BuyQty, NewBuyTarget, lastDate, "SDBuyAfterSell", runningSimulation);
+              }
+              break;
+            }
+            if (rec.PrcHigh >= TargetPrice)
+            {
+              if (transRec.SOH <= 0)
+                continue;
+              DBAccess.TransRecords SellTrn = SellTransaction(rec.ASXCode, transRec.TransQty, TargetPrice, lastDate, transRec, "SellOnDayHigh", runningSimulation);
+              didSell = true;
+            }
+          }
+        }
+        if (didSell)
+          continue;
 
-                //  Buy on margin below last sell - 
-                if (DBAccess.SetupLastSellRecords(rec.ASXCode, runningSimulation, out transList))
-                {
-                    if (transList.Count > 0)
-                    {
+        // Buys ------------------------------------
+
+        //  Buy on margin below last sell - 
+        if (DBAccess.SetupLastSellRecords(rec.ASXCode, runningSimulation, out transList))
+        {
+          if (transList.Count > 0)
+          {
             TransRecords = transList[0];
-                        if (TransRecords.BuySell == "Sell")
-                        {
-                            DateTime TransDate = TransRecords.TranDate;
-                            // Difference in days, hours, and minutes.
-                            TimeSpan ts = lastDate - TransDate;
-                            // Difference in days.
-                            Double DaysHeld = (Double)ts.Days;
-                            Decimal BuyPrice = 0;
-                            Decimal TargetPrice = 0;
-                            int BuyQty = 0;
-                            TargetPrice = TransRecords.UnitPrice * (Decimal)(0.995 - ((Double)TargetBuyReturn * Math.Sqrt(DaysHeld)));
-                            if (rec.PrcLow <= TargetPrice)
-                            {
-                                if (rec.PrcOpen <= TargetPrice)
-                                {
-                                    BuyPrice = rec.PrcOpen;
-                                    BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
-                                    TransRecords = BuyTransaction(rec.ASXCode, BuyQty, BuyPrice, lastDate, "BuyOnOpenBelowSell", runningSimulation);
-
-                                    TargetPrice = TransRecords.UnitPrice * (Decimal)(1.005 + ((Double)TargetSellReturn * Math.Sqrt(1)));
-                                    if (rec.PrcHigh >= TargetPrice && MaxBuys)
-                                    {
-                                        if (TransRecords.SOH <= 0)
-                                            continue;
-                                        TransRecords = SellTransaction(rec.ASXCode, BuyQty, TargetPrice, lastDate, TransRecords, "SellSameDayOnBuy", runningSimulation);
-                                        continue;
-                                    }
-                                }
-                                else
-                                    BuyPrice = TargetPrice;
-                                //Transaction Size
-                                BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
-                                BuyTransaction(rec.ASXCode, BuyQty, BuyPrice, lastDate, "BuyOnLow4Day", runningSimulation);
-                                continue;
-                            }
-                        }
-                    }
-                }
-
-                // We don't have any so lets buy on a 5 day low or if very close to a Dividend
-                if (DBAccess.GetAllTransRecords(rec.ASXCode, DateTime.MinValue, out transList, DBAccess.TransRecordsFieldList, string.Empty, runningSimulation))
+            if (TransRecords.BuySell == "Sell")
+            {
+              DateTime TransDate = TransRecords.TranDate;
+              // Difference in days, hours, and minutes.
+              TimeSpan ts = lastDate - TransDate;
+              // Difference in days.
+              Double DaysHeld = (Double)ts.Days;
+              Decimal BuyPrice = 0;
+              Decimal TargetPrice = 0;
+              int BuyQty = 0;
+              TargetPrice = TransRecords.UnitPrice * (Decimal)(0.995 - ((Double)TargetBuyReturn * Math.Sqrt(DaysHeld)));
+              if (rec.PrcLow <= TargetPrice)
+              {
+                if (rec.PrcOpen <= TargetPrice)
                 {
-                    Decimal BuyPrice = 0;
-                    if (transList.Count <= 0)
-                    {
+                  BuyPrice = rec.PrcOpen;
+                  BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
+                  TransRecords = BuyTransaction(rec.ASXCode, BuyQty, BuyPrice, lastDate, "BuyOnOpenBelowSell", runningSimulation);
+
+                  TargetPrice = TransRecords.UnitPrice * (Decimal)(1.005 + ((Double)TargetSellReturn * Math.Sqrt(1)));
+                  if (rec.PrcHigh >= TargetPrice && MaxBuys)
+                  {
+                    if (TransRecords.SOH <= 0)
+                      continue;
+                    TransRecords = SellTransaction(rec.ASXCode, BuyQty, TargetPrice, lastDate, TransRecords, "SellSameDayOnBuy", runningSimulation);
+                    continue;
+                  }
+                }
+                else
+                  BuyPrice = TargetPrice;
+                //Transaction Size
+                BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
+                BuyTransaction(rec.ASXCode, BuyQty, BuyPrice, lastDate, "BuyOnLow4Day", runningSimulation);
+                continue;
+              }
+            }
+          }
+        }
+
+        // We don't have any so lets buy on a 5 day low or if very close to a Dividend
+        if (DBAccess.GetAllTransRecords(rec.ASXCode, DateTime.MinValue, out transList, DBAccess.TransRecordsFieldList, string.Empty, runningSimulation))
+        {
+          Decimal BuyPrice = 0;
+          if (transList.Count <= 0)
+          {
             DBAccess.TransRecords transRec = transList[0];
-                        //  Buy within 10 days of Dividend - 
-                        DBAccess.DividendHistory DivHis = new DBAccess.DividendHistory();
+            //  Buy within 10 days of Dividend - 
+            DBAccess.DividendHistory DivHis = new DBAccess.DividendHistory();
             if (DBAccess.GetDividends(rec.ASXCode, rec.PriceDate, out list, DBAccess.dirn.greaterThanEquals))
             {
               DivHis = list[0];
-              if (DivHis  != null && ChaseDividends)  // Only do this is chasing Dividends
-                            {
-                                if (DateTime.Compare(DivHis.ExDividend, rec.PriceDate.AddDays(10)) < 0)
-                                {
-                                    //Transaction Size
-                                    BuyPrice = rec.PrcOpen;
-                                    int BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
-                                    DBAccess.TransRecords BuyTrn = BuyTransaction(rec.ASXCode, BuyQty, BuyPrice, lastDate, "BuyNearDividend", runningSimulation);
-                                    continue;
-                                }
-                            }
-                        }
-
-                        if (rec.PrcLow <= rec.Day5Min * AddBuyMrgn &&
-                            rec.Day5Min > rec.Day90Min)  // This is an attempt to make sure the price is not just diving
-                        {
-                            int BuyQty = 0;
-                            if (rec.PrcOpen <= rec.Day5Min * AddBuyMrgn)
-                            {
-                                BuyPrice = rec.PrcOpen;
-                                BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
-                                DBAccess.TransRecords BuyTrn = BuyTransaction(rec.ASXCode, BuyQty, BuyPrice, lastDate, "BuyOnOpenDayMin", runningSimulation);
-                                Decimal TargetPrice = BuyPrice * (Decimal)(1.005 + (.01 * Math.Sqrt(1)));
-                                if (rec.PrcHigh > TargetPrice && MaxSells)
-                                    SellTransaction(rec.ASXCode, BuyQty, TargetPrice, lastDate, BuyTrn, "SellAfterBuyOnMin", runningSimulation);
-                            }
-                            else if (rec.PrcLow <= rec.Day5Min * AddBuyMrgn && bankBal.TtlDlrSOH > 0)
-                            {
-                                if (bankBal.MarginLoan / bankBal.TtlDlrSOH > (Decimal)MarginLoanRebuyLimit)
-                                    continue;
-                                BuyPrice = rec.Day5Min * AddBuyMrgn;
-                                //Transaction Size
-                                BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
-                                BuyTransaction(rec.ASXCode, BuyQty, BuyPrice, lastDate, "BuyOnDayMin", runningSimulation);
-                            }
-                        }
-                    }
-                    else  // already have some - doing rebuy
-                    {
-                        if (rec.PrcLow <= rec.Day5Min * AddBuyMrgn &&
-                            rec.Day5Min > rec.Day90Min)  // This is an attempt to make sure the price is not just diving
-                        {
-                            if (rec.PrcOpen <= rec.Day5Min * AddBuyMrgn)
-                                BuyPrice = rec.PrcOpen;
-                            else
-                                BuyPrice = rec.Day5Min * AddBuyMrgn;
-                            if (BuyPrice < (Decimal)RebuyMargin * transList[0].UnitPrice && bankBal.TtlDlrSOH > 0)
-                            {
-                                if (bankBal.MarginLoan / bankBal.TtlDlrSOH > (Decimal)MarginLoanRebuyLimit)
-                                    continue;
-                                int BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
-                                BuyTransaction(rec.ASXCode, BuyQty, BuyPrice, lastDate, "Rebuy", runningSimulation);
-                            }
-                        }
-                    }
-                }
-
-
-                /*               
-                if ((TransRecords = DB.GetNextTransRecords()) != null)
+              if (DivHis != null && ChaseDividends)  // Only do this is chasing Dividends
+              {
+                if (DateTime.Compare(DivHis.ExDividend, rec.PriceDate.AddDays(10)) < 0)
                 {
-                    Decimal SellPrice = 0;
-                    if (ASXPriceDate.High >= ASXPriceDate.Day5Max * AddSellMrgn &&
-                        ASXPriceDate.Day5Max >= ASXPriceDate.Day90Max )  // 'x' day max
-                    {
-                        if (ASXPriceDate.PrcOpen >= ASXPriceDate.Day5Max * AddSellMrgn)
-                            SellPrice = ASXPriceDate.PrcOpen;
-                        else
-                            SellPrice = ASXPriceDate.Day5Max * AddSellMrgn;
-                        if (SellPrice < TransRecords.UnitPrice * (Decimal)1.05 || TransRecords.SOH <= 0)
-                            continue;
-                        SellTransaction(ASXPriceDate.ASXCode, TransRecords.TransQty , SellPrice, lastDate, TransRecords);
-                    }
+                  //Transaction Size
+                  BuyPrice = rec.PrcOpen;
+                  int BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
+                  DBAccess.TransRecords BuyTrn = BuyTransaction(rec.ASXCode, BuyQty, BuyPrice, lastDate, "BuyNearDividend", runningSimulation);
+                  continue;
                 }
-                if (DB.GetTransRecords(ASXPriceDate.ASXCode, new DateTime(1900, 1, 1)))
-                {
-                    Decimal BuyPrice = 0;
-                    if ((TransRecords = DB.GetNextTransRecords()) == null)
-                    {
-                        if (ASXPriceDate.Low <= ASXPriceDate.Day5Min * AddBuyMrgn &&
-                            ASXPriceDate.Day5Min > ASXPriceDate.Day90Min)  // This is an attempt to make sure the price is not just diving
-                        {
-                            if (ASXPriceDate.PrcOpen <= ASXPriceDate.Day5Min * AddBuyMrgn)
-                                BuyPrice = ASXPriceDate.PrcOpen;
-                            else
-                                BuyPrice = ASXPriceDate.Day5Min * AddBuyMrgn;
+              }
+            }
 
-                            //Transaction Size
-                            Decimal TtlDlrs = (decimal)(10000 + (bankBal.AcctBal - MarginLendingBarrier * bankBal.MarginLoan + bankBal.TtlDlrSOH - 300000) / 20);
-                            if (TtlDlrs > 20000)
-                                TtlDlrs = 20000;
-                            if (TtlDlrs < 5000)
-                                TtlDlrs = 5000;
-                            int BuyQty = (int)Math.Round(TtlDlrs/ BuyPrice);
-                            BuyTransaction(ASXPriceDate.ASXCode, BuyQty, BuyPrice, lastDate);
-                        }
-                    }
-                    else  // already have some - doing rebuy
-                    {
-                        if (ASXPriceDate.Low <= ASXPriceDate.Day5Min * AddBuyMrgn &&
-                            ASXPriceDate.Day5Min > ASXPriceDate.Day90Min)  // This is an attempt to make sure the price is not just diving
-                        {
-                            if (ASXPriceDate.PrcOpen == ASXPriceDate.Day5Min * AddBuyMrgn)
-                                BuyPrice = ASXPriceDate.PrcOpen;
-                            else
-                                BuyPrice = ASXPriceDate.Day5Min * AddBuyMrgn;
-                            if (BuyPrice < (Decimal)RebuyMargin * TransRecords.UnitPrice)
-                            {
-                                Decimal TtlDlrs = (decimal)(10000 + (bankBal.AcctBal - MarginLendingBarrier * bankBal.MarginLoan + bankBal.TtlDlrSOH - 300000) / 20);
-                                if (TtlDlrs > 20000)
-                                    TtlDlrs = 20000;
-                                if (TtlDlrs < 5000)
-                                    TtlDlrs = 5000;
-                                int BuyQty = (int)Math.Round(TtlDlrs/ BuyPrice);
-                                BuyTransaction(ASXPriceDate.ASXCode, BuyQty, BuyPrice, lastDate);
-                            }
-                        }
-                    } 
-                }
-            */
+            if (rec.PrcLow <= rec.Day5Min * AddBuyMrgn &&
+                rec.Day5Min > rec.Day90Min)  // This is an attempt to make sure the price is not just diving
+            {
+              int BuyQty = 0;
+              if (rec.PrcOpen <= rec.Day5Min * AddBuyMrgn)
+              {
+                BuyPrice = rec.PrcOpen;
+                BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
+                DBAccess.TransRecords BuyTrn = BuyTransaction(rec.ASXCode, BuyQty, BuyPrice, lastDate, "BuyOnOpenDayMin", runningSimulation);
+                Decimal TargetPrice = BuyPrice * (Decimal)(1.005 + (.01 * Math.Sqrt(1)));
+                if (rec.PrcHigh > TargetPrice && MaxSells)
+                  SellTransaction(rec.ASXCode, BuyQty, TargetPrice, lastDate, BuyTrn, "SellAfterBuyOnMin", runningSimulation);
+              }
+              else if (rec.PrcLow <= rec.Day5Min * AddBuyMrgn && bankBal.TtlDlrSOH > 0)
+              {
+                if (bankBal.MarginLoan / bankBal.TtlDlrSOH > (Decimal)MarginLoanRebuyLimit)
+                  continue;
+                BuyPrice = rec.Day5Min * AddBuyMrgn;
+                //Transaction Size
+                BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
+                BuyTransaction(rec.ASXCode, BuyQty, BuyPrice, lastDate, "BuyOnDayMin", runningSimulation);
+              }
+            }
+          }
+          else  // already have some - doing rebuy
+          {
+            if (rec.PrcLow <= rec.Day5Min * AddBuyMrgn &&
+                rec.Day5Min > rec.Day90Min)  // This is an attempt to make sure the price is not just diving
+            {
+              if (rec.PrcOpen <= rec.Day5Min * AddBuyMrgn)
+                BuyPrice = rec.PrcOpen;
+              else
+                BuyPrice = rec.Day5Min * AddBuyMrgn;
+              if (BuyPrice < (Decimal)RebuyMargin * transList[0].UnitPrice && bankBal.TtlDlrSOH > 0)
+              {
+                if (bankBal.MarginLoan / bankBal.TtlDlrSOH > (Decimal)MarginLoanRebuyLimit)
+                  continue;
+                int BuyQty = CommonFunctions.GetBuyQty(bankBal, BuyPrice, MarginLendingBarrier);
+                BuyTransaction(rec.ASXCode, BuyQty, BuyPrice, lastDate, "Rebuy", runningSimulation);
+              }
+            }
+          }
+        }
+
+
+        /*               
+        if ((TransRecords = DB.GetNextTransRecords()) != null)
+        {
+            Decimal SellPrice = 0;
+            if (ASXPriceDate.High >= ASXPriceDate.Day5Max * AddSellMrgn &&
+                ASXPriceDate.Day5Max >= ASXPriceDate.Day90Max )  // 'x' day max
+            {
+                if (ASXPriceDate.PrcOpen >= ASXPriceDate.Day5Max * AddSellMrgn)
+                    SellPrice = ASXPriceDate.PrcOpen;
+                else
+                    SellPrice = ASXPriceDate.Day5Max * AddSellMrgn;
+                if (SellPrice < TransRecords.UnitPrice * (Decimal)1.05 || TransRecords.SOH <= 0)
+                    continue;
+                SellTransaction(ASXPriceDate.ASXCode, TransRecords.TransQty , SellPrice, lastDate, TransRecords);
             }
         }
-        /*       
-                private int GetBuyQty(DBAccess.BankBal bankBal, Decimal BuyPrice)
+        if (DB.GetTransRecords(ASXPriceDate.ASXCode, new DateTime(1900, 1, 1)))
+        {
+            Decimal BuyPrice = 0;
+            if ((TransRecords = DB.GetNextTransRecords()) == null)
+            {
+                if (ASXPriceDate.Low <= ASXPriceDate.Day5Min * AddBuyMrgn &&
+                    ASXPriceDate.Day5Min > ASXPriceDate.Day90Min)  // This is an attempt to make sure the price is not just diving
                 {
+                    if (ASXPriceDate.PrcOpen <= ASXPriceDate.Day5Min * AddBuyMrgn)
+                        BuyPrice = ASXPriceDate.PrcOpen;
+                    else
+                        BuyPrice = ASXPriceDate.Day5Min * AddBuyMrgn;
+
+                    //Transaction Size
                     Decimal TtlDlrs = (decimal)(10000 + (bankBal.AcctBal - MarginLendingBarrier * bankBal.MarginLoan + bankBal.TtlDlrSOH - 300000) / 20);
                     if (TtlDlrs > 20000)
                         TtlDlrs = 20000;
                     if (TtlDlrs < 5000)
                         TtlDlrs = 5000;
-                    int BuyQty = (int)Math.Round(TtlDlrs / BuyPrice);
-                    return BuyQty;
+                    int BuyQty = (int)Math.Round(TtlDlrs/ BuyPrice);
+                    BuyTransaction(ASXPriceDate.ASXCode, BuyQty, BuyPrice, lastDate);
                 }
-        */
-        private void SetMinMaxs()
-        {
-            SetMinMaxs(new DateTime(2016, 12, 13));
+            }
+            else  // already have some - doing rebuy
+            {
+                if (ASXPriceDate.Low <= ASXPriceDate.Day5Min * AddBuyMrgn &&
+                    ASXPriceDate.Day5Min > ASXPriceDate.Day90Min)  // This is an attempt to make sure the price is not just diving
+                {
+                    if (ASXPriceDate.PrcOpen == ASXPriceDate.Day5Min * AddBuyMrgn)
+                        BuyPrice = ASXPriceDate.PrcOpen;
+                    else
+                        BuyPrice = ASXPriceDate.Day5Min * AddBuyMrgn;
+                    if (BuyPrice < (Decimal)RebuyMargin * TransRecords.UnitPrice)
+                    {
+                        Decimal TtlDlrs = (decimal)(10000 + (bankBal.AcctBal - MarginLendingBarrier * bankBal.MarginLoan + bankBal.TtlDlrSOH - 300000) / 20);
+                        if (TtlDlrs > 20000)
+                            TtlDlrs = 20000;
+                        if (TtlDlrs < 5000)
+                            TtlDlrs = 5000;
+                        int BuyQty = (int)Math.Round(TtlDlrs/ BuyPrice);
+                        BuyTransaction(ASXPriceDate.ASXCode, BuyQty, BuyPrice, lastDate);
+                    }
+                }
+            } 
         }
+    */
+      }
+    }
+    /*       
+            private int GetBuyQty(DBAccess.BankBal bankBal, Decimal BuyPrice)
+            {
+                Decimal TtlDlrs = (decimal)(10000 + (bankBal.AcctBal - MarginLendingBarrier * bankBal.MarginLoan + bankBal.TtlDlrSOH - 300000) / 20);
+                if (TtlDlrs > 20000)
+                    TtlDlrs = 20000;
+                if (TtlDlrs < 5000)
+                    TtlDlrs = 5000;
+                int BuyQty = (int)Math.Round(TtlDlrs / BuyPrice);
+                return BuyQty;
+            }
+    */
+    private void SetMinMaxs()
+    {
+      SetMinMaxs(new DateTime(2016, 12, 13));
+    }
 
-        private void SetMinMaxs(DateTime dt)
-        {
-            DateTime lastDateTime = dt;
+    private void SetMinMaxs(DateTime dt)
+    {
+      DateTime lastDateTime = dt;
       DBAccess.ASXPriceDate ASXPriceDate = new DBAccess.ASXPriceDate();
       //DB.connection.Open();
       //PgSqlDataReader priceReader;
       List<DBAccess.ASXPriceDate> list = new List<DBAccess.ASXPriceDate>();
       DBAccess.GetAllPrices(null, lastDateTime, out list, DBAccess.ASXPriceDateFieldList);
       foreach (DBAccess.ASXPriceDate rec in list)
-      { 
-            //while ((ASXPriceDate = DB.GetNextPriceDate(priceReader)) != null)
-            //{
-                DateTime PriceDate = ASXPriceDate.PriceDate;
-                if (lastDateTime != PriceDate)
-                {
-                    lastDateTime = PriceDate;
-                }
-                string ASXCode = ASXPriceDate.ASXCode;
-                if (ASXCode == null)
-                    break;
-                ASXPriceDate.Day5Max = DBAccess.GetMaxPrice(7, ASXCode, PriceDate);
-                ASXPriceDate.Day30Max = DBAccess.GetMaxPrice(30, ASXCode, PriceDate);
-                ASXPriceDate.Day60Max = DBAccess.GetMaxPrice(60, ASXCode, PriceDate);
-                ASXPriceDate.Day90Max = DBAccess.GetMaxPrice(90, ASXCode, PriceDate);
-                ASXPriceDate.Day5Min = DBAccess.GetMinPrice(7, ASXCode, PriceDate);
-                ASXPriceDate.Day30Min = DBAccess.GetMinPrice(30, ASXCode, PriceDate);
-                ASXPriceDate.Day60Min = DBAccess.GetMinPrice(90, ASXCode, PriceDate);
-                ASXPriceDate.Day90Min = DBAccess.GetMinPrice(90, ASXCode, PriceDate);
-                if (ASXPriceDate.Day5Min > 0)
-                    ASXPriceDate.Day5Pct = (100 * (ASXPriceDate.Day5Max - ASXPriceDate.Day5Min) / ASXPriceDate.Day5Min);
-                if (ASXPriceDate.Day30Min > 0)
-                    ASXPriceDate.Day30Pct = (100 * (ASXPriceDate.Day30Max - ASXPriceDate.Day30Min) / ASXPriceDate.Day30Min);
-                if (ASXPriceDate.Day60Min > 0)
-                    ASXPriceDate.Day60Pct = (100 * (ASXPriceDate.Day60Max - ASXPriceDate.Day60Min) / ASXPriceDate.Day60Min);
-                if (ASXPriceDate.Day90Min > 0)
-                    ASXPriceDate.Day90Pct = (100 * (ASXPriceDate.Day90Max - ASXPriceDate.Day90Min) / ASXPriceDate.Day90Min);
-                DBAccess.ASXprcUpdate(ASXPriceDate);
-            }
-        }
-
-        private void button2_Click(object sender, EventArgs e)
+      {
+        //while ((ASXPriceDate = DB.GetNextPriceDate(priceReader)) != null)
+        //{
+        DateTime PriceDate = ASXPriceDate.PriceDate;
+        if (lastDateTime != PriceDate)
         {
-            SetMinMaxs();
+          lastDateTime = PriceDate;
         }
+        string ASXCode = ASXPriceDate.ASXCode;
+        if (ASXCode == null)
+          break;
+        ASXPriceDate.Day5Max = DBAccess.GetMaxPrice(7, ASXCode, PriceDate);
+        ASXPriceDate.Day30Max = DBAccess.GetMaxPrice(30, ASXCode, PriceDate);
+        ASXPriceDate.Day60Max = DBAccess.GetMaxPrice(60, ASXCode, PriceDate);
+        ASXPriceDate.Day90Max = DBAccess.GetMaxPrice(90, ASXCode, PriceDate);
+        ASXPriceDate.Day5Min = DBAccess.GetMinPrice(7, ASXCode, PriceDate);
+        ASXPriceDate.Day30Min = DBAccess.GetMinPrice(30, ASXCode, PriceDate);
+        ASXPriceDate.Day60Min = DBAccess.GetMinPrice(90, ASXCode, PriceDate);
+        ASXPriceDate.Day90Min = DBAccess.GetMinPrice(90, ASXCode, PriceDate);
+        if (ASXPriceDate.Day5Min > 0)
+          ASXPriceDate.Day5Pct = (100 * (ASXPriceDate.Day5Max - ASXPriceDate.Day5Min) / ASXPriceDate.Day5Min);
+        if (ASXPriceDate.Day30Min > 0)
+          ASXPriceDate.Day30Pct = (100 * (ASXPriceDate.Day30Max - ASXPriceDate.Day30Min) / ASXPriceDate.Day30Min);
+        if (ASXPriceDate.Day60Min > 0)
+          ASXPriceDate.Day60Pct = (100 * (ASXPriceDate.Day60Max - ASXPriceDate.Day60Min) / ASXPriceDate.Day60Min);
+        if (ASXPriceDate.Day90Min > 0)
+          ASXPriceDate.Day90Pct = (100 * (ASXPriceDate.Day90Max - ASXPriceDate.Day90Min) / ASXPriceDate.Day90Min);
+        DBAccess.ASXprcUpdate(ASXPriceDate);
+      }
+    }
 
-        private void setMinMaxS(object sender, EventArgs e)
-        {
-            //SetLimitTriggers(new DateTime(2015, 8, 18));
-        }
+    private void button2_Click(object sender, EventArgs e)
+    {
+      SetMinMaxs();
+    }
 
-        public static DBAccess.TransRecords BuyTransaction(String ASXCode, int Qty, Decimal Price, DateTime dt, String TransType, bool runningSimulation)
-        {
-            return BuyTransaction(ASXCode, Qty, Price, dt, TransType, null, runningSimulation);
-        }
+    private void setMinMaxS(object sender, EventArgs e)
+    {
+      //SetLimitTriggers(new DateTime(2015, 8, 18));
+    }
 
-        public static DBAccess.TransRecords BuyTransaction(String ASXCode, int Qty, Decimal Price, DateTime dt, String TransType, String NABOrderNmbr, bool simulationRunning)
-        {
-            //DBAccess DB = new DBAccess();
-            decimal Brokerage = CalcBrokerage(Qty * Price);  // Brokerage includes GST
-            decimal GST = (Brokerage) / 11;
-            DBAccess.TransRecords myTransRecord = new DBAccess.TransRecords();
-            myTransRecord.ASXCode = ASXCode;
-            myTransRecord.TransQty = Qty;
-            myTransRecord.SOH = Qty;
-            myTransRecord.UnitPrice = Price;
-            myTransRecord.TradeProfit = -Brokerage;
-            myTransRecord.TranDate = dt;
-            myTransRecord.BuySell = "Buy";
-            myTransRecord.BrokerageInc = Brokerage;
-            myTransRecord.GST = GST;
-            myTransRecord.TransType = TransType;
-            myTransRecord.NABOrderNmbr = NABOrderNmbr;
-            DBAccess.TransInsert(myTransRecord);
-            UpdateBankBal(-(Price * Qty + myTransRecord.BrokerageInc), myTransRecord.TradeProfit, dt, simulationRunning);
+    public static DBAccess.TransRecords BuyTransaction(String ASXCode, int Qty, Decimal Price, DateTime dt, String TransType, bool runningSimulation)
+    {
+      return BuyTransaction(ASXCode, Qty, Price, dt, TransType, null, runningSimulation);
+    }
+
+    public static DBAccess.TransRecords BuyTransaction(String ASXCode, int Qty, Decimal Price, DateTime dt, String TransType, String NABOrderNmbr, bool simulationRunning)
+    {
+      //DBAccess DB = new DBAccess();
+      decimal Brokerage = CalcBrokerage(Qty * Price);  // Brokerage includes GST
+      decimal GST = (Brokerage) / 11;
+      DBAccess.TransRecords myTransRecord = new DBAccess.TransRecords();
+      myTransRecord.ASXCode = ASXCode;
+      myTransRecord.TransQty = Qty;
+      myTransRecord.SOH = Qty;
+      myTransRecord.UnitPrice = Price;
+      myTransRecord.TradeProfit = -Brokerage;
+      myTransRecord.TranDate = dt;
+      myTransRecord.BuySell = "Buy";
+      myTransRecord.BrokerageInc = Brokerage;
+      myTransRecord.GST = GST;
+      myTransRecord.TransType = TransType;
+      myTransRecord.NABOrderNmbr = NABOrderNmbr;
+      DBAccess.TransInsert(myTransRecord);
+      UpdateBankBal(-(Price * Qty + myTransRecord.BrokerageInc), myTransRecord.TradeProfit, dt, simulationRunning);
       List<DBAccess.TransRecords> transList = new List<DBAccess.TransRecords>();
-            DBAccess.GetAllTransRecords(ASXCode, dt, out transList, DBAccess.TransRecordsFieldList, string.Empty, simulationRunning);
+      DBAccess.GetAllTransRecords(ASXCode, dt, out transList, DBAccess.TransRecordsFieldList, string.Empty, simulationRunning);
       if (transList.Count > 0)
-            myTransRecord = transList[0];
-            return myTransRecord;
-        }
+        myTransRecord = transList[0];
+      return myTransRecord;
+    }
 
-        public static DBAccess.TransRecords SellTransaction(String ASXCode, int Qty, Decimal Price, DateTime dt, DBAccess.TransRecords BoughtRecord, String TransType, bool runningSimulation)
-        {
-            return SellTransaction(ASXCode, Qty, Price, dt, BoughtRecord, TransType, "", runningSimulation);
-        }
+    public static DBAccess.TransRecords SellTransaction(String ASXCode, int Qty, Decimal Price, DateTime dt, DBAccess.TransRecords BoughtRecord, String TransType, bool runningSimulation)
+    {
+      return SellTransaction(ASXCode, Qty, Price, dt, BoughtRecord, TransType, "", runningSimulation);
+    }
 
-        public static DBAccess.TransRecords SellTransaction(String ASXCode, int Qty, Decimal Price, DateTime dt, DBAccess.TransRecords BoughtRecord, String TransType, String NABOrderNmbr, bool simulationRunning)
-        {
+    public static DBAccess.TransRecords SellTransaction(String ASXCode, int Qty, Decimal Price, DateTime dt, DBAccess.TransRecords BoughtRecord, String TransType, String NABOrderNmbr, bool simulationRunning)
+    {
       List<DBAccess.TransRecords> transList = new List<DBAccess.TransRecords>();
-            //DBAccess DB = new DBAccess();
-            if (BoughtRecord == null)
-            {
-                DBAccess.GetAllTransRecords(ASXCode, DateTime.MinValue, out transList, DBAccess.TransRecordsFieldList, string.Empty, simulationRunning);
-                BoughtRecord = transList[0];
-            }
+      //DBAccess DB = new DBAccess();
+      if (BoughtRecord == null)
+      {
+        DBAccess.GetAllTransRecords(ASXCode, DateTime.MinValue, out transList, DBAccess.TransRecordsFieldList, string.Empty, simulationRunning);
+        BoughtRecord = transList[0];
+      }
 
-            Decimal PurchaseCost = 0;
-            int QtyNeeded = Qty;
-            while (QtyNeeded > 0)
-            {
+      Decimal PurchaseCost = 0;
+      int QtyNeeded = Qty;
+      while (QtyNeeded > 0)
+      {
         int counter = 1;
-                if (QtyNeeded > BoughtRecord.SOH)
-                {
-                    QtyNeeded = QtyNeeded - BoughtRecord.SOH;
-                    PurchaseCost = PurchaseCost + BoughtRecord.SOH * BoughtRecord.UnitPrice;
-                    BoughtRecord.SOH = 0;
-                    DBAccess.TransUpdate(BoughtRecord);
-                    BoughtRecord = transList[counter++];
-                }
-                else
-                {
-                    BoughtRecord.SOH = BoughtRecord.SOH - QtyNeeded;
-                    PurchaseCost = PurchaseCost + QtyNeeded * BoughtRecord.UnitPrice;
-                    DBAccess.TransUpdate(BoughtRecord);
-                    QtyNeeded = 0;
-                }
-            }
-            DateTime TransDate = BoughtRecord.TranDate;
-            // Difference in days, hours, and minutes.
-            TimeSpan ts = dt - TransDate;
-            // Difference in days.
-            int DaysHeld = ts.Days;
-            //            if (dt == new DateTime(2002, 1, 10))
-            //                dt = new DateTime(2002, 1, 10);
-            DBAccess.TransRecords myTransRecord = new DBAccess.TransRecords();
-            myTransRecord.ASXCode = ASXCode;
-            myTransRecord.TranDate = dt;
-            myTransRecord.BuySell = "Sell";
-            myTransRecord.UnitPrice = Price;
-            myTransRecord.TransQty = Qty;
-            myTransRecord.BrokerageInc = CalcBrokerage(Qty * Price);  // Brokerage includes GST
-            myTransRecord.GST = myTransRecord.BrokerageInc / 11;
-            myTransRecord.SOH = 0;
-            myTransRecord.TradeProfit = Price * Qty - PurchaseCost - myTransRecord.BrokerageInc;
-            myTransRecord.DaysHeld = DaysHeld;
-            myTransRecord.TransType = TransType;
-            myTransRecord.RelatedTransactionID = BoughtRecord.ID;
-            myTransRecord.NABOrderNmbr = NABOrderNmbr;
-            DBAccess.TransInsert(myTransRecord);
-            decimal CashSurplace = Price * Qty - myTransRecord.BrokerageInc;
-            UpdateBankBal(Price * Qty - myTransRecord.BrokerageInc, myTransRecord.TradeProfit, dt, simulationRunning);
-            return myTransRecord;
-        }
-
-
-
-        public static void UpdateBankBal(Decimal NewAmount, Decimal TradeProfit, DateTime trnDate, bool runningSimulation)
+        if (QtyNeeded > BoughtRecord.SOH)
         {
-            DBAccess DB = new DBAccess();
-            DBAccess.BankBal myBankBal = null;
+          QtyNeeded = QtyNeeded - BoughtRecord.SOH;
+          PurchaseCost = PurchaseCost + BoughtRecord.SOH * BoughtRecord.UnitPrice;
+          BoughtRecord.SOH = 0;
+          DBAccess.TransUpdate(BoughtRecord);
+          BoughtRecord = transList[counter++];
+        }
+        else
+        {
+          BoughtRecord.SOH = BoughtRecord.SOH - QtyNeeded;
+          PurchaseCost = PurchaseCost + QtyNeeded * BoughtRecord.UnitPrice;
+          DBAccess.TransUpdate(BoughtRecord);
+          QtyNeeded = 0;
+        }
+      }
+      DateTime TransDate = BoughtRecord.TranDate;
+      // Difference in days, hours, and minutes.
+      TimeSpan ts = dt - TransDate;
+      // Difference in days.
+      int DaysHeld = ts.Days;
+      //            if (dt == new DateTime(2002, 1, 10))
+      //                dt = new DateTime(2002, 1, 10);
+      DBAccess.TransRecords myTransRecord = new DBAccess.TransRecords();
+      myTransRecord.ASXCode = ASXCode;
+      myTransRecord.TranDate = dt;
+      myTransRecord.BuySell = "Sell";
+      myTransRecord.UnitPrice = Price;
+      myTransRecord.TransQty = Qty;
+      myTransRecord.BrokerageInc = CalcBrokerage(Qty * Price);  // Brokerage includes GST
+      myTransRecord.GST = myTransRecord.BrokerageInc / 11;
+      myTransRecord.SOH = 0;
+      myTransRecord.TradeProfit = Price * Qty - PurchaseCost - myTransRecord.BrokerageInc;
+      myTransRecord.DaysHeld = DaysHeld;
+      myTransRecord.TransType = TransType;
+      myTransRecord.RelatedTransactionID = BoughtRecord.ID;
+      myTransRecord.NABOrderNmbr = NABOrderNmbr;
+      DBAccess.TransInsert(myTransRecord);
+      decimal CashSurplace = Price * Qty - myTransRecord.BrokerageInc;
+      UpdateBankBal(Price * Qty - myTransRecord.BrokerageInc, myTransRecord.TradeProfit, dt, simulationRunning);
+      return myTransRecord;
+    }
+
+
+
+    public static void UpdateBankBal(Decimal NewAmount, Decimal TradeProfit, DateTime trnDate, bool runningSimulation)
+    {
+      DBAccess DB = new DBAccess();
+      DBAccess.BankBal myBankBal = null;
       List<DBAccess.BankBal> balList = new List<DBAccess.BankBal>();
-            if (DBAccess.GetAllBankBalRecords(trnDate, out balList, string.Empty, runningSimulation, DBAccess.dirn.equals))
-                myBankBal = balList[0];
-            if (myBankBal == null)
-            {
-                if (DBAccess.GetAllBankBalRecords(DateTime.MinValue, out balList, string.Empty, runningSimulation, DBAccess.dirn.equals))
+      if (DBAccess.GetAllBankBalRecords(trnDate, out balList, string.Empty, runningSimulation, DBAccess.dirn.equals))
+        myBankBal = balList[0];
+      if (myBankBal == null)
+      {
+        if (DBAccess.GetAllBankBalRecords(DateTime.MinValue, out balList, string.Empty, runningSimulation, DBAccess.dirn.equals))
           myBankBal = balList[0];
-                else
-                    myBankBal = new DBAccess.BankBal();
-            }
-            if (!myBankBal.BalDate.ToShortDateString().Equals(trnDate.ToShortDateString()))
+        else
+          myBankBal = new DBAccess.BankBal();
+      }
+      if (!myBankBal.BalDate.ToShortDateString().Equals(trnDate.ToShortDateString()))
+      {
+        myBankBal.BalDate = trnDate.Date;
+        myBankBal.ID = 0;
+      }
+      else
+        myBankBal.BalDate = myBankBal.BalDate.Date;
+      myBankBal.DayTradeProfit = myBankBal.DayTradeProfit + TradeProfit;
+      //            myBankBal.DlrDaysInvested = myBankBal.DlrDaysInvested + BoughtRecord.TransQty * BoughtRecord.UnitPrice;
+      myBankBal.AcctBal = myBankBal.AcctBal + NewAmount;
+      if (myBankBal.AcctBal < 0)
+      {
+        myBankBal.MarginLoan = myBankBal.MarginLoan - myBankBal.AcctBal;
+        myBankBal.AcctBal = 0;
+      }
+      if (myBankBal.MarginLoan > 0)
+      {
+        if (myBankBal.MarginLoan >= myBankBal.AcctBal)
+        {
+          myBankBal.MarginLoan = myBankBal.MarginLoan - myBankBal.AcctBal;
+          myBankBal.AcctBal = 0;
+        }
+        else
+        {
+          myBankBal.AcctBal = myBankBal.AcctBal - myBankBal.MarginLoan;
+          myBankBal.MarginLoan = 0;
+        }
+      }
+      myBankBal.ROI = 0;
+      //myBankBal.TtlDlrSOH = 0;   // Update after the DateChanges
+      //            myBankBal.TtlDlrDaysInvested = myBankBal.TtlDlrDaysInvested + myBankBal.DlrDaysInvested;
+      //            myBankBal.TtlTradeProfit = myBankBal.TtlTradeProfit + myBankBal.DayTradeProfit;
+      myBankBal.TtlDlrSOH = DBAccess.UpdateCurrentSOH(myBankBal, runningSimulation);
+      //            TtlDlrsSOH = myBankBal.TtlDlrSOH;
+      //            MarginLoanBal = myBankBal.MarginLoan;
+      //            AcctBal = myBankBal.AcctBal;
+      myBankBal.DlrDaysInvested = 300000 - myBankBal.AcctBal + myBankBal.MarginLoan;
+      //            myBankBal.DlrDaysInvested = DlrDaysInvestedToday;
+      if (myBankBal.ID != 0)
+        DBAccess.BankBalUpdate(myBankBal);
+      else
+        DBAccess.BankBalInsert(myBankBal, runningSimulation);
+    }
+
+
+    // Check for the Qty of Stock that is applicable to this stock and date
+    /*        private DBAccess.DivPaid CheckForDividends(String ASXCode, DateTime dt)
             {
-                myBankBal.BalDate = trnDate.Date;
-                myBankBal.ID = 0;
+                DBAccess.DividendHistory dividendHistory = null;
+                if (DB.GetDividendHistory(ASXCode, dt))
+                    dividendHistory = DB.GetNextDividendHistory();
+                if (dividendHistory == null)
+                    return null;
+                int TtlASXCodeSOH = DB.GetASXCodeSOH(ASXCode, dt);
+                if (TtlASXCodeSOH == 0)
+                    return null;
+                DBAccess.DivPaid divPaid = new DBAccess.DivPaid();
+                divPaid.ASXCode = ASXCode;
+                divPaid.DatePaid = dividendHistory.DatePayable;
+                divPaid.DividendPerShare = dividendHistory.Amount;
+                divPaid.QtyShares = TtlASXCodeSOH;
+                divPaid.TtlDividend = TtlASXCodeSOH * dividendHistory.Amount;
+                DB.DivPaidInsert(divPaid);
+                return divPaid;
             }
-            else
-                myBankBal.BalDate = myBankBal.BalDate.Date;
-            myBankBal.DayTradeProfit = myBankBal.DayTradeProfit + TradeProfit;
-            //            myBankBal.DlrDaysInvested = myBankBal.DlrDaysInvested + BoughtRecord.TransQty * BoughtRecord.UnitPrice;
-            myBankBal.AcctBal = myBankBal.AcctBal + NewAmount;
-            if (myBankBal.AcctBal < 0)
-            {
-                myBankBal.MarginLoan = myBankBal.MarginLoan - myBankBal.AcctBal;
-                myBankBal.AcctBal = 0;
-            }
-            if (myBankBal.MarginLoan > 0)
-            {
-                if (myBankBal.MarginLoan >= myBankBal.AcctBal)
-                {
-                    myBankBal.MarginLoan = myBankBal.MarginLoan - myBankBal.AcctBal;
-                    myBankBal.AcctBal = 0;
-                }
-                else
-                {
-                    myBankBal.AcctBal = myBankBal.AcctBal - myBankBal.MarginLoan;
-                    myBankBal.MarginLoan = 0;
-                }
-            }
-            myBankBal.ROI = 0;
-            //myBankBal.TtlDlrSOH = 0;   // Update after the DateChanges
-            //            myBankBal.TtlDlrDaysInvested = myBankBal.TtlDlrDaysInvested + myBankBal.DlrDaysInvested;
-            //            myBankBal.TtlTradeProfit = myBankBal.TtlTradeProfit + myBankBal.DayTradeProfit;
-            myBankBal.TtlDlrSOH = DBAccess.UpdateCurrentSOH(myBankBal, runningSimulation);
-            //            TtlDlrsSOH = myBankBal.TtlDlrSOH;
-            //            MarginLoanBal = myBankBal.MarginLoan;
-            //            AcctBal = myBankBal.AcctBal;
-            myBankBal.DlrDaysInvested = 300000 - myBankBal.AcctBal + myBankBal.MarginLoan;
-            //            myBankBal.DlrDaysInvested = DlrDaysInvestedToday;
-            if (myBankBal.ID != 0)
-                DBAccess.BankBalUpdate(myBankBal);
-            else
-                DBAccess.BankBalInsert(myBankBal, runningSimulation);
-        }
+    */
+    private void testGetMn_Click(object sender, EventArgs e)
+    {
 
+    }
 
-        // Check for the Qty of Stock that is applicable to this stock and date
-        /*        private DBAccess.DivPaid CheckForDividends(String ASXCode, DateTime dt)
-                {
-                    DBAccess.DividendHistory dividendHistory = null;
-                    if (DB.GetDividendHistory(ASXCode, dt))
-                        dividendHistory = DB.GetNextDividendHistory();
-                    if (dividendHistory == null)
-                        return null;
-                    int TtlASXCodeSOH = DB.GetASXCodeSOH(ASXCode, dt);
-                    if (TtlASXCodeSOH == 0)
-                        return null;
-                    DBAccess.DivPaid divPaid = new DBAccess.DivPaid();
-                    divPaid.ASXCode = ASXCode;
-                    divPaid.DatePaid = dividendHistory.DatePayable;
-                    divPaid.DividendPerShare = dividendHistory.Amount;
-                    divPaid.QtyShares = TtlASXCodeSOH;
-                    divPaid.TtlDividend = TtlASXCodeSOH * dividendHistory.Amount;
-                    DB.DivPaidInsert(divPaid);
-                    return divPaid;
-                }
-        */
-        private void testGetMn_Click(object sender, EventArgs e)
-        {
+    private void button2_Click_1(object sender, EventArgs e)
+    {
+      DividendImport divImpt = new DividendImport();
+      divImpt.Show();
+    }
 
-        }
+    private void button3_Click(object sender, EventArgs e)
+    {
+      ImportDailyPrices impPrices = new ImportDailyPrices();
+      impPrices.Show();
+    }
 
-        private void button2_Click_1(object sender, EventArgs e)
-        {
-            DividendImport divImpt = new DividendImport();
-            divImpt.Show();
-        }
+    private void button4_Click(object sender, EventArgs e)
+    {
+      ImportRecentPrices impRecentPrices = new ImportRecentPrices();
+      impRecentPrices.Show();
+    }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            ImportDailyPrices impPrices = new ImportDailyPrices();
-            impPrices.Show();
-        }
+    private void bindingSource2_CurrentChanged(object sender, EventArgs e)
+    {
 
-        private void button4_Click(object sender, EventArgs e)
-        {
-            ImportRecentPrices impRecentPrices = new ImportRecentPrices();
-            impRecentPrices.Show();
-        }
+    }
 
-        private void bindingSource2_CurrentChanged(object sender, EventArgs e)
-        {
+    private void DisplayGrid_Click(object sender, EventArgs e)
+    {
+      FillGrid();
+    }
 
-        }
+    private void button5_Click(object sender, EventArgs e)
+    {
 
-        private void DisplayGrid_Click(object sender, EventArgs e)
-        {
-            FillGrid();
-        }
+    }
 
-        private void button5_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button6_Click(object sender, EventArgs e)
-        {
+    private void button6_Click(object sender, EventArgs e)
+    {
       bool runningSimulation = false;
       List<DBAccess.TransImport> transImportList = new List<DBAccess.TransImport>();
-            //DBAccess.TransImport newImport = new DBAccess.TransImport();
-            DBAccess.TransRecords TransRecords = new DBAccess.TransRecords();
-            if (!DBAccess.GetAllTransImpRecords(out transImportList))
-                return;
-            DBAccess.BankBal bankBal = new DBAccess.BankBal();
-            bankBal.BalDate = new DateTime(2008, 9, 23);
-            bankBal.AcctBal = (Decimal)410022.28;
-            DBAccess.BankBalInsert(bankBal, runningSimulation);
-            foreach (DBAccess.TransImport newImport in transImportList)
-            {
-                
-              
-                if (newImport.BuySell == "Buy")
-                {
-                    BuyTransaction(newImport.ASXCode, newImport.TransQty, newImport.UnitPrice, newImport.TranDate, "Initial", newImport.NABOrderNmbr, runningSimulation);
-                }
-                else
-                {
+      //DBAccess.TransImport newImport = new DBAccess.TransImport();
+      DBAccess.TransRecords TransRecords = new DBAccess.TransRecords();
+      if (!DBAccess.GetAllTransImpRecords(out transImportList))
+        return;
+      DBAccess.BankBal bankBal = new DBAccess.BankBal();
+      bankBal.BalDate = new DateTime(2008, 9, 23);
+      bankBal.AcctBal = (Decimal)410022.28;
+      DBAccess.BankBalInsert(bankBal, runningSimulation);
+      foreach (DBAccess.TransImport newImport in transImportList)
+      {
+
+
+        if (newImport.BuySell == "Buy")
+        {
+          BuyTransaction(newImport.ASXCode, newImport.TransQty, newImport.UnitPrice, newImport.TranDate, "Initial", newImport.NABOrderNmbr, runningSimulation);
+        }
+        else
+        {
           List<DBAccess.TransRecords> list = null;
-          if (!DBAccess.GetAllTransRecords(newImport.ASXCode, DateTime.MinValue, out list, DBAccess.TransRecordsFieldList, string.Empty, false ))
-                    {
-                        const string message = "I don't have any to sell";
-                        const string caption = "Over Sold";
-                        var result = MessageBox.Show(message, caption,
-                                                         MessageBoxButtons.OK,
-                                                         MessageBoxIcon.Error);
+          if (!DBAccess.GetAllTransRecords(newImport.ASXCode, DateTime.MinValue, out list, DBAccess.TransRecordsFieldList, string.Empty, false))
+          {
+            const string message = "I don't have any to sell";
+            const string caption = "Over Sold";
+            var result = MessageBox.Show(message, caption,
+                                             MessageBoxButtons.OK,
+                                             MessageBoxIcon.Error);
 
-                        return;
-                    }
-                    else
-                    {
-                        // Sellls  ------------------------------------------------------------
-                        if (newImport.ASXCode == "QBE")
-                            ;
-                        if (transImportList.Count > 0)  // get transaction where we bought these
-                        {
-                            SellTransaction(newImport.ASXCode, newImport.TransQty, newImport.UnitPrice, newImport.TranDate, TransRecords, "Initial", runningSimulation);
-                        }
-                    }
-                }
+            return;
+          }
+          else
+          {
+            // Sellls  ------------------------------------------------------------
+            if (newImport.ASXCode == "QBE")
+              ;
+            if (transImportList.Count > 0)  // get transaction where we bought these
+            {
+              SellTransaction(newImport.ASXCode, newImport.TransQty, newImport.UnitPrice, newImport.TranDate, TransRecords, "Initial", runningSimulation);
             }
+          }
         }
+      }
+    }
 
-        private void BtnGenerateSuggestions_Click(object sender, EventArgs e)
-        {
+    private void BtnGenerateSuggestions_Click(object sender, EventArgs e)
+    {
 
-            FindSuggestions findSuggestions = new FindSuggestions();
-            DBAccess.PrepareForSuggestions();
-            findSuggestions.CheckAllCompanies(true);
-            FillGrid();
+      FindSuggestions findSuggestions = new FindSuggestions();
+      DBAccess.PrepareForSuggestions();
+      findSuggestions.CheckAllCompanies(true);
+      FillGrid();
 
-        }
+    }
 
-        private void BtnImportTransactions_Click(object sender, EventArgs e)
-        {
-            CommonFunctions.ImportPrices();
-        }
+    private void BtnImportTransactions_Click(object sender, EventArgs e)
+    {
+      CommonFunctions.ImportPrices();
+    }
 
-        private void DgvSuggestedSells_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
+    private void DgvSuggestedSells_CellContentClick(object sender, DataGridViewCellEventArgs e)
+    {
 
-        }
+    }
 
-        private void BtnSuggestedSells_Click(object sender, EventArgs e)
-        {
+    private void BtnSuggestedSells_Click(object sender, EventArgs e)
+    {
 
-        }
+    }
 
     private string getfilename(string fileType)
     {
@@ -883,7 +883,7 @@ namespace ShareTrading
       CSVopenFileDialog.InitialDirectory = @"c:\Users\Ray\Downloads";
       CSVopenFileDialog.FileName = String.Empty;
       if (CSVopenFileDialog.ShowDialog() == DialogResult.OK)
-        return  CSVopenFileDialog.FileName ;
+        return CSVopenFileDialog.FileName;
       return string.Empty;
     }
     private void importNABTransactionsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -911,12 +911,12 @@ namespace ShareTrading
           {
             if (String.IsNullOrEmpty(inputLine) || inputLine.Length < 2)
               continue;
-            string[] flds = inputLine.Replace('"', '#').Replace("#","").Split(',');
+            string[] flds = inputLine.Replace('"', '#').Replace("#", "").Split(',');
             DBAccess.TransRecords tx = new DBAccess.TransRecords();
             tx.TranDate = DateTime.Parse(flds[0]);
-            tx.NABOrderNmbr = flds[1].Trim();       
+            tx.NABOrderNmbr = flds[1].Trim();
             tx.ASXCode = flds[2].Substring(0, flds[2].IndexOf('.')).Trim();
-            tx.TransQty = (int) decimal.Parse(flds[3]);
+            tx.TransQty = (int)decimal.Parse(flds[3]);
             tx.TransType = flds[4].Trim();
             tx.BuySell = flds[4].Trim();
             tx.UnitPrice = decimal.Parse(flds[5]);
@@ -1017,7 +1017,7 @@ namespace ShareTrading
                 }
               }
             }
-            
+
             if (remainingSOH > 0)
             {
               //  WHAT DO WE DO NOW??
@@ -1093,7 +1093,7 @@ namespace ShareTrading
 
       rbs.TransQty = qty;
       rbs.TradeProfit = Decimal.Round(rbs.TransQty * (sell.UnitPrice - buy.UnitPrice), 2);
-      rbs.DaysHeld = Decimal.Round((Decimal) (sell.TranDate.Date - buy.TranDate.Date).TotalDays * qty / sell.TransQty, 2);
+      rbs.DaysHeld = Decimal.Round((Decimal)(sell.TranDate.Date - buy.TranDate.Date).TotalDays * qty / sell.TransQty, 2);
       profit = rbs.TradeProfit;
       daysHeld = rbs.DaysHeld;
       rbs.SaleBrokerage = Decimal.Round((sell.BrokerageInc * qty / sell.TransQty * 10 / 11) + (buy.BrokerageInc * qty / buy.TransQty * 10 / 11), 2);
@@ -1105,7 +1105,7 @@ namespace ShareTrading
     {
       //CommonFunctions.ImportPrices();
       string filename = string.Format("c://Users//{0}////Downloads//WatchlistData.csv", Environment.UserName); // getfilename("WatchlistData");
-      
+
       if (string.IsNullOrEmpty(filename))
       {
         MessageBox.Show("Unable to open file selected", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1211,27 +1211,27 @@ namespace ShareTrading
       return DateTime.Compare(DateTime.Now, nextRunRec.VarDate) > 0;
     }
 
-        private void button5_Click_1(object sender, EventArgs e)
-        {
-            //OleDbDataReader PriceHistReader;
-            //string myConnectionString = @"Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\Dvl\Rays Projects\Shares\ShareAnalV2.accdb; Persist Security Info = False;";
+    private void button5_Click_1(object sender, EventArgs e)
+    {
+      //OleDbDataReader PriceHistReader;
+      //string myConnectionString = @"Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\Dvl\Rays Projects\Shares\ShareAnalV2.accdb; Persist Security Info = False;";
 
-            //// Define the database query    
-            //string mySelectQuery = "SELECT PriceDate, PrcClose FROM ASXPriceDate where ASXCode = 'AMP' order by PriceDate";
+      //// Define the database query    
+      //string mySelectQuery = "SELECT PriceDate, PrcClose FROM ASXPriceDate where ASXCode = 'AMP' order by PriceDate";
 
 
-            //// Create a database connection object using the connection string    
-            //OleDbConnection myConnection = new OleDbConnection(myConnectionString);
+      //// Create a database connection object using the connection string    
+      //OleDbConnection myConnection = new OleDbConnection(myConnectionString);
 
-            //// Create a database command on the connection using query    
-            //OleDbCommand myCommand = new OleDbCommand(mySelectQuery, myConnection);
-            //myConnection.Open();
-            //PriceHistReader = myCommand.ExecuteReader();
-            DateTime MinDate = new DateTime();
-            DateTime MaxDate = new DateTime();
-            Decimal MinPrice = 0;
-            Decimal MaxPrice = 0;
-            int cnt = 0;
+      //// Create a database command on the connection using query    
+      //OleDbCommand myCommand = new OleDbCommand(mySelectQuery, myConnection);
+      //myConnection.Open();
+      //PriceHistReader = myCommand.ExecuteReader();
+      DateTime MinDate = new DateTime();
+      DateTime MaxDate = new DateTime();
+      Decimal MinPrice = 0;
+      Decimal MaxPrice = 0;
+      int cnt = 0;
 
       String ASXCode = string.Empty;
       using (PgSqlConnection conn = new PgSqlConnection(DBAccess.DBConnectString()))
@@ -1282,16 +1282,16 @@ namespace ShareTrading
         }
       }
 
-            //            chart1.Series[0].Points.;
-            //            chart1.Show();
-            // set chart data source - the data source must implement IEnumerable
-            //chart1.DataSource = myCommand.ExecuteReader(CommandBehavior.CloseConnection);
-        }
+      //            chart1.Series[0].Points.;
+      //            chart1.Show();
+      // set chart data source - the data source must implement IEnumerable
+      //chart1.DataSource = myCommand.ExecuteReader(CommandBehavior.CloseConnection);
+    }
 
-        private void importRecentPricesToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
+    private void importRecentPricesToolStripMenuItem1_Click(object sender, EventArgs e)
+    {
 
-        }
+    }
 
     private void GLCodeToolStripMenuItem_Click(object sender, EventArgs e)
     {
@@ -1304,7 +1304,7 @@ namespace ShareTrading
 
     }
 
- 
+
     private void toMYOBToolStripMenuItem_Click(object sender, EventArgs e)
     {
       ExportBuysSellsToMYOB frm = new ExportBuysSellsToMYOB();
@@ -1322,7 +1322,7 @@ namespace ShareTrading
     {
       // Get list of ASX Companies required
       List<DBAccess.ASXPriceDate> coList = new List<DBAccess.ASXPriceDate>();
-      if (!DBAccess.GetAllPrices(new List<PgSqlParameter>(),  out coList, " DISTINCT apd_asxcode  ", string.Empty, string.Empty))
+      if (!DBAccess.GetAllPrices(new List<PgSqlParameter>(), out coList, " DISTINCT apd_asxcode  ", string.Empty, string.Empty))
         return;
       // foreach company, get dividend history
       int counter = 0;
@@ -1390,7 +1390,7 @@ namespace ShareTrading
       if (backgroundWorkerPrcHst.IsBusy)
         return;
       importPriceHistoryToolStripMenuItem.Enabled = false;
-      
+
       string[] files = Directory.GetFiles(getPriceHistoryFolder());
       if (files.Length <= 0)
       {
@@ -1417,7 +1417,7 @@ namespace ShareTrading
     {
       WorkState ws = e.Argument as WorkState;
       string[] fileNames = ws.filenames;
-      
+
       // foreach file, import data
       foreach (string filename in fileNames)
       {
@@ -1495,7 +1495,7 @@ namespace ShareTrading
         List<PgSqlParameter> buyParams = new List<PgSqlParameter>();
         buyParams.Add(new PgSqlParameter("@P2", rec.BuyId));
         List<DBAccess.TransRecords> buyList = new List<DBAccess.TransRecords>();
-        if (!DBAccess.GetTransRecords(buyParams, out buyList, DBAccess.TransRecordsFieldList, " AND trn_ID = @P2 ",  string.Empty, false))
+        if (!DBAccess.GetTransRecords(buyParams, out buyList, DBAccess.TransRecordsFieldList, " AND trn_ID = @P2 ", string.Empty, false))
           continue;
         DBAccess.TransRecords buy = buyList[0];
 
@@ -1517,7 +1517,7 @@ namespace ShareTrading
 
     private void marketIndexDataToolStripMenuItem_Click(object sender, EventArgs e)
     {
-          MarketIndexScrape.Run();          // get Directors Transactions for last 100 days
+      MarketIndexScrape.Run();          // get Directors Transactions for last 100 days
 
     }
 
@@ -1530,7 +1530,7 @@ namespace ShareTrading
       {
         foreach (DBAccess.CompanyDetails co in coList)
         {
-          MarketIndexScrape.Run( co, _thisDate);
+          MarketIndexScrape.Run(co, _thisDate);
           System.Threading.Thread.Sleep(6000);
           //break;
         }
@@ -1552,7 +1552,7 @@ namespace ShareTrading
         if (nextRunRec == null)
           updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.nextOnightRun), DateTime.Now, "Never Run", string.Empty);        //
         DateTime curTime = DateTime.Now;
-        DateTime tradingStart = DateTime.Today.AddHours(12);
+        DateTime tradingStart = DateTime.Today.AddHours(10);
         DateTime tradingEnd = DateTime.Today.AddHours(17);
         while (DateTime.Compare(tradingStart, curTime) <= 0 && DateTime.Compare(curTime, tradingEnd) <= 0 && DateTime.Compare(nextRunRec.VarDate, curTime) <= 0)
         {
@@ -1634,14 +1634,14 @@ namespace ShareTrading
       }
       catch
       {
-        Console.WriteLine("Overnight Process failed somewhere " + DateTime.Now.ToString() );
+        Console.WriteLine("Overnight Process failed somewhere " + DateTime.Now.ToString());
       }
 
     }
 
     private void backgroundWorkerONight_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
     {
-      updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.nextOnightRun), DateTime.Now, "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
+      updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.nextOnightRun), DateTime.Today.AddDays(1).AddHours(16), "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
     }
 
     private void updateSystemVars(string desc, DateTime varDate, string status, string notes)
@@ -1686,6 +1686,43 @@ namespace ShareTrading
       frm.ShowDialog();
 
     }
+    private void checkASXCodesToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      // get list of asx codes from asxpricedate
+      List<DBAccess.ASXPriceDate> apdList = new List<DBAccess.ASXPriceDate>();
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      if (!DBAccess.GetAllPrices(paramList, out apdList, " DISTINCT(apd_asxcode) ", " AND 1 = 1 " , " ORDER BY apd_asxcode "))
+        return;
+      List<string> apdCodes = apdList.Select(x => x.ASXCode).Distinct().ToList();
+      // get list of asx codes from directors transactions
+      List<DBAccess.DirectorsTransactions> dtList = new List<DBAccess.DirectorsTransactions>();
+      if (DBAccess.GetDirectorsTransactions(string.Empty, out dtList))
+      {
+        List<string> dtCodes = dtList.Select(x => x.ASXCodeDirectors).Distinct().ToList();
+        apdCodes.AddRange(dtCodes);
+        apdCodes.Sort();
+      }
+      // get list of asx codes from company details
+      List<string> coCodes = DBAccess.GetASXCodes(false);
+      coCodes.Sort();
+      // insert record into company details if it exists in asxpricedate but nor in companydetails
+      List<string> remList = apdCodes.Where(x => !coCodes.Any(y => x == y)).ToList();
+      foreach (string entry in remList)
+      {
+        DBAccess.CompanyDetails newRec = new DBAccess.CompanyDetails();
+        newRec.ASXCode = entry;
+        newRec.DateCreated = DateTime.Now;
+        newRec.DateModified = DateTime.Now;
+        newRec.DateDeleted = DateTime.MinValue;
+        newRec.OnWatchList = false;
+        try
+        {
+          DBAccess.DBInsert(newRec, "companydetails", typeof(DBAccess.CompanyDetails));
+        }
+        catch
+        { }
+      }
+    }
   }
   public enum SystemsVars
   {
@@ -1705,5 +1742,6 @@ namespace ShareTrading
     statusMax =19,
 
   }
-}
+
+  }
 

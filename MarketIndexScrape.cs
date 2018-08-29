@@ -131,7 +131,7 @@ namespace ShareTrading
       else
       {
         // set start date to max date + 1
-        startDate = list[0].HistoryDate.AddDays(1);
+        startDate = list[0].HistoryDate.AddDays(0);
       }
 
       while (startDate <= DateTime.Today)
@@ -244,13 +244,26 @@ namespace ShareTrading
                 {
                   if (!DBAccess.GetDirectorsTransactions(rec, out list))
                   {
-                    if (rec.Type.Contains("Buy") || rec.Type.Contains("Sell"))
+                    if (rec.Type.Contains("Buy") || rec.Type.Contains("Sell") || rec.Type.Contains("Exercise"))
                     {
 
                       rec.DateCreated = DateTime.Now;
                       rec.DateModified = DateTime.Now;
                       rec.DateDeleted = DateTime.MinValue;
                       DBAccess.DBInsert(rec, "directors_transactions", typeof(DBAccess.DirectorsTransactions));
+                      // Make sure that the company list has this company in it
+                      List<DBAccess.CompanyDetails> coList = new List<DBAccess.CompanyDetails>();
+                      if (!DBAccess.GetCompanyDetails(rec.ASXCodeDirectors, out coList))
+                      {
+                        DBAccess.CompanyDetails cod = new DBAccess.CompanyDetails();
+                        cod.ASXCode = rec.ASXCodeDirectors;
+                        cod.DateCreated = DateTime.Now;
+                        cod.DateModified = DateTime.Now;
+                        cod.DateDeleted = DateTime.MinValue;
+                        cod.OnWatchList = false;
+                        DBAccess.DBInsert(cod, "companydetails", typeof(DBAccess.CompanyDetails));
+                      }
+
                     }
                   }
                   else
@@ -680,7 +693,12 @@ namespace ShareTrading
               switch (counter)
               {
                 case 0:           //  ASX Code
+
                   rec.ASXCode = tdEntry.InnerText;
+                  if (rec.ASXCode == "APT")
+                  {
+
+                  }
                   break;
                 case 1:         //  Company Name
                   break;
@@ -737,6 +755,18 @@ namespace ShareTrading
                     rec.DateModified = DateTime.Now;
                     rec.DateDeleted = DateTime.MinValue;
                     DBAccess.DBInsert(rec, "brokers_recommendations", typeof(DBAccess.BrokersRecommendations));
+                    // Make sure that the company list has this company in it
+                    List<DBAccess.CompanyDetails> coList = new List<DBAccess.CompanyDetails>();
+                    if (!DBAccess.GetCompanyDetails(rec.ASXCode, out coList))
+                    {
+                      DBAccess.CompanyDetails cod = new DBAccess.CompanyDetails();
+                      cod.ASXCode = rec.ASXCode;
+                      cod.DateCreated = DateTime.Now;
+                      cod.DateModified = DateTime.Now;
+                      cod.DateDeleted = DateTime.MinValue;
+                      cod.OnWatchList = false;
+                      DBAccess.DBInsert(cod, "companydetails", typeof(DBAccess.CompanyDetails));
+                    }
                   }
                   else
                   {
