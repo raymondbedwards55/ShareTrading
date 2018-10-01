@@ -67,14 +67,14 @@ namespace ShareTrading
                   existing.Rec1 = rec.Consensus;
                   existing.RecDate1 = rec.HistoryDate;
                   existing.RecPrice1 = rec.Price;
-                  existing.RecDiff = existing.RecCurrentPrice == 0M ? 0M : Decimal.Round((existing.RecCurrentPrice - rec.Price) / existing.RecCurrentPrice, 2);
+                  existing.RecDiff = existing.RecCurrentPrice == 0M ? 0M : Decimal.Round((existing.RecCurrentPrice - rec.Price) * 100 / existing.RecCurrentPrice, 2);
                   break;
                 case 2:
                   existing.Rec2 = rec.Consensus;
                   existing.RecDate2 = rec.HistoryDate;
                   existing.RecPrice2 = rec.Price;
                   if (existing.RecPrice1 == 0M)
-                    existing.RecDiff = existing.RecCurrentPrice == 0M ? 0M : Decimal.Round((existing.RecCurrentPrice - rec.Price ) / existing.RecCurrentPrice, 2);
+                    existing.RecDiff = existing.RecCurrentPrice == 0M ? 0M : Decimal.Round((existing.RecCurrentPrice - rec.Price) * 100 / existing.RecCurrentPrice, 2);
                   else
                     //  latest 2 dates have recommendations so set Recommendation Type to indicate if recommendation has changed
                     existing.RecChanged = getValue(existing.Rec1) == getValue(existing.Rec2) ? "" : getValue(existing.Rec1) > getValue(existing.Rec2) ? "U" : "D";
