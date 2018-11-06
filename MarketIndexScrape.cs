@@ -11,7 +11,13 @@ using Devart.Data.PostgreSql;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Schema;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
 
+
+using System.Windows.Forms;
+using ShareTrading.Common.Src;
 namespace ShareTrading
 {
   public class MarketIndexScrape
@@ -19,16 +25,28 @@ namespace ShareTrading
 
     public static void Run(DBAccess.CompanyDetails _thisCompany, DateTime _thisDate )
     {
-      
-      string response = GetPage(string.Format("https://www.marketindex.com.au/asx/{0}", _thisCompany.ASXCode));    // Daily Company Stats
-      if (response != null)
+     
+      string response = string.Empty;
+      if (_thisCompany.InMarketIndex && _thisCompany.GICSSubIndusId == 0)
       {
-        string GICSIndustrySubCode = parseResearch(response);
-        if (!string.IsNullOrEmpty(GICSIndustrySubCode))
+        response = null;
+        //response = GetPage(string.Format("https://www.marketindex.com.au/asx/{0}", _thisCompany.ASXCode));    // Daily Company Stats
+        if (response != null)
         {
-          _thisCompany.GICSSubIndusId = DBAccess.GetSpecificSubIndusRecord(GICSIndustrySubCode).ID;
-          DBAccess.DBUpdate(_thisCompany, "companydetails", typeof(DBAccess.GICSSubIndustryCode));
+          string GICSIndustrySubCode = parseResearch(response);
+          if (!string.IsNullOrEmpty(GICSIndustrySubCode))
+          {
+            _thisCompany.GICSSubIndusId = DBAccess.GetSpecificSubIndusRecord(GICSIndustrySubCode).ID;
+            DBAccess.DBUpdate(_thisCompany, "companydetails", typeof(DBAccess.CompanyDetails));
+          }
         }
+        else
+        {
+          _thisCompany.InMarketIndex = false;
+          DBAccess.DBUpdate(_thisCompany, "companydetails", typeof(DBAccess.CompanyDetails));
+
+        }
+        System.Threading.Thread.Sleep(6000);
       }
 
       response = GetPage(string.Format("https://finance.yahoo.com/quote/{0}.AX/history?p={0}.AX", _thisCompany.ASXCode));    // Price History
@@ -117,7 +135,7 @@ namespace ShareTrading
 
     public static void Recommendations()
     {
-      //return;
+      return;
       DateTime startDate = DateTime.Today;
       // get last record written in recommendations table
       List<PgSqlParameter> paramList = new List<PgSqlParameter>();
@@ -143,10 +161,36 @@ namespace ShareTrading
       }
 
     }
+
+    public static string  getDirectorsTransactions()
+    {
+      string filename = string.Format("c://Users//{0}////Downloads//view-source_https___www.marketindex.com.au_directors-transactions.html", Environment.UserName); // getfilename("WatchlistData");
+      if (string.IsNullOrEmpty(filename))
+      {
+        MessageBox.Show("Unable to open file selected", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        return null;
+      }
+      try
+      {
+
+        List<string> exceptionCodes = new List<string>();
+        System.IO.StreamReader sr = new System.IO.StreamReader(System.IO.File.Open(filename, System.IO.FileMode.Open));
+        string response = sr.ReadToEnd();
+
+        return response;
+      }
+      catch
+      {
+        return null;
+      }
+    }
+    //  **** can't get market index data automatically anymore
+
     public static void Run()
     {
       //return;
-      String response = GetPage( "https://www.marketindex.com.au/directors-transactions"/* ASXCode */);
+      //String response = GetPage( "https://www.marketindex.com.au/directors-transactions"/* ASXCode */);
+      string response = getDirectorsTransactions();
       if (response == null)
       {
         return;

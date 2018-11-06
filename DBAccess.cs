@@ -1851,6 +1851,7 @@ namespace ShareTrading
       public DateTime DateDeleted { get; set; }
       public Boolean OnWatchList { get; set; }
       public int GICSSubIndusId { get; set; }
+      public Boolean InMarketIndex { get; set; }
     }
 
     public static  string  CompanyDetailsFieldList
@@ -1951,7 +1952,8 @@ namespace ShareTrading
         dtls.DateModified = reader.GetDateTime(4);
         dtls.DateDeleted = reader.GetDateTime(5);
         dtls.OnWatchList = reader.GetBoolean(6);
-        dtls.GICSSubIndusId = reader.GetInt32(0);
+        dtls.GICSSubIndusId = reader.GetInt32(7);
+        dtls.InMarketIndex = reader.GetBoolean(8);
 
         inputList.Add(dtls);
       }

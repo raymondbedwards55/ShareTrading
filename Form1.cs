@@ -1548,7 +1548,10 @@ namespace ShareTrading
 
     }
 
-
+    private const int TRADING_START_HR = 6;
+    private const int TRADING_START_MIN = 0;
+    private const int TRADING_END_HR = 15;
+    private const int TRADING_END_MIN = 30;
 
 
     private void backgroundWorkerONight_DoWork(object sender, DoWorkEventArgs e)
@@ -1565,8 +1568,8 @@ namespace ShareTrading
         if (nextRunRec == null)
           updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.nextOnightRun), DateTime.Now, "Never Run", string.Empty);        //
         DateTime curTime = DateTime.Now;
-        DateTime tradingStart = DateTime.Today.AddHours(10);
-        DateTime tradingEnd = DateTime.Today.AddHours(17);
+        DateTime tradingStart = DateTime.Today.AddHours(TRADING_START_HR).AddMinutes(TRADING_START_MIN);
+        DateTime tradingEnd = DateTime.Today.AddHours(TRADING_END_HR).AddMinutes(TRADING_END_MIN);
         while (DateTime.Compare(tradingStart, curTime) <= 0 && DateTime.Compare(curTime, tradingEnd) <= 0 && DateTime.Compare(nextRunRec.VarDate, curTime) <= 0)
         {
           Console.WriteLine("Waiting ...  " + DateTime.Now.ToString());
@@ -1579,11 +1582,11 @@ namespace ShareTrading
         try
         {
           MarketIndexScrape.Run();          // get Directors Transactions for last 100 days
-          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.directorsTransactions), wsOnight.startTime.Date.AddDays(1).AddHours(16), "OK", String.Empty);
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.directorsTransactions), wsOnight.startTime.Date.AddDays(1).AddHours(TRADING_END_HR).AddMinutes(TRADING_END_MIN), "OK", String.Empty);
         }
         catch
         {
-          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.directorsTransactions), wsOnight.startTime.Date.AddDays(1).AddHours(16), "Failed", String.Empty);
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.directorsTransactions), wsOnight.startTime.Date.AddDays(1).AddHours(TRADING_END_HR).AddMinutes(TRADING_END_MIN), "Failed", String.Empty);
         }
 
         // Get all company names & then scrape for each company asx code
@@ -1600,24 +1603,24 @@ namespace ShareTrading
               {
                 Console.WriteLine(string.Format(">>{0}<<", co.ASXCode));
                 MarketIndexScrape.Run(co, _thisDate);
-                 System.Threading.Thread.Sleep(6000);
+                 //System.Threading.Thread.Sleep(1000);
               }
               catch { Console.WriteLine(string.Format("{0} Failed (Marketscrape)", co.ASXCode)); }
               //break;
               try
               {
                 ImportDividendHistory.ImportDividends(co.ASXCode);
-                System.Threading.Thread.Sleep(6000);
+                //System.Threading.Thread.Sleep(1000);
               }
               catch { Console.WriteLine(string.Format("{0} Failed (Dividends)", co.ASXCode)); }
               //break;
             }
           }
-          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.companyData), wsOnight.startTime.Date.AddDays(1).AddHours(16), "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.companyData), wsOnight.startTime.Date.AddDays(1).AddHours(TRADING_END_HR).AddMinutes(TRADING_END_MIN), "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
         }
         catch
         {
-          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.companyData), wsOnight.startTime.Date.AddDays(1).AddHours(16), "Failed", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.companyData), wsOnight.startTime.Date.AddDays(1).AddHours(TRADING_END_HR).AddMinutes(TRADING_END_MIN), "Failed", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
 
         }
         Console.WriteLine("About to run recommendations " + DateTime.Now.ToString());
@@ -1625,11 +1628,11 @@ namespace ShareTrading
         try
         {
           MarketIndexScrape.Recommendations();
-          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.brokersRecommendations), wsOnight.startTime.Date.AddDays(1).AddHours(16), "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.brokersRecommendations), wsOnight.startTime.Date.AddDays(1).AddHours(TRADING_END_HR).AddMinutes(TRADING_END_MIN), "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
         }
         catch
         {
-          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.brokersRecommendations), wsOnight.startTime.Date.AddDays(1).AddHours(16), "Failed", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.brokersRecommendations), wsOnight.startTime.Date.AddDays(1).AddHours(TRADING_END_HR).AddMinutes(TRADING_END_MIN), "Failed", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
 
         }
 
@@ -1638,14 +1641,14 @@ namespace ShareTrading
         try
         {
 
-          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.dividends), wsOnight.startTime.Date.AddDays(1).AddHours(16), "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.dividends), wsOnight.startTime.Date.AddDays(1).AddHours(TRADING_END_HR).AddMinutes(TRADING_END_MIN), "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
         }
         catch
         {
-          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.dividends), wsOnight.startTime.Date.AddDays(1).AddHours(16), "Failed", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
+          updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.dividends), wsOnight.startTime.Date.AddDays(1).AddHours(TRADING_END_HR).AddMinutes(TRADING_END_MIN), "Failed", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
 
         }
-        updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.nextOnightRun), wsOnight.startTime.Date.AddDays(1).AddHours(16), "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
+        updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.nextOnightRun), wsOnight.startTime.Date.AddDays(1).AddHours(TRADING_END_HR).AddMinutes(TRADING_END_MIN), "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
 
       }
       catch

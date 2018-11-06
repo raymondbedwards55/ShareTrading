@@ -589,8 +589,11 @@ namespace ShareTrading
           displayRec.FiveDayMinPctROI = Decimal.Round(((buy.BuyTodaysUnitPrice - displayRec.FiveDayMinPrice) + totalDividends) / displayRec.FiveDayMinPrice * 100, 2);
           displayRec.FiveDayMinPctYearROI = Decimal.Round(((buy.BuyTodaysUnitPrice - displayRec.FiveDayMinPrice) + totalDividends) / displayRec.FiveDayMinPrice * 100 * 365 / daysHeld, 2);
         }
-
-        displayRec.FiveDayMinPrcSuggestedBuyQty = buy.BuyTodaysUnitPrice > 40 ? (int) (TxValue / buy.BuyTodaysUnitPrice / 10) * 10 : (int)(TxValue / buy.BuyTodaysUnitPrice / 100) * 100;
+        try
+        {
+          displayRec.FiveDayMinPrcSuggestedBuyQty = buy.BuyTodaysUnitPrice > 40 ? (int)(TxValue / buy.BuyTodaysUnitPrice / 10) * 10 : (int)(TxValue / buy.BuyTodaysUnitPrice / 100) * 100;
+        }
+        catch { continue; }
         displayList.Add(displayRec);
       }
       List<string> toBuyASXCodes = buyList.Select(x => x.BuyASXCode).Distinct().ToList();

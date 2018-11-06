@@ -29,7 +29,7 @@
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
       this.groupBox1 = new System.Windows.Forms.GroupBox();
       this.label2 = new System.Windows.Forms.Label();
       this.label1 = new System.Windows.Forms.Label();
@@ -39,6 +39,13 @@
       this.CoBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.chbIncDeleted = new System.Windows.Forms.CheckBox();
       this.dgvCompanyDetails = new System.Windows.Forms.DataGridView();
+      this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.ASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.CompanyName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.OnWatchList = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+      this.DateCreated = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.DateModified = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.DateDeleted = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.toolStrip1 = new System.Windows.Forms.ToolStrip();
       this.toolStripButtonAdd = new System.Windows.Forms.ToolStripButton();
       this.toolStripButtonEdit = new System.Windows.Forms.ToolStripButton();
@@ -52,13 +59,7 @@
       this.toolStripButtonPrev = new System.Windows.Forms.ToolStripButton();
       this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
       this.toolStripButtonClose = new System.Windows.Forms.ToolStripButton();
-      this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.ASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.CompanyName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.OnWatchList = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-      this.DateCreated = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.DateModified = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.DateDeleted = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.InMarketIndex = new System.Windows.Forms.DataGridViewCheckBoxColumn();
       this.groupBox1.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.CoBindingSource)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.dgvCompanyDetails)).BeginInit();
@@ -145,14 +146,14 @@
       this.dgvCompanyDetails.AllowUserToAddRows = false;
       this.dgvCompanyDetails.AllowUserToDeleteRows = false;
       this.dgvCompanyDetails.AutoGenerateColumns = false;
-      dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-      dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
-      dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-      this.dgvCompanyDetails.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+      dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+      dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+      dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+      dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+      this.dgvCompanyDetails.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
       this.dgvCompanyDetails.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       this.dgvCompanyDetails.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ID,
@@ -161,7 +162,8 @@
             this.OnWatchList,
             this.DateCreated,
             this.DateModified,
-            this.DateDeleted});
+            this.DateDeleted,
+            this.InMarketIndex});
       this.dgvCompanyDetails.DataSource = this.CoBindingSource;
       this.dgvCompanyDetails.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
       this.dgvCompanyDetails.Location = new System.Drawing.Point(151, 233);
@@ -173,6 +175,58 @@
       this.dgvCompanyDetails.TabStop = false;
       this.dgvCompanyDetails.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvCompanyDetails_CellFormatting);
       this.dgvCompanyDetails.SelectionChanged += new System.EventHandler(this.dgvCompanyDetails_SelectionChanged);
+      // 
+      // ID
+      // 
+      this.ID.DataPropertyName = "ID";
+      this.ID.HeaderText = "ID";
+      this.ID.Name = "ID";
+      this.ID.ReadOnly = true;
+      this.ID.Visible = false;
+      // 
+      // ASXCode
+      // 
+      this.ASXCode.DataPropertyName = "ASXCode";
+      this.ASXCode.HeaderText = "ASX Code";
+      this.ASXCode.Name = "ASXCode";
+      this.ASXCode.ReadOnly = true;
+      // 
+      // CompanyName
+      // 
+      this.CompanyName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+      this.CompanyName.DataPropertyName = "CompanyName";
+      this.CompanyName.HeaderText = "Company Name";
+      this.CompanyName.Name = "CompanyName";
+      this.CompanyName.ReadOnly = true;
+      // 
+      // OnWatchList
+      // 
+      this.OnWatchList.DataPropertyName = "OnWatchList";
+      this.OnWatchList.HeaderText = "On Watch List?";
+      this.OnWatchList.Name = "OnWatchList";
+      this.OnWatchList.ReadOnly = true;
+      // 
+      // DateCreated
+      // 
+      this.DateCreated.DataPropertyName = "DateCreated";
+      this.DateCreated.HeaderText = "Date Created";
+      this.DateCreated.Name = "DateCreated";
+      this.DateCreated.ReadOnly = true;
+      // 
+      // DateModified
+      // 
+      this.DateModified.DataPropertyName = "DateModified";
+      this.DateModified.HeaderText = "Date Modified";
+      this.DateModified.Name = "DateModified";
+      this.DateModified.ReadOnly = true;
+      // 
+      // DateDeleted
+      // 
+      this.DateDeleted.DataPropertyName = "DateDeleted";
+      this.DateDeleted.HeaderText = "DateDeleted";
+      this.DateDeleted.Name = "DateDeleted";
+      this.DateDeleted.ReadOnly = true;
+      this.DateDeleted.Visible = false;
       // 
       // toolStrip1
       // 
@@ -292,57 +346,13 @@
       this.toolStripButtonClose.Text = "Close";
       this.toolStripButtonClose.Click += new System.EventHandler(this.toolStripButtonClose_Click);
       // 
-      // ID
+      // InMarketIndex
       // 
-      this.ID.DataPropertyName = "ID";
-      this.ID.HeaderText = "ID";
-      this.ID.Name = "ID";
-      this.ID.ReadOnly = true;
-      this.ID.Visible = false;
-      // 
-      // ASXCode
-      // 
-      this.ASXCode.DataPropertyName = "ASXCode";
-      this.ASXCode.HeaderText = "ASX Code";
-      this.ASXCode.Name = "ASXCode";
-      this.ASXCode.ReadOnly = true;
-      // 
-      // CompanyName
-      // 
-      this.CompanyName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-      this.CompanyName.DataPropertyName = "CompanyName";
-      this.CompanyName.HeaderText = "Company Name";
-      this.CompanyName.Name = "CompanyName";
-      this.CompanyName.ReadOnly = true;
-      // 
-      // OnWatchList
-      // 
-      this.OnWatchList.DataPropertyName = "OnWatchList";
-      this.OnWatchList.HeaderText = "On Watch List?";
-      this.OnWatchList.Name = "OnWatchList";
-      this.OnWatchList.ReadOnly = true;
-      // 
-      // DateCreated
-      // 
-      this.DateCreated.DataPropertyName = "DateCreated";
-      this.DateCreated.HeaderText = "Date Created";
-      this.DateCreated.Name = "DateCreated";
-      this.DateCreated.ReadOnly = true;
-      // 
-      // DateModified
-      // 
-      this.DateModified.DataPropertyName = "DateModified";
-      this.DateModified.HeaderText = "Date Modified";
-      this.DateModified.Name = "DateModified";
-      this.DateModified.ReadOnly = true;
-      // 
-      // DateDeleted
-      // 
-      this.DateDeleted.DataPropertyName = "DateDeleted";
-      this.DateDeleted.HeaderText = "DateDeleted";
-      this.DateDeleted.Name = "DateDeleted";
-      this.DateDeleted.ReadOnly = true;
-      this.DateDeleted.Visible = false;
+      this.InMarketIndex.DataPropertyName = "InMarketIndex";
+      this.InMarketIndex.HeaderText = "InMarketIndex";
+      this.InMarketIndex.Name = "InMarketIndex";
+      this.InMarketIndex.ReadOnly = true;
+      this.InMarketIndex.Visible = false;
       // 
       // FrmEditCompanyDetails
       // 
@@ -398,5 +408,6 @@
     private System.Windows.Forms.DataGridViewTextBoxColumn DateCreated;
     private System.Windows.Forms.DataGridViewTextBoxColumn DateModified;
     private System.Windows.Forms.DataGridViewTextBoxColumn DateDeleted;
+    private System.Windows.Forms.DataGridViewCheckBoxColumn InMarketIndex;
   }
 }
