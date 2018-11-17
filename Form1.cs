@@ -1581,6 +1581,7 @@ namespace ShareTrading
         Console.WriteLine("About to run Directors " + DateTime.Now.ToString());
         try
         {
+
           MarketIndexScrape.Run();          // get Directors Transactions for last 100 days
           updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.directorsTransactions), wsOnight.startTime.Date.AddDays(1).AddHours(TRADING_END_HR).AddMinutes(TRADING_END_MIN), "OK", String.Empty);
         }

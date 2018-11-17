@@ -135,7 +135,7 @@ namespace ShareTrading
 
     public static void Recommendations()
     {
-      return;
+      
       DateTime startDate = DateTime.Today;
       // get last record written in recommendations table
       List<PgSqlParameter> paramList = new List<PgSqlParameter>();
@@ -151,10 +151,12 @@ namespace ShareTrading
         // set start date to max date + 1
         startDate = list[0].HistoryDate.AddDays(0);
       }
-
       while (startDate <= DateTime.Today)
       {
-        string response = GetPage(string.Format("https://www.marketindex.com.au/analysis/consensus-recommendations-{0}", startDate.ToString("dd-MMMM-yyyy")));    // Brokers Recommendations
+        string response = getFileName(string.Format("Consensus Recommendations ({0}) - Market Index.html", startDate.ToString("d MMMM yyyy" /*"27 July 2018" */)));
+
+        //string response = GetPage(string.Format("https://www.marketindex.com.au/analysis/consensus-recommendations-{0}", startDate.ToString("dd-MMMM-yyyy")));    // Brokers Recommendations
+        //sleep(1000);
         if (response != null)
           parseRecommendations(response, startDate);
         startDate = startDate.AddDays(1);
@@ -162,9 +164,10 @@ namespace ShareTrading
 
     }
 
-    public static string  getDirectorsTransactions()
+    public static string  getFileName(string name)
     {
-      string filename = string.Format("c://Users//{0}////Downloads//view-source_https___www.marketindex.com.au_directors-transactions.html", Environment.UserName); // getfilename("WatchlistData");
+      //string filename = string.Format("c://Users//{0}////Downloads//view-source_https___www.marketindex.com.au_directors-transactions.html", Environment.UserName); // getfilename("WatchlistData");
+      string filename = string.Format("c://Users//{0}////Downloads//{1}", Environment.UserName, name); // getfilename("WatchlistData");
       if (string.IsNullOrEmpty(filename))
       {
         MessageBox.Show("Unable to open file selected", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -190,7 +193,7 @@ namespace ShareTrading
     {
       //return;
       //String response = GetPage( "https://www.marketindex.com.au/directors-transactions"/* ASXCode */);
-      string response = getDirectorsTransactions();
+      string response = getFileName("Directors' Transactions (Insider Trades) - Market Index.html");
       if (response == null)
       {
         return;
