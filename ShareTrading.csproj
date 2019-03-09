@@ -237,18 +237,22 @@
     <None Include="Properties\DataSources\DBAccess.CompanyDetails.datasource" />
     <None Include="Properties\DataSources\DBAccess.datasource" />
     <None Include="Properties\DataSources\DBAccess.DirectorsTransactions.datasource" />
+    <None Include="Properties\DataSources\DBAccess.DivPaid.datasource" />
     <None Include="Properties\DataSources\DBAccess.GLCodes.datasource" />
     <None Include="Properties\DataSources\DBAccess.GLType.datasource" />
     <None Include="Properties\DataSources\DBAccess.TransRecords.datasource" />
     <None Include="Properties\DataSources\FrmBrokersRec.datasource" />
     <None Include="Properties\DataSources\FrmStatus.statusLine.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.BuySuggestions.datasource" />
+    <None Include="Properties\DataSources\FrmSuggestions.DivPdList.datasource" />
+    <None Include="Properties\DataSources\FrmSuggestions.DivTradeTotals.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.FiveDayMinSuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.ReBuySuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.SellSuggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.Stats.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.Suggestions.datasource" />
     <None Include="Properties\DataSources\FrmSuggestions.Transactions.datasource" />
+    <None Include="Properties\DataSources\FrmSuggestions.YrDivTradeTotals.datasource" />
     <None Include="Properties\DataSources\recommendation.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

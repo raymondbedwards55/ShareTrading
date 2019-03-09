@@ -25,6 +25,9 @@ namespace ShareTrading
 
     private void FrmSuggestions_Load(object sender, EventArgs e)
     {
+      populateDividendList();
+      populateDivTradeTotals();
+      populateYrDivTradeTotals();
       populateSellGrid();
       populateBuyGrid();
       populateReBuyGrid();
@@ -58,7 +61,7 @@ namespace ShareTrading
       extraWhere += " AND dvh_asxcode = @P1 ";
       paramList.Add(new PgSqlParameter("@P2", DateTime.Today.AddDays(days1)));
       paramList.Add(new PgSqlParameter("@P3", DateTime.Today.AddDays(days2)));
-      extraWhere += " AND dvh_exdivdate BETWEEN @P2 AND @P3 ";
+      extraWhere +=   " AND dvh_exdivdate > @P2 AND dvh_exdivdate <= @P3 ";                           /*             " AND dvh_exdivdate BETWEEN @P2 AND @P3 "; */
       orderBy += " ORDER BY dvh_exdivdate DESC ";
       if (DBAccess.GetDividends(paramList, out divList, extraWhere, orderBy))
       {
@@ -70,6 +73,7 @@ namespace ShareTrading
     }
     private bool calculateDividendTotal(string ASXCode, DateTime buyDate, out decimal totalDividends, out decimal totalFrCredits)
     {
+      
       totalDividends = 0M;
       totalFrCredits = 0M;
       List<DBAccess.DividendHistory> divList = new List<DBAccess.DividendHistory>();
@@ -81,7 +85,7 @@ namespace ShareTrading
       extraWhere += " AND dvh_asxcode = @P1 ";
       paramList.Add(new PgSqlParameter("@P2", buyDate.Date));
       paramList.Add(new PgSqlParameter("@P3", DateTime.Today));
-      extraWhere += " AND dvh_exdivdate BETWEEN @P2 AND @P3 ";
+      extraWhere +=   " AND dvh_exdivdate > @P2 AND dvh_exdivdate <= @P3 ";                                /*        " AND dvh_exdivdate BETWEEN @P2 AND @P3 ";*/  
       orderBy += " ORDER BY dvh_exdivdate DESC ";
       if (DBAccess.GetDividends(paramList, out divList, extraWhere, orderBy))
       {
@@ -266,9 +270,16 @@ namespace ShareTrading
       if (dgv.Columns[e.ColumnIndex].ValueType == typeof(decimal))
         if ((decimal)dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value < 0M)
           dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+
       if ((dgv.Columns[e.ColumnIndex].Name == "LastDividendAmount" || dgv.Columns[e.ColumnIndex].Name == "LastDivDate") && (bool)dgv.Rows[e.RowIndex].Cells["HighlightDiv"].Value)
       {
-        dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+        if (!(DateTime.Compare((DateTime)dgv.Rows[e.RowIndex].Cells["LastDivDate"].Value, DateTime.Today) > 0))
+        {
+          dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.MintCream;
+          dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.DarkGreen;
+        }
+        else
+          dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
       }
 
     }
@@ -376,6 +387,7 @@ namespace ShareTrading
           }
         }
 
+
         //  Is there a dividend pending - already announced (ie. with ex dividend date +/- 10 days from today)
         DBAccess.DividendHistory divHist = new DBAccess.DividendHistory();
         sug.BuyHighlightDiv = false;
@@ -384,6 +396,7 @@ namespace ShareTrading
           sug.BuyLastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.BuyTodaysUnitPrice * 100, 2);
           sug.BuyLastDivDate = divHist.ExDividend;
           sug.BuyHighlightDiv = true;
+          sug.BuyDividendForecast = false;
         }
         else
         {
@@ -393,6 +406,8 @@ namespace ShareTrading
             sug.BuyLastDividendAmount = Decimal.Round(divHist.GrossDividend / sug.BuyTodaysUnitPrice * 100, 2);
             sug.BuyLastDivDate = divHist.ExDividend;
             sug.BuyHighlightDiv = true;
+            sug.BuyDividendForecast = true;
+
           }
           else
           {
@@ -401,6 +416,7 @@ namespace ShareTrading
               sug.BuyLastDividendAmount = sug.BuyTodaysUnitPrice == 0 ? 0 : Decimal.Round(divHist.GrossDividend / sug.BuyTodaysUnitPrice * 100, 2);
               sug.BuyLastDivDate = divHist.ExDividend;
               sug.BuyHighlightDiv = false;
+              sug.BuyDividendForecast = false;
             }
           }
         }
@@ -409,8 +425,8 @@ namespace ShareTrading
         decimal totalFrCredits = 0M;
         if (calculateDividendTotal(sug.BuyASXCode, sug.SellDate, out totalDividends, out totalFrCredits))
         {
-          sug.BuyPctROI = Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.UnitSellPrice * 100, 2);
-          sug.BuyPctYearROI = Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.UnitSellPrice * 100 * 365 / daysHeld, 2);
+          sug.BuyPctROI = sug.UnitSellPrice == 0 ? Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.BuyTodaysUnitPrice * 100, 2) : Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.UnitSellPrice * 100, 2);
+          sug.BuyPctYearROI = sug.UnitSellPrice == 0 ? Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.BuyTodaysUnitPrice * 100 * 365 / daysHeld, 2) : Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.UnitSellPrice * 100 * 365 / daysHeld, 2);
         }
 
         if (chbAll.Checked)
@@ -447,6 +463,7 @@ namespace ShareTrading
       public bool BuyHighlightDiv { get; set; }
       public decimal BuyPctROI { get; set; }
       public decimal BuyPctYearROI { get; set; }
+      public Boolean BuyDividendForecast { get; set; }
 
 
     }
@@ -497,7 +514,14 @@ namespace ShareTrading
             dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
         if ((dgv.Columns[e.ColumnIndex].Name == "BuyLastDividendAmount" || dgv.Columns[e.ColumnIndex].Name == "BuyLastDivDate") && (bool)dgv.Rows[e.RowIndex].Cells["BuyHighlightDiv"].Value)
         {
-          dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
+          if (DateTime.Compare((DateTime)dgv.Rows[e.RowIndex].Cells["BuyLastDivDate"].Value, DateTime.Today) > 0)
+          {
+            dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.MintCream;
+            dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.DarkGreen;
+          }
+          else
+
+            dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.ForeColor = Color.Red;
         }
 
       }
@@ -1218,9 +1242,215 @@ namespace ShareTrading
       frCredits = dividendList.Sum(x => Decimal.Round(x.FrCreditPerShare * x.QtyShares, 2));
       return dividendList.Sum(x => Decimal.Round(x.GrossDividendPerShare * x.QtyShares, 2));
     }
+
+    // ******************************************    Dividend List ************************************************************
+   public class DivPdList
+    {
+      public String DivPdASXCode { get; set; }
+      public DateTime DivPdExDivDate { get; set; }
+      public DateTime DivPdDatePaid { get; set; }
+      public Decimal DivPdGrossDiv { get; set; }
+      public Decimal DivPdFrCrt { get; set; }
+      public Decimal DivPdAmtPaid { get; set; }
+      public int DivPdQtyShares { get; set; }
+      public decimal DivPdTotal { get; set; }
+
+    }
+    public void populateDividendList()
+    {
+      List<DBAccess.DivPaid> divList = new List<DBAccess.DivPaid>();
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      if (!DBAccess.GetDividendPaidRecords(paramList, out divList, DBAccess.DividendPaidFieldList, string.Empty, " ORDER BY dvp_asxcode ", false))
+      {
+        return;
+      }
+      List<DivPdList> divPdList = divList.Select(x => new DivPdList
+          {
+          DivPdASXCode = x.ASXCode,
+          DivPdExDivDate = x.ExDividendDate,
+          DivPdDatePaid = x.DatePaid,
+          DivPdGrossDiv = x.GrossDividendPerShare,
+          DivPdFrCrt = x.FrCreditPerShare,
+          DivPdAmtPaid = x.AmtPaidPerShare,
+          DivPdQtyShares = x.QtyShares,
+          DivPdTotal = x.AmtPaidPerShare * x.QtyShares
+          }).ToList();
+      dgvDivList.DataSource = null;
+      DivListBindingSource.DataSource = divPdList;
+      dgvDivList.DataSource = DivListBindingSource;
+      dgvDivList.Refresh();
+
+    }
+
+
+    private void dgvDivList_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+    {
+      if (e.ColumnIndex == _previousIndex)
+        _sortDirection ^= true; // toggle direction
+
+      dgvDivList.DataSource = SortDivListData(
+          (List<DivPdList>)DivListBindingSource.DataSource, dgvDivList.Columns[e.ColumnIndex].Name, _sortDirection);
+
+      _previousIndex = e.ColumnIndex;
+    }
+
+    public List<DivPdList> SortDivListData(List<DivPdList> list, string column, bool ascending)
+    {
+      try
+      {
+        return ascending ?
+           /* RefreshId( */ list.OrderBy(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /* ) */ :
+           /* RefreshId( */ list.OrderByDescending(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /*) */;
+      }
+      catch
+      { }
+      return list;
+    }
+
+    // ******************************************  Last 12 months Dividend and Trading Totals *********************************
+
+    public class YrDivTradeTotals
+    {
+      public string YrASXCode { get; set; }
+      public decimal YrTradeTotal { get; set; }
+      public decimal YrDivTotal { get; set; }
+      public decimal YrTotal { get; set; }
+    }
+
+    private void populateYrDivTradeTotals()
+    {
+    List<DivTradeTotals> divTradeList = new List<DivTradeTotals>();
+
+      // Get list of trades & sum trade profit for each company
+      divTradeList = getTradingProfitPerCompany(DateTime.Today.AddDays(-364), DateTime.Today);
+      List<YrDivTradeTotals> yrList = divTradeList.Select(x => new YrDivTradeTotals {
+        YrASXCode = x.divTradeASXCode,
+        YrTradeTotal = x.divTradeTradeTotal,
+        YrDivTotal = x.divTradeDivTotal,
+        YrTotal = x.divTradeTotal
+      }).ToList();
+      yrList = yrList.OrderBy(x => x.YrASXCode).ToList();
+      dgvYrDivTrade.DataSource = null;
+      YrDivTradeBindingSource.DataSource = yrList;
+      dgvYrDivTrade.DataSource = YrDivTradeBindingSource;
+      dgvYrDivTrade.Refresh();
+
+    }
+
+
+    private void dgvYrDivTrade_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+    {
+      if (e.ColumnIndex == _previousIndex)
+        _sortDirection ^= true; // toggle direction
+
+      dgvYrDivTrade.DataSource = SortYrDivTradeData(
+          (List<YrDivTradeTotals>)YrDivTradeBindingSource.DataSource, dgvYrDivTrade.Columns[e.ColumnIndex].Name, _sortDirection);
+
+      _previousIndex = e.ColumnIndex;
+    }
+
+    public List<YrDivTradeTotals> SortYrDivTradeData(List<YrDivTradeTotals> list, string column, bool ascending)
+    {
+      try
+      {
+        return ascending ?
+           /* RefreshId( */ list.OrderBy(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /* ) */ :
+           /* RefreshId( */ list.OrderByDescending(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /*) */;
+      }
+      catch
+      { }
+      return list;
+    }
+    // ******************************************  Dividend and Trading Totals *********************************
+    public class DivTradeTotals
+    {
+      public string divTradeASXCode { get; set; }
+      public decimal divTradeTradeTotal { get; set; }
+      public decimal divTradeDivTotal { get; set; }
+      public decimal divTradeTotal { get; set; }
+    }
+
+    private void populateDivTradeTotals()
+    {
+      List<DivTradeTotals> divTradeList = new List<DivTradeTotals>();
+
+      // Get list of trades & sum trade profit for each company
+      divTradeList = getTradingProfitPerCompany(DateTime.MinValue, DateTime.MaxValue);
+      divTradeList = divTradeList.OrderBy(x => x.divTradeASXCode).ToList();
+      dgvDivTrade.DataSource = null;
+      DivTradeBindingSource.DataSource = divTradeList;
+      dgvDivTrade.DataSource = DivTradeBindingSource;
+      dgvDivTrade.Refresh();
+
+    }
+
+ 
+    private List<DivTradeTotals> getTradingProfitPerCompany(DateTime start, DateTime end)
+    {
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", start));
+      paramList.Add(new PgSqlParameter("@P2", end));
+      List<DBAccess.TransRecords> transList = new List<DBAccess.TransRecords>();
+      if (!DBAccess.GetTransRecords(paramList, out transList, DBAccess.TransRecordsFieldList, " AND trn_transdate BETWEEN @P1 AND @P2 ", string.Empty, false))
+        return null;
+      // get unique list of company names & foreach company sum trade profit
+      List<string> coList = transList.Select(x => x.ASXCode).Distinct().ToList();
+      List<DivTradeTotals> outList = new List<DivTradeTotals>();
+      foreach (string co in coList)
+      {
+        List<DBAccess.TransRecords> partList = transList.FindAll(delegate (DBAccess.TransRecords r1) { return r1.ASXCode == co; }).ToList();
+
+        DivTradeTotals rec = new DivTradeTotals();
+        rec.divTradeASXCode = co;
+        rec.divTradeTradeTotal = partList.Sum(x => x.TradeProfit) - Decimal.Round(partList.Sum(y => y.BrokerageInc) * 10 / 11, 2);
+        rec.divTradeDivTotal = getDividendsPerCompany(co, start, end);
+        rec.divTradeTotal = rec.divTradeTradeTotal + rec.divTradeDivTotal;
+        outList.Add(rec);
+      }
+      return outList;
+    }
+
+    private decimal getDividendsPerCompany(String ASXCode, DateTime start, DateTime end)
+    {
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", start));
+      paramList.Add(new PgSqlParameter("@P2", end));
+      paramList.Add(new PgSqlParameter("@P3", ASXCode));
+      List<DBAccess.DivPaid> dividendList = new List<DBAccess.DivPaid>();
+      if (!DBAccess.GetDividendPaidRecords(paramList, out dividendList, DBAccess.DividendPaidFieldList, " AND dvp_exdividenddate BETWEEN @P1 AND @P2 AND dvp_asxcode = @P3  ", string.Empty, false))
+        return 0M;
+
+        return dividendList.Sum(x => x.AmtPaidPerShare * x.QtyShares);
+
+
+    }
+
+    private void dgvDivTrade_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+    {
+      if (e.ColumnIndex == _previousIndex)
+        _sortDirection ^= true; // toggle direction
+
+      dgvDivTrade.DataSource = SortDivTradeData(
+          (List<DivTradeTotals>)DivTradeBindingSource.DataSource, dgvDivTrade.Columns[e.ColumnIndex].Name, _sortDirection);
+
+      _previousIndex = e.ColumnIndex;
+    }
+
+    public List<DivTradeTotals> SortDivTradeData(List<DivTradeTotals> list, string column, bool ascending)
+    {
+      try
+      {
+        return ascending ?
+           /* RefreshId( */ list.OrderBy(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /* ) */ :
+           /* RefreshId( */ list.OrderByDescending(_ => _.GetType().GetProperty(column).GetValue(_)).ToList() /*) */;
+      }
+      catch
+      { }
+      return list;
+    }
     // ***************************  Dividend & Trading Profit Chart  **************************************
 
-      public class chartEntry
+    public class chartEntry
     {
       public DateTime date { get; set; }
       public decimal entry { get; set; }
