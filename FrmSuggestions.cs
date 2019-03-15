@@ -315,7 +315,9 @@ namespace ShareTrading
         uCode = transList.Select(x => x.ASXCode).Distinct().ToList();
       foreach (string code in uCode)
       {
-        // For each ASXCode, get todays price and work out the percentages
+
+        // For each ASXCode
+        // get todays price and work out the percentages
         List<DBAccess.ASXPriceDate> todaysPrice = null;
         DateTime dt = DateTime.MinValue;
         Decimal prc = 0M;
@@ -435,9 +437,18 @@ namespace ShareTrading
             continue;
         }
 
+        // Calculate Volatility
+        buyVolatility res = calculateVolatility(sug.BuyASXCode, dt);
+        if (res != null)
+        {
+          sug.BuyAvg3DayMove = res.Avg3DayMove;
+          sug.Buy30DayMove = res.ThirtyDayMove;
+          sug.BuyMoveRatio = res.MoveRatio;
+        }
         suggestList.Add(sug);
 
       }
+
       suggestList = suggestList.OrderBy(x => x.BuyPctGain).ToList();
       populate5DayMinGrid(suggestList);
       // 
@@ -445,6 +456,86 @@ namespace ShareTrading
       ToBuyBindingSource.DataSource = suggestList;
       dgvToBuy.DataSource = ToBuyBindingSource;
       dgvToBuy.Refresh();
+
+    }
+    public buyVolatility calculateVolatility(string ASXCode, DateTime dt)
+    {
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P5", ASXCode));
+      paramList.Add(new PgSqlParameter("@P7", dt));
+      paramList.Add(new PgSqlParameter("@P6", dt.AddDays(-70)));
+      List<DBAccess.ASXPriceDate> list = null;
+      if (!DBAccess.GetPriceRecords(paramList, out list, DBAccess.ASXPriceDateFieldList, " AND apd_asxcode = @P5 AND apd_pricedate BETWEEN @P6 AND @P7 ", "ORDER BY apd_pricedate ASC ", false))
+      {
+        // no prices for this ASX Code so we'll pretend
+        return new buyVolatility();
+      }
+      List<DayMove> threeDayMoveList = calcDayMove(list, 3, 20);
+      List<DayMove> thirtyDayMoveList = calcDayMove(list, 20, 20);
+
+      DayMove threeDayRec = threeDayMoveList[threeDayMoveList.Count -1];
+      DayMove thirtyDayRec = thirtyDayMoveList[thirtyDayMoveList.Count - 1];
+      if (thirtyDayRec.dayMovePrice == 0M)
+        thirtyDayRec.dayMovePrice = 1;
+      return new buyVolatility { Avg3DayMove = threeDayRec.avgDayMovePrice, ThirtyDayMove = thirtyDayRec.dayMovePrice, MoveRatio = threeDayRec.avgDayMovePrice / thirtyDayRec.dayMovePrice  };
+    }
+    public class DayMove
+    {
+      public DateTime priceDate { get; set; }
+      public decimal prcHigh { get; set; }
+      public decimal prcLow { get; set; }
+      public decimal prcClose { get; set; }
+      public decimal dayMovePrice { get; set; }
+      public decimal avgDayMovePrice { get; set; }
+    }
+
+    public List<DayMove> calcDayMove(List<DBAccess.ASXPriceDate> input, int nrDays, int avgOver)
+    {
+      if (nrDays > 3)
+      { };
+        List<DayMove> x = new List<DayMove>();
+        List<DayMove> output = new List<DayMove>();
+        for (int i = 0; i < input.Count; i++)
+        {
+          if (i < nrDays)
+          {
+            x.Add(new DayMove { priceDate = input[i].PriceDate, prcHigh = input[i].PrcHigh, prcLow = input[i].PrcLow, prcClose = input[i].PrcClose, dayMovePrice = 0M, avgDayMovePrice = 0M });
+            output.Add(x[x.Count - 1]);
+            continue;
+          }
+          x.Add(new DayMove
+          {
+            priceDate = input[i].PriceDate,
+            prcHigh = input[i].PrcHigh,
+            prcLow = input[i].PrcLow,
+            prcClose = input[i].PrcClose,
+            dayMovePrice = (x.Select(y => y.prcHigh).Max() - x.Select(y => y.prcLow).Min()) * 100 / x[x.Count -1].prcClose,
+            avgDayMovePrice = 0M
+      });
+        
+        if ( i == input.Count() - 1)
+        {
+
+        }
+        x[x.Count() -1].avgDayMovePrice = output.Skip(output.Count() - avgOver).Select(z => z.dayMovePrice).Average();
+        output.Add(x[x.Count - 1]);
+        x.RemoveAt(0);
+        }
+        return output;
+    }
+
+    public class buyVolatility
+    {
+      public decimal Avg3DayMove { get; set;  }
+      public decimal ThirtyDayMove { get; set; }
+      public decimal MoveRatio { get; set; }
+      public buyVolatility()
+      {
+        Avg3DayMove = 0M;
+        ThirtyDayMove = 0M;
+        MoveRatio = 0M;
+      }
 
     }
 
@@ -464,6 +555,9 @@ namespace ShareTrading
       public decimal BuyPctROI { get; set; }
       public decimal BuyPctYearROI { get; set; }
       public Boolean BuyDividendForecast { get; set; }
+      public decimal BuyAvg3DayMove { get; set; }
+      public decimal Buy30DayMove { get; set; }
+      public decimal BuyMoveRatio { get; set; }
 
 
     }
