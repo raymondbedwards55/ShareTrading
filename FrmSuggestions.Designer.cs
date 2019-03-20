@@ -44,6 +44,21 @@
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle30 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle15 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle16 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle17 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle18 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle19 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle20 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle21 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle22 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle23 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle24 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle25 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle26 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle27 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle28 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle29 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle31 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle43 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle32 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -80,23 +95,9 @@
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle60 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle61 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle62 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle64 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle63 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle15 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle16 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle17 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle18 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle19 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle20 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle21 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle22 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle23 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle24 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle25 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle26 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle27 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle28 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle29 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle64 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle65 = new System.Windows.Forms.DataGridViewCellStyle();
       this.dgvToSell = new System.Windows.Forms.DataGridView();
       this.ASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.LastDividendAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -119,11 +120,29 @@
       this.tabSells = new System.Windows.Forms.TabControl();
       this.Sells = new System.Windows.Forms.TabPage();
       this.Buys = new System.Windows.Forms.TabPage();
+      this.tbxUnitPrice = new ShareTrading.UI.CurrencyTextbox();
       this.label2 = new System.Windows.Forms.Label();
       this.label1 = new System.Windows.Forms.Label();
       this.dtpLastDivDate = new System.Windows.Forms.DateTimePicker();
       this.chbAll = new System.Windows.Forms.CheckBox();
       this.dgvToBuy = new System.Windows.Forms.DataGridView();
+      this.BuyASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.BuyLastDividendAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.BuyLastDivDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.BuyDividendForecast = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+      this.BuyHighlightDiv = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+      this.BuySOH = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.SellDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.BuyDaysHeld = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.UnitSellPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.BuyTodaysUnitPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.BuyPctGain = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.BuyPctYear = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.BuyPctROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.BuyPctYearROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.BuyAvg3DayMove = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.Buy30DayMove = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.BuyMoveRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.ToBuyBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.ReBuys = new System.Windows.Forms.TabPage();
       this.dgvToReBuy = new System.Windows.Forms.DataGridView();
@@ -207,47 +226,29 @@
       this.tabControl1 = new System.Windows.Forms.TabControl();
       this.tabPage7 = new System.Windows.Forms.TabPage();
       this.dgvDivTrade = new System.Windows.Forms.DataGridView();
-      this.DivTradeBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.divTradeASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.divTradeTradeTotal = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.divTradeDivTotal = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.divTradeTotal = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.DivTradeBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.tabPage1 = new System.Windows.Forms.TabPage();
-      this.tabPage2 = new System.Windows.Forms.TabPage();
       this.dgvYrDivTrade = new System.Windows.Forms.DataGridView();
-      this.dgvDivList = new System.Windows.Forms.DataGridView();
-      this.YrDivTradeBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.YrASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.YrTradeTotal = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.YrDivTotal = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.YrTotal = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.YrDivTradeBindingSource = new System.Windows.Forms.BindingSource(this.components);
+      this.tabPage2 = new System.Windows.Forms.TabPage();
+      this.dgvDivList = new System.Windows.Forms.DataGridView();
       this.DivListBindingSource = new System.Windows.Forms.BindingSource(this.components);
-      this.DivPdFrCrt = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.DivPdGrossDiv = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.DivPdTotal = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.DivPdQtyShares = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.DivPdAmtPaid = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.DivPdDatePaid = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.DivPdExDivDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.DivPdASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.tbxUnitPrice = new ShareTrading.UI.CurrencyTextbox();
-      this.BuyASXCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.BuyLastDividendAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.BuyLastDivDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.BuyDividendForecast = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-      this.BuyHighlightDiv = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-      this.BuySOH = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.SellDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.BuyDaysHeld = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.UnitSellPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.BuyTodaysUnitPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.BuyPctGain = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.BuyPctYear = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.BuyPctROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.BuyPctYearROI = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.BuyAvg3DayMove = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.Buy30DayMove = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.BuyMoveRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.DivPdExDivDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.DivPdDatePaid = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.DivPdAmtPaid = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.DivPdQtyShares = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.DivPdTotal = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.DivPdGrossDiv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.DivPdFrCrt = new System.Windows.Forms.DataGridViewTextBoxColumn();
       ((System.ComponentModel.ISupportInitialize)(this.dgvToSell)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.ToSellBindingSource)).BeginInit();
       this.toolStrip1.SuspendLayout();
@@ -278,10 +279,10 @@
       ((System.ComponentModel.ISupportInitialize)(this.dgvDivTrade)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.DivTradeBindingSource)).BeginInit();
       this.tabPage1.SuspendLayout();
-      this.tabPage2.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.dgvYrDivTrade)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.dgvDivList)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.YrDivTradeBindingSource)).BeginInit();
+      this.tabPage2.SuspendLayout();
+      ((System.ComponentModel.ISupportInitialize)(this.dgvDivList)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.DivListBindingSource)).BeginInit();
       this.SuspendLayout();
       // 
@@ -554,6 +555,14 @@
       this.Buys.Text = "Buys";
       this.Buys.UseVisualStyleBackColor = true;
       // 
+      // tbxUnitPrice
+      // 
+      this.tbxUnitPrice.Location = new System.Drawing.Point(888, 7);
+      this.tbxUnitPrice.Name = "tbxUnitPrice";
+      this.tbxUnitPrice.Size = new System.Drawing.Size(100, 20);
+      this.tbxUnitPrice.TabIndex = 6;
+      this.tbxUnitPrice.WorkingText = null;
+      // 
       // label2
       // 
       this.label2.AutoSize = true;
@@ -642,6 +651,183 @@
       this.dgvToBuy.TabIndex = 0;
       this.dgvToBuy.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvToBuy_CellFormatting);
       this.dgvToBuy.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvToBuy_ColumnHeaderMouseClick);
+      // 
+      // BuyASXCode
+      // 
+      this.BuyASXCode.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+      this.BuyASXCode.DataPropertyName = "BuyASXCode";
+      dataGridViewCellStyle15.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+      this.BuyASXCode.DefaultCellStyle = dataGridViewCellStyle15;
+      this.BuyASXCode.HeaderText = "ASX Code";
+      this.BuyASXCode.Name = "BuyASXCode";
+      this.BuyASXCode.ReadOnly = true;
+      // 
+      // BuyLastDividendAmount
+      // 
+      this.BuyLastDividendAmount.DataPropertyName = "BuyLastDividendAmount";
+      dataGridViewCellStyle16.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+      dataGridViewCellStyle16.Format = "N2";
+      dataGridViewCellStyle16.NullValue = "0";
+      this.BuyLastDividendAmount.DefaultCellStyle = dataGridViewCellStyle16;
+      this.BuyLastDividendAmount.HeaderText = "Last Dividend %";
+      this.BuyLastDividendAmount.Name = "BuyLastDividendAmount";
+      this.BuyLastDividendAmount.Width = 50;
+      // 
+      // BuyLastDivDate
+      // 
+      this.BuyLastDivDate.DataPropertyName = "BuyLastDivDate";
+      dataGridViewCellStyle17.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+      dataGridViewCellStyle17.NullValue = null;
+      this.BuyLastDivDate.DefaultCellStyle = dataGridViewCellStyle17;
+      this.BuyLastDivDate.HeaderText = "Last Dividend Date";
+      this.BuyLastDivDate.Name = "BuyLastDivDate";
+      this.BuyLastDivDate.ReadOnly = true;
+      this.BuyLastDivDate.Width = 90;
+      // 
+      // BuyDividendForecast
+      // 
+      this.BuyDividendForecast.DataPropertyName = "BuyDividendForecast";
+      this.BuyDividendForecast.HeaderText = "Forecast?";
+      this.BuyDividendForecast.Name = "BuyDividendForecast";
+      this.BuyDividendForecast.Width = 60;
+      // 
+      // BuyHighlightDiv
+      // 
+      this.BuyHighlightDiv.DataPropertyName = "BuyHighlightDiv";
+      this.BuyHighlightDiv.HeaderText = "Highlight";
+      this.BuyHighlightDiv.Name = "BuyHighlightDiv";
+      this.BuyHighlightDiv.Visible = false;
+      this.BuyHighlightDiv.Width = 60;
+      // 
+      // BuySOH
+      // 
+      this.BuySOH.DataPropertyName = "BuySOH";
+      dataGridViewCellStyle18.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+      dataGridViewCellStyle18.Format = "N0";
+      dataGridViewCellStyle18.NullValue = "0";
+      this.BuySOH.DefaultCellStyle = dataGridViewCellStyle18;
+      this.BuySOH.HeaderText = "Last Sell Qty";
+      this.BuySOH.Name = "BuySOH";
+      this.BuySOH.ReadOnly = true;
+      this.BuySOH.Width = 80;
+      // 
+      // SellDate
+      // 
+      this.SellDate.DataPropertyName = "SellDate";
+      dataGridViewCellStyle19.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+      dataGridViewCellStyle19.Format = "d";
+      dataGridViewCellStyle19.NullValue = null;
+      this.SellDate.DefaultCellStyle = dataGridViewCellStyle19;
+      this.SellDate.HeaderText = "Sell Date";
+      this.SellDate.Name = "SellDate";
+      this.SellDate.ReadOnly = true;
+      this.SellDate.Width = 80;
+      // 
+      // BuyDaysHeld
+      // 
+      this.BuyDaysHeld.DataPropertyName = "BuyDaysHeld";
+      dataGridViewCellStyle20.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+      dataGridViewCellStyle20.Format = "N0";
+      dataGridViewCellStyle20.NullValue = "0";
+      this.BuyDaysHeld.DefaultCellStyle = dataGridViewCellStyle20;
+      this.BuyDaysHeld.HeaderText = "Days Since Sold";
+      this.BuyDaysHeld.Name = "BuyDaysHeld";
+      this.BuyDaysHeld.ReadOnly = true;
+      this.BuyDaysHeld.Width = 50;
+      // 
+      // UnitSellPrice
+      // 
+      this.UnitSellPrice.DataPropertyName = "UnitSellPrice";
+      dataGridViewCellStyle21.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+      dataGridViewCellStyle21.Format = "C3";
+      dataGridViewCellStyle21.NullValue = "0";
+      this.UnitSellPrice.DefaultCellStyle = dataGridViewCellStyle21;
+      this.UnitSellPrice.HeaderText = "Unit Sell Price";
+      this.UnitSellPrice.Name = "UnitSellPrice";
+      this.UnitSellPrice.ReadOnly = true;
+      this.UnitSellPrice.Width = 80;
+      // 
+      // BuyTodaysUnitPrice
+      // 
+      this.BuyTodaysUnitPrice.DataPropertyName = "BuyTodaysUnitPrice";
+      dataGridViewCellStyle22.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+      dataGridViewCellStyle22.Format = "C3";
+      dataGridViewCellStyle22.NullValue = "0";
+      this.BuyTodaysUnitPrice.DefaultCellStyle = dataGridViewCellStyle22;
+      this.BuyTodaysUnitPrice.HeaderText = "Todays Unit Price";
+      this.BuyTodaysUnitPrice.Name = "BuyTodaysUnitPrice";
+      this.BuyTodaysUnitPrice.ReadOnly = true;
+      this.BuyTodaysUnitPrice.Width = 80;
+      // 
+      // BuyPctGain
+      // 
+      this.BuyPctGain.DataPropertyName = "BuyPctGain";
+      dataGridViewCellStyle23.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+      dataGridViewCellStyle23.Format = "N2";
+      dataGridViewCellStyle23.NullValue = "0";
+      this.BuyPctGain.DefaultCellStyle = dataGridViewCellStyle23;
+      this.BuyPctGain.HeaderText = "%";
+      this.BuyPctGain.Name = "BuyPctGain";
+      this.BuyPctGain.ReadOnly = true;
+      this.BuyPctGain.Width = 50;
+      // 
+      // BuyPctYear
+      // 
+      this.BuyPctYear.DataPropertyName = "BuyPctYear";
+      dataGridViewCellStyle24.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+      dataGridViewCellStyle24.Format = "N2";
+      dataGridViewCellStyle24.NullValue = "0";
+      this.BuyPctYear.DefaultCellStyle = dataGridViewCellStyle24;
+      this.BuyPctYear.HeaderText = "% Year";
+      this.BuyPctYear.Name = "BuyPctYear";
+      this.BuyPctYear.ReadOnly = true;
+      this.BuyPctYear.Width = 60;
+      // 
+      // BuyPctROI
+      // 
+      this.BuyPctROI.DataPropertyName = "BuyPctROI";
+      dataGridViewCellStyle25.Format = "N2";
+      dataGridViewCellStyle25.NullValue = null;
+      this.BuyPctROI.DefaultCellStyle = dataGridViewCellStyle25;
+      this.BuyPctROI.HeaderText = " % ROI";
+      this.BuyPctROI.Name = "BuyPctROI";
+      this.BuyPctROI.Width = 60;
+      // 
+      // BuyPctYearROI
+      // 
+      this.BuyPctYearROI.DataPropertyName = "BuyPctYearROI";
+      dataGridViewCellStyle26.Format = "N2";
+      this.BuyPctYearROI.DefaultCellStyle = dataGridViewCellStyle26;
+      this.BuyPctYearROI.HeaderText = "Year % ROI";
+      this.BuyPctYearROI.Name = "BuyPctYearROI";
+      this.BuyPctYearROI.Width = 60;
+      // 
+      // BuyAvg3DayMove
+      // 
+      this.BuyAvg3DayMove.DataPropertyName = "BuyAvg3DayMove";
+      dataGridViewCellStyle27.Format = "N2";
+      this.BuyAvg3DayMove.DefaultCellStyle = dataGridViewCellStyle27;
+      this.BuyAvg3DayMove.HeaderText = "Avg 3 Day Move";
+      this.BuyAvg3DayMove.Name = "BuyAvg3DayMove";
+      this.BuyAvg3DayMove.Width = 80;
+      // 
+      // Buy30DayMove
+      // 
+      this.Buy30DayMove.DataPropertyName = "Buy30DayMove";
+      dataGridViewCellStyle28.Format = "N2";
+      this.Buy30DayMove.DefaultCellStyle = dataGridViewCellStyle28;
+      this.Buy30DayMove.HeaderText = "30 Day Move";
+      this.Buy30DayMove.Name = "Buy30DayMove";
+      this.Buy30DayMove.Width = 80;
+      // 
+      // BuyMoveRatio
+      // 
+      this.BuyMoveRatio.DataPropertyName = "BuyMoveRatio";
+      dataGridViewCellStyle29.Format = "N2";
+      this.BuyMoveRatio.DefaultCellStyle = dataGridViewCellStyle29;
+      this.BuyMoveRatio.HeaderText = "Move Ratio";
+      this.BuyMoveRatio.Name = "BuyMoveRatio";
+      this.BuyMoveRatio.Width = 50;
       // 
       // ToBuyBindingSource
       // 
@@ -1438,10 +1624,6 @@
       this.dgvDivTrade.TabIndex = 0;
       this.dgvDivTrade.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvDivTrade_ColumnHeaderMouseClick);
       // 
-      // DivTradeBindingSource
-      // 
-      this.DivTradeBindingSource.DataSource = typeof(ShareTrading.FrmSuggestions.DivTradeTotals);
-      // 
       // divTradeASXCode
       // 
       this.divTradeASXCode.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
@@ -1478,6 +1660,10 @@
       this.divTradeTotal.Name = "divTradeTotal";
       this.divTradeTotal.ReadOnly = true;
       // 
+      // DivTradeBindingSource
+      // 
+      this.DivTradeBindingSource.DataSource = typeof(ShareTrading.FrmSuggestions.DivTradeTotals);
+      // 
       // tabPage1
       // 
       this.tabPage1.Controls.Add(this.dgvYrDivTrade);
@@ -1487,16 +1673,6 @@
       this.tabPage1.TabIndex = 7;
       this.tabPage1.Text = "Yr Trades/Dividends";
       this.tabPage1.UseVisualStyleBackColor = true;
-      // 
-      // tabPage2
-      // 
-      this.tabPage2.Controls.Add(this.dgvDivList);
-      this.tabPage2.Location = new System.Drawing.Point(4, 22);
-      this.tabPage2.Name = "tabPage2";
-      this.tabPage2.Size = new System.Drawing.Size(501, 510);
-      this.tabPage2.TabIndex = 8;
-      this.tabPage2.Text = "Dividend List";
-      this.tabPage2.UseVisualStyleBackColor = true;
       // 
       // dgvYrDivTrade
       // 
@@ -1514,32 +1690,6 @@
       this.dgvYrDivTrade.Size = new System.Drawing.Size(495, 504);
       this.dgvYrDivTrade.TabIndex = 1;
       this.dgvYrDivTrade.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvYrDivTrade_ColumnHeaderMouseClick);
-      // 
-      // dgvDivList
-      // 
-      this.dgvDivList.AutoGenerateColumns = false;
-      this.dgvDivList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-      this.dgvDivList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.DivPdASXCode,
-            this.DivPdExDivDate,
-            this.DivPdDatePaid,
-            this.DivPdAmtPaid,
-            this.DivPdQtyShares,
-            this.DivPdTotal,
-            this.DivPdGrossDiv,
-            this.DivPdFrCrt});
-      this.dgvDivList.DataSource = this.DivListBindingSource;
-      this.dgvDivList.Location = new System.Drawing.Point(3, 3);
-      this.dgvDivList.Name = "dgvDivList";
-      this.dgvDivList.ReadOnly = true;
-      this.dgvDivList.Size = new System.Drawing.Size(495, 504);
-      this.dgvDivList.TabIndex = 2;
-      this.dgvDivList.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvDivList_ColumnHeaderMouseClick);
-      // 
-      // YrDivTradeBindingSource
-      // 
-      this.YrDivTradeBindingSource.AllowNew = false;
-      this.YrDivTradeBindingSource.DataSource = typeof(ShareTrading.FrmSuggestions.YrDivTradeTotals);
       // 
       // YrASXCode
       // 
@@ -1576,65 +1726,46 @@
       this.YrTotal.Name = "YrTotal";
       this.YrTotal.ReadOnly = true;
       // 
+      // YrDivTradeBindingSource
+      // 
+      this.YrDivTradeBindingSource.AllowNew = false;
+      this.YrDivTradeBindingSource.DataSource = typeof(ShareTrading.FrmSuggestions.YrDivTradeTotals);
+      // 
+      // tabPage2
+      // 
+      this.tabPage2.Controls.Add(this.dgvDivList);
+      this.tabPage2.Location = new System.Drawing.Point(4, 22);
+      this.tabPage2.Name = "tabPage2";
+      this.tabPage2.Size = new System.Drawing.Size(501, 510);
+      this.tabPage2.TabIndex = 8;
+      this.tabPage2.Text = "Dividend List";
+      this.tabPage2.UseVisualStyleBackColor = true;
+      // 
+      // dgvDivList
+      // 
+      this.dgvDivList.AutoGenerateColumns = false;
+      this.dgvDivList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+      this.dgvDivList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.DivPdASXCode,
+            this.DivPdExDivDate,
+            this.DivPdDatePaid,
+            this.DivPdAmtPaid,
+            this.DivPdQtyShares,
+            this.DivPdTotal,
+            this.DivPdGrossDiv,
+            this.DivPdFrCrt});
+      this.dgvDivList.DataSource = this.DivListBindingSource;
+      this.dgvDivList.Location = new System.Drawing.Point(3, 3);
+      this.dgvDivList.Name = "dgvDivList";
+      this.dgvDivList.ReadOnly = true;
+      this.dgvDivList.Size = new System.Drawing.Size(495, 504);
+      this.dgvDivList.TabIndex = 2;
+      this.dgvDivList.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvDivList_ColumnHeaderMouseClick);
+      // 
       // DivListBindingSource
       // 
       this.DivListBindingSource.AllowNew = false;
       this.DivListBindingSource.DataSource = typeof(ShareTrading.FrmSuggestions.DivPdList);
-      // 
-      // DivPdFrCrt
-      // 
-      this.DivPdFrCrt.DataPropertyName = "DivPdFrCrt";
-      this.DivPdFrCrt.HeaderText = "Fr Cr";
-      this.DivPdFrCrt.Name = "DivPdFrCrt";
-      this.DivPdFrCrt.ReadOnly = true;
-      // 
-      // DivPdGrossDiv
-      // 
-      this.DivPdGrossDiv.DataPropertyName = "DivPdGrossDiv";
-      this.DivPdGrossDiv.HeaderText = "Gross Div";
-      this.DivPdGrossDiv.Name = "DivPdGrossDiv";
-      this.DivPdGrossDiv.ReadOnly = true;
-      // 
-      // DivPdTotal
-      // 
-      this.DivPdTotal.DataPropertyName = "DivPdTotal";
-      this.DivPdTotal.HeaderText = "Total";
-      this.DivPdTotal.Name = "DivPdTotal";
-      this.DivPdTotal.ReadOnly = true;
-      // 
-      // DivPdQtyShares
-      // 
-      this.DivPdQtyShares.DataPropertyName = "DivPdQtyShares";
-      dataGridViewCellStyle64.Format = "N0";
-      dataGridViewCellStyle64.NullValue = null;
-      this.DivPdQtyShares.DefaultCellStyle = dataGridViewCellStyle64;
-      this.DivPdQtyShares.HeaderText = "Qty Shares";
-      this.DivPdQtyShares.Name = "DivPdQtyShares";
-      this.DivPdQtyShares.ReadOnly = true;
-      // 
-      // DivPdAmtPaid
-      // 
-      this.DivPdAmtPaid.DataPropertyName = "DivPdAmtPaid";
-      dataGridViewCellStyle63.Format = "C2";
-      this.DivPdAmtPaid.DefaultCellStyle = dataGridViewCellStyle63;
-      this.DivPdAmtPaid.HeaderText = "Amt Paid";
-      this.DivPdAmtPaid.Name = "DivPdAmtPaid";
-      this.DivPdAmtPaid.ReadOnly = true;
-      // 
-      // DivPdDatePaid
-      // 
-      this.DivPdDatePaid.DataPropertyName = "DivPdDatePaid";
-      this.DivPdDatePaid.HeaderText = "Date Paid";
-      this.DivPdDatePaid.Name = "DivPdDatePaid";
-      this.DivPdDatePaid.ReadOnly = true;
-      // 
-      // DivPdExDivDate
-      // 
-      this.DivPdExDivDate.DataPropertyName = "DivPdExDivDate";
-      this.DivPdExDivDate.HeaderText = "DivPdExDivDate";
-      this.DivPdExDivDate.Name = "DivPdExDivDate";
-      this.DivPdExDivDate.ReadOnly = true;
-      this.DivPdExDivDate.Visible = false;
       // 
       // DivPdASXCode
       // 
@@ -1644,190 +1775,63 @@
       this.DivPdASXCode.ReadOnly = true;
       this.DivPdASXCode.Width = 60;
       // 
-      // tbxUnitPrice
+      // DivPdExDivDate
       // 
-      this.tbxUnitPrice.Location = new System.Drawing.Point(888, 7);
-      this.tbxUnitPrice.Name = "tbxUnitPrice";
-      this.tbxUnitPrice.Size = new System.Drawing.Size(100, 20);
-      this.tbxUnitPrice.TabIndex = 6;
-      this.tbxUnitPrice.WorkingText = null;
+      this.DivPdExDivDate.DataPropertyName = "DivPdExDivDate";
+      dataGridViewCellStyle63.Format = "C2";
+      dataGridViewCellStyle63.NullValue = null;
+      this.DivPdExDivDate.DefaultCellStyle = dataGridViewCellStyle63;
+      this.DivPdExDivDate.HeaderText = "Ex Div Date";
+      this.DivPdExDivDate.Name = "DivPdExDivDate";
+      this.DivPdExDivDate.ReadOnly = true;
       // 
-      // BuyASXCode
+      // DivPdDatePaid
       // 
-      this.BuyASXCode.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-      this.BuyASXCode.DataPropertyName = "BuyASXCode";
-      dataGridViewCellStyle15.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-      this.BuyASXCode.DefaultCellStyle = dataGridViewCellStyle15;
-      this.BuyASXCode.HeaderText = "ASX Code";
-      this.BuyASXCode.Name = "BuyASXCode";
-      this.BuyASXCode.ReadOnly = true;
+      this.DivPdDatePaid.DataPropertyName = "DivPdDatePaid";
+      this.DivPdDatePaid.HeaderText = "Date Paid";
+      this.DivPdDatePaid.Name = "DivPdDatePaid";
+      this.DivPdDatePaid.ReadOnly = true;
+      this.DivPdDatePaid.Visible = false;
       // 
-      // BuyLastDividendAmount
+      // DivPdAmtPaid
       // 
-      this.BuyLastDividendAmount.DataPropertyName = "BuyLastDividendAmount";
-      dataGridViewCellStyle16.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-      dataGridViewCellStyle16.Format = "N2";
-      dataGridViewCellStyle16.NullValue = "0";
-      this.BuyLastDividendAmount.DefaultCellStyle = dataGridViewCellStyle16;
-      this.BuyLastDividendAmount.HeaderText = "Last Dividend %";
-      this.BuyLastDividendAmount.Name = "BuyLastDividendAmount";
-      this.BuyLastDividendAmount.Width = 50;
+      this.DivPdAmtPaid.DataPropertyName = "DivPdAmtPaid";
+      dataGridViewCellStyle64.Format = "C2";
+      this.DivPdAmtPaid.DefaultCellStyle = dataGridViewCellStyle64;
+      this.DivPdAmtPaid.HeaderText = "Amt Paid";
+      this.DivPdAmtPaid.Name = "DivPdAmtPaid";
+      this.DivPdAmtPaid.ReadOnly = true;
       // 
-      // BuyLastDivDate
+      // DivPdQtyShares
       // 
-      this.BuyLastDivDate.DataPropertyName = "BuyLastDivDate";
-      dataGridViewCellStyle17.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-      dataGridViewCellStyle17.NullValue = null;
-      this.BuyLastDivDate.DefaultCellStyle = dataGridViewCellStyle17;
-      this.BuyLastDivDate.HeaderText = "Last Dividend Date";
-      this.BuyLastDivDate.Name = "BuyLastDivDate";
-      this.BuyLastDivDate.ReadOnly = true;
-      this.BuyLastDivDate.Width = 90;
+      this.DivPdQtyShares.DataPropertyName = "DivPdQtyShares";
+      dataGridViewCellStyle65.Format = "N0";
+      dataGridViewCellStyle65.NullValue = null;
+      this.DivPdQtyShares.DefaultCellStyle = dataGridViewCellStyle65;
+      this.DivPdQtyShares.HeaderText = "Qty Shares";
+      this.DivPdQtyShares.Name = "DivPdQtyShares";
+      this.DivPdQtyShares.ReadOnly = true;
       // 
-      // BuyDividendForecast
+      // DivPdTotal
       // 
-      this.BuyDividendForecast.DataPropertyName = "BuyDividendForecast";
-      this.BuyDividendForecast.HeaderText = "Forecast?";
-      this.BuyDividendForecast.Name = "BuyDividendForecast";
-      this.BuyDividendForecast.Width = 60;
+      this.DivPdTotal.DataPropertyName = "DivPdTotal";
+      this.DivPdTotal.HeaderText = "Total";
+      this.DivPdTotal.Name = "DivPdTotal";
+      this.DivPdTotal.ReadOnly = true;
       // 
-      // BuyHighlightDiv
+      // DivPdGrossDiv
       // 
-      this.BuyHighlightDiv.DataPropertyName = "BuyHighlightDiv";
-      this.BuyHighlightDiv.HeaderText = "Highlight";
-      this.BuyHighlightDiv.Name = "BuyHighlightDiv";
-      this.BuyHighlightDiv.Visible = false;
-      this.BuyHighlightDiv.Width = 60;
+      this.DivPdGrossDiv.DataPropertyName = "DivPdGrossDiv";
+      this.DivPdGrossDiv.HeaderText = "Gross Div";
+      this.DivPdGrossDiv.Name = "DivPdGrossDiv";
+      this.DivPdGrossDiv.ReadOnly = true;
       // 
-      // BuySOH
+      // DivPdFrCrt
       // 
-      this.BuySOH.DataPropertyName = "BuySOH";
-      dataGridViewCellStyle18.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-      dataGridViewCellStyle18.Format = "N0";
-      dataGridViewCellStyle18.NullValue = "0";
-      this.BuySOH.DefaultCellStyle = dataGridViewCellStyle18;
-      this.BuySOH.HeaderText = "Last Sell Qty";
-      this.BuySOH.Name = "BuySOH";
-      this.BuySOH.ReadOnly = true;
-      this.BuySOH.Width = 80;
-      // 
-      // SellDate
-      // 
-      this.SellDate.DataPropertyName = "SellDate";
-      dataGridViewCellStyle19.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-      dataGridViewCellStyle19.Format = "d";
-      dataGridViewCellStyle19.NullValue = null;
-      this.SellDate.DefaultCellStyle = dataGridViewCellStyle19;
-      this.SellDate.HeaderText = "Sell Date";
-      this.SellDate.Name = "SellDate";
-      this.SellDate.ReadOnly = true;
-      this.SellDate.Width = 80;
-      // 
-      // BuyDaysHeld
-      // 
-      this.BuyDaysHeld.DataPropertyName = "BuyDaysHeld";
-      dataGridViewCellStyle20.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-      dataGridViewCellStyle20.Format = "N0";
-      dataGridViewCellStyle20.NullValue = "0";
-      this.BuyDaysHeld.DefaultCellStyle = dataGridViewCellStyle20;
-      this.BuyDaysHeld.HeaderText = "Days Since Sold";
-      this.BuyDaysHeld.Name = "BuyDaysHeld";
-      this.BuyDaysHeld.ReadOnly = true;
-      this.BuyDaysHeld.Width = 50;
-      // 
-      // UnitSellPrice
-      // 
-      this.UnitSellPrice.DataPropertyName = "UnitSellPrice";
-      dataGridViewCellStyle21.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-      dataGridViewCellStyle21.Format = "C3";
-      dataGridViewCellStyle21.NullValue = "0";
-      this.UnitSellPrice.DefaultCellStyle = dataGridViewCellStyle21;
-      this.UnitSellPrice.HeaderText = "Unit Sell Price";
-      this.UnitSellPrice.Name = "UnitSellPrice";
-      this.UnitSellPrice.ReadOnly = true;
-      this.UnitSellPrice.Width = 80;
-      // 
-      // BuyTodaysUnitPrice
-      // 
-      this.BuyTodaysUnitPrice.DataPropertyName = "BuyTodaysUnitPrice";
-      dataGridViewCellStyle22.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-      dataGridViewCellStyle22.Format = "C3";
-      dataGridViewCellStyle22.NullValue = "0";
-      this.BuyTodaysUnitPrice.DefaultCellStyle = dataGridViewCellStyle22;
-      this.BuyTodaysUnitPrice.HeaderText = "Todays Unit Price";
-      this.BuyTodaysUnitPrice.Name = "BuyTodaysUnitPrice";
-      this.BuyTodaysUnitPrice.ReadOnly = true;
-      this.BuyTodaysUnitPrice.Width = 80;
-      // 
-      // BuyPctGain
-      // 
-      this.BuyPctGain.DataPropertyName = "BuyPctGain";
-      dataGridViewCellStyle23.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-      dataGridViewCellStyle23.Format = "N2";
-      dataGridViewCellStyle23.NullValue = "0";
-      this.BuyPctGain.DefaultCellStyle = dataGridViewCellStyle23;
-      this.BuyPctGain.HeaderText = "%";
-      this.BuyPctGain.Name = "BuyPctGain";
-      this.BuyPctGain.ReadOnly = true;
-      this.BuyPctGain.Width = 50;
-      // 
-      // BuyPctYear
-      // 
-      this.BuyPctYear.DataPropertyName = "BuyPctYear";
-      dataGridViewCellStyle24.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-      dataGridViewCellStyle24.Format = "N2";
-      dataGridViewCellStyle24.NullValue = "0";
-      this.BuyPctYear.DefaultCellStyle = dataGridViewCellStyle24;
-      this.BuyPctYear.HeaderText = "% Year";
-      this.BuyPctYear.Name = "BuyPctYear";
-      this.BuyPctYear.ReadOnly = true;
-      this.BuyPctYear.Width = 60;
-      // 
-      // BuyPctROI
-      // 
-      this.BuyPctROI.DataPropertyName = "BuyPctROI";
-      dataGridViewCellStyle25.Format = "N2";
-      dataGridViewCellStyle25.NullValue = null;
-      this.BuyPctROI.DefaultCellStyle = dataGridViewCellStyle25;
-      this.BuyPctROI.HeaderText = " % ROI";
-      this.BuyPctROI.Name = "BuyPctROI";
-      this.BuyPctROI.Width = 60;
-      // 
-      // BuyPctYearROI
-      // 
-      this.BuyPctYearROI.DataPropertyName = "BuyPctYearROI";
-      dataGridViewCellStyle26.Format = "N2";
-      this.BuyPctYearROI.DefaultCellStyle = dataGridViewCellStyle26;
-      this.BuyPctYearROI.HeaderText = "Year % ROI";
-      this.BuyPctYearROI.Name = "BuyPctYearROI";
-      this.BuyPctYearROI.Width = 60;
-      // 
-      // BuyAvg3DayMove
-      // 
-      this.BuyAvg3DayMove.DataPropertyName = "BuyAvg3DayMove";
-      dataGridViewCellStyle27.Format = "N2";
-      this.BuyAvg3DayMove.DefaultCellStyle = dataGridViewCellStyle27;
-      this.BuyAvg3DayMove.HeaderText = "Avg 3 Day Move";
-      this.BuyAvg3DayMove.Name = "BuyAvg3DayMove";
-      this.BuyAvg3DayMove.Width = 80;
-      // 
-      // Buy30DayMove
-      // 
-      this.Buy30DayMove.DataPropertyName = "Buy30DayMove";
-      dataGridViewCellStyle28.Format = "N2";
-      this.Buy30DayMove.DefaultCellStyle = dataGridViewCellStyle28;
-      this.Buy30DayMove.HeaderText = "30 Day Move";
-      this.Buy30DayMove.Name = "Buy30DayMove";
-      this.Buy30DayMove.Width = 80;
-      // 
-      // BuyMoveRatio
-      // 
-      this.BuyMoveRatio.DataPropertyName = "BuyMoveRatio";
-      dataGridViewCellStyle29.Format = "N2";
-      this.BuyMoveRatio.DefaultCellStyle = dataGridViewCellStyle29;
-      this.BuyMoveRatio.HeaderText = "Move Ratio";
-      this.BuyMoveRatio.Name = "BuyMoveRatio";
-      this.BuyMoveRatio.Width = 50;
+      this.DivPdFrCrt.DataPropertyName = "DivPdFrCrt";
+      this.DivPdFrCrt.HeaderText = "Fr Cr";
+      this.DivPdFrCrt.Name = "DivPdFrCrt";
+      this.DivPdFrCrt.ReadOnly = true;
       // 
       // FrmSuggestions
       // 
@@ -1881,10 +1885,10 @@
       ((System.ComponentModel.ISupportInitialize)(this.dgvDivTrade)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.DivTradeBindingSource)).EndInit();
       this.tabPage1.ResumeLayout(false);
-      this.tabPage2.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(this.dgvYrDivTrade)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.dgvDivList)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.YrDivTradeBindingSource)).EndInit();
+      this.tabPage2.ResumeLayout(false);
+      ((System.ComponentModel.ISupportInitialize)(this.dgvDivList)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.DivListBindingSource)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
@@ -2026,14 +2030,6 @@
     private System.Windows.Forms.DataGridViewTextBoxColumn YrDivTotal;
     private System.Windows.Forms.DataGridViewTextBoxColumn YrTotal;
     private System.Windows.Forms.BindingSource DivListBindingSource;
-    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdASXCode;
-    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdExDivDate;
-    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdDatePaid;
-    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdAmtPaid;
-    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdQtyShares;
-    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdTotal;
-    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdGrossDiv;
-    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdFrCrt;
     private System.Windows.Forms.DataGridViewTextBoxColumn BuyASXCode;
     private System.Windows.Forms.DataGridViewTextBoxColumn BuyLastDividendAmount;
     private System.Windows.Forms.DataGridViewTextBoxColumn BuyLastDivDate;
@@ -2051,5 +2047,13 @@
     private System.Windows.Forms.DataGridViewTextBoxColumn BuyAvg3DayMove;
     private System.Windows.Forms.DataGridViewTextBoxColumn Buy30DayMove;
     private System.Windows.Forms.DataGridViewTextBoxColumn BuyMoveRatio;
+    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdASXCode;
+    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdExDivDate;
+    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdDatePaid;
+    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdAmtPaid;
+    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdQtyShares;
+    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdTotal;
+    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdGrossDiv;
+    private System.Windows.Forms.DataGridViewTextBoxColumn DivPdFrCrt;
   }
 }

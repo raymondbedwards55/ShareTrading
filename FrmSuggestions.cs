@@ -371,6 +371,7 @@ namespace ShareTrading
             continue;
           // create records to display
           DBAccess.TransRecords transRec = codeList[0];
+
           daysHeld = (DateTime.Today - transRec.TranDate.Date).Days;
           if (daysHeld < 3)
             daysHeld = 3;         // takes 3 days for the transaction to be finalised
@@ -425,10 +426,12 @@ namespace ShareTrading
         // Get the sum of Dividends & sum of Franking Credits between sell date & now
         decimal totalDividends = 0M;
         decimal totalFrCredits = 0M;
+        if (daysHeld == 0)
+          daysHeld = 3;
         if (calculateDividendTotal(sug.BuyASXCode, sug.SellDate, out totalDividends, out totalFrCredits))
         {
-          sug.BuyPctROI = sug.UnitSellPrice == 0 ? Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.BuyTodaysUnitPrice * 100, 2) : Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.UnitSellPrice * 100, 2);
-          sug.BuyPctYearROI = sug.UnitSellPrice == 0 ? Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.BuyTodaysUnitPrice * 100 * 365 / daysHeld, 2) : Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.UnitSellPrice * 100 * 365 / daysHeld, 2);
+          sug.BuyPctROI = sug.BuyTodaysUnitPrice == 0 ? 0 : sug.UnitSellPrice == 0 ? Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.BuyTodaysUnitPrice * 100, 2) : Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.UnitSellPrice * 100, 2);
+          sug.BuyPctYearROI = sug.BuyTodaysUnitPrice == 0 ? 0 : sug.UnitSellPrice == 0 ? Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.BuyTodaysUnitPrice * 100 * 365 / daysHeld, 2) : Decimal.Round(((sug.BuyTodaysUnitPrice - sug.UnitSellPrice) + totalDividends) / sug.UnitSellPrice * 100 * 365 / daysHeld, 2);
         }
 
         if (chbAll.Checked)
@@ -449,7 +452,7 @@ namespace ShareTrading
 
       }
 
-      suggestList = suggestList.OrderBy(x => x.BuyPctGain).ToList();
+      suggestList = suggestList.OrderBy(x => x.BuyPctROI).ToList();
       populate5DayMinGrid(suggestList);
       // 
       dgvToBuy.DataSource = null;
@@ -473,7 +476,6 @@ namespace ShareTrading
       }
       List<DayMove> threeDayMoveList = calcDayMove(list, 3, 20);
       List<DayMove> thirtyDayMoveList = calcDayMove(list, 20, 20);
-
       DayMove threeDayRec = threeDayMoveList[threeDayMoveList.Count -1];
       DayMove thirtyDayRec = thirtyDayMoveList[thirtyDayMoveList.Count - 1];
       if (thirtyDayRec.dayMovePrice == 0M)
@@ -494,6 +496,7 @@ namespace ShareTrading
     {
       if (nrDays > 3)
       { };
+      
         List<DayMove> x = new List<DayMove>();
         List<DayMove> output = new List<DayMove>();
         for (int i = 0; i < input.Count; i++)
@@ -510,14 +513,11 @@ namespace ShareTrading
             prcHigh = input[i].PrcHigh,
             prcLow = input[i].PrcLow,
             prcClose = input[i].PrcClose,
-            dayMovePrice = (x.Select(y => y.prcHigh).Max() - x.Select(y => y.prcLow).Min()) * 100 / x[x.Count -1].prcClose,
+            dayMovePrice = x[x.Count - 1].prcClose == 0 ? 0 : (x.Select(y => y.prcHigh).Max() - x.Select(y => y.prcLow).Min()) * 100 / x[x.Count -1].prcClose,
             avgDayMovePrice = 0M
       });
         
-        if ( i == input.Count() - 1)
-        {
 
-        }
         x[x.Count() -1].avgDayMovePrice = output.Skip(output.Count() - avgOver).Select(z => z.dayMovePrice).Average();
         output.Add(x[x.Count - 1]);
         x.RemoveAt(0);
