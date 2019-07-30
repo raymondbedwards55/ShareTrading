@@ -7,6 +7,8 @@ using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Xml;
+using Devart.Data.PostgreSql;
+
 
 namespace ShareTrading
 {
@@ -108,6 +110,7 @@ namespace ShareTrading
       }
     }
 
+
     public static void payDividend(DBAccess.DividendHistory div)
     {
       // Will this dividend be paid - must have SOH at that point
@@ -164,6 +167,8 @@ namespace ShareTrading
       // Create a request for the URL. 
       try
       {
+        if (ThisASXCode == "AMH")
+        { }
         WebRequest request = WebRequest.Create(
         "http://dividends.com.au/dividend-history/?enter_code=" + ThisASXCode);
         // If required by the server, set the credentials.

@@ -164,6 +164,17 @@ namespace ShareTrading
 
     }
 
+    public static void UpcomingDividends()
+    {
+        // Get file for Dividends
+        string response = getFileName(string.Format("Upcoming Dividends for ASX Companies - Market Index.htm"));
+
+        if (response != null)
+          parseUpcomingDividends(response);
+
+
+    }
+
     public static string  getFileName(string name)
     {
       //string filename = string.Format("c://Users//{0}////Downloads//view-source_https___www.marketindex.com.au_directors-transactions.html", Environment.UserName); // getfilename("WatchlistData");
@@ -841,6 +852,112 @@ namespace ShareTrading
               //Console.WriteLine(" =======  td =============");
               //Console.WriteLine("LINK: {0}", td_node.GetAttributeValue("href", ""));
               //Console.WriteLine("TEXT: {0}", td_node.InnerText.Trim());
+            }
+          }
+        }
+      }
+    }
+    const decimal COMPANY_TAX_RATE = 0.3M;
+    public static void parseUpcomingDividends(string response)
+    {
+      HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
+      htmlDoc.OptionFixNestedTags = true;
+      htmlDoc.LoadHtml(response.Replace("/option", ""));
+
+      // ParseErrors is an ArrayList containing any errors from the Load statement
+      if (htmlDoc.ParseErrors != null && htmlDoc.ParseErrors.Count() > 0)
+      {
+        // Handle any parse errors as required
+
+      }
+      else
+      {
+        if (htmlDoc.DocumentNode != null)
+        {
+          HtmlAgilityPack.HtmlNodeCollection tdNodeCollection = htmlDoc.DocumentNode.SelectNodes("//td");
+          if (tdNodeCollection != null)
+          {
+            int counter = 0;
+            DBAccess.DividendHistory rec = new DBAccess.DividendHistory();
+            foreach (HtmlAgilityPack.HtmlNode tdEntry in tdNodeCollection)
+            {
+              Console.WriteLine("Dividends>>" + tdEntry.InnerText + "<<");
+              if (counter == 0 && tdEntry.InnerText.Contains("Prev. Close:"))
+                break;
+              if (counter == 0)
+                rec = new DBAccess.DividendHistory();
+              bool validLine = true;
+              switch (counter)
+              {
+                case 0:           //  ASX Code
+                  rec.ASXCode = tdEntry.InnerText;
+                  break;
+                case 1:           // Company
+                  break;
+                case 2:           // Days Until Ex-Dividend
+                  break;
+                case 3:           // Ex-Dividend date
+                  DateTime t = DateTime.MinValue;
+                  validLine = DateTime.TryParse(tdEntry.InnerText.Trim(), out t);
+                  if (validLine)
+                    rec.ExDividend = t;
+                  else
+                    counter = -1;
+                  break;
+
+                case 4:           // Amount per share
+                  decimal amt = 0M;
+                  validLine = decimal.TryParse(tdEntry.InnerText.Trim().Replace("$",""), out amt);
+                  if (validLine)
+                    rec.Amount = amt;
+                  else
+                    counter = -1;
+                  break;
+                case 5:           // Franking percentage
+                  decimal pct = 0M;
+                  validLine = decimal.TryParse(tdEntry.InnerText.Trim().Replace("%",""), out pct);
+                  if (validLine)
+                  {
+                    rec.Franking = pct;
+                    rec.FrankingCredit = ((rec.Amount / (1 - COMPANY_TAX_RATE)) - rec.Amount) * pct / 100;
+                  }
+                  else
+                    counter = -1;
+                  break;
+                case 6:           // Type of Dividend
+                  break;
+                case 7:           // Date Dividend is Paid
+                  t = DateTime.MinValue;
+                  validLine = DateTime.TryParse(tdEntry.InnerText.Trim(), out t);
+                  if (validLine)
+                    rec.DatePayable = t;
+                  else
+                    counter = -1;
+                  break;
+                case 8:           // Yield %
+                  rec.DateCreated = DateTime.Now;
+                  rec.DateModified = DateTime.Now;
+                  rec.DateDeleted = DateTime.MinValue;
+                  rec.GrossDividend = rec.Amount + rec.FrankingCredit;
+
+                  // does record already exist and if not write it
+                  List<DBAccess.DividendHistory> divList = new List<DBAccess.DividendHistory>();
+                  if (!DBAccess.GetDividends(rec.ASXCode, rec.ExDividend, out divList, DBAccess.dirn.equals))
+                    DBAccess.DividendHistoryInsert(rec);
+                  else
+                  {
+                    rec.ID = divList[0].ID;
+                    DBAccess.DividendHistoryUpdate(rec);
+                  }
+                  ImportDividendHistory.payDividend(rec);
+                    counter = 0;
+                  break;
+                default:
+                  break;
+
+              }
+              counter++;
+
             }
           }
         }

@@ -1548,7 +1548,7 @@ namespace ShareTrading
 
     }
 
-    private const int TRADING_START_HR = 6;
+    private const int TRADING_START_HR = 10;
     private const int TRADING_START_MIN = 0;
     private const int TRADING_END_HR = 15;
     private const int TRADING_END_MIN = 30;
@@ -1604,13 +1604,13 @@ namespace ShareTrading
               {
                 Console.WriteLine(string.Format(">>{0}<<", co.ASXCode));
                 MarketIndexScrape.Run(co, _thisDate);
-                 //System.Threading.Thread.Sleep(1000);
+                //System.Threading.Thread.Sleep(1000);
               }
               catch { Console.WriteLine(string.Format("{0} Failed (Marketscrape)", co.ASXCode)); }
               //break;
               try
               {
-                ImportDividendHistory.ImportDividends(co.ASXCode);
+                // *** ImportDividendHistory.ImportDividends(co.ASXCode);
                 //System.Threading.Thread.Sleep(1000);
               }
               catch { Console.WriteLine(string.Format("{0} Failed (Dividends)", co.ASXCode)); }
@@ -1641,7 +1641,7 @@ namespace ShareTrading
         Console.WriteLine("About to run Dividends " + DateTime.Now.ToString());
         try
         {
-
+          MarketIndexScrape.UpcomingDividends();
           updateSystemVars(EnumHelper.GetEnumDescription(SystemsVars.dividends), wsOnight.startTime.Date.AddDays(1).AddHours(TRADING_END_HR).AddMinutes(TRADING_END_MIN), "OK", string.Format("Last Run finished at {0}", DateTime.Now.ToString()));
         }
         catch
