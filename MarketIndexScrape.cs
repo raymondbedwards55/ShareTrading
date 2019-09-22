@@ -167,7 +167,7 @@ namespace ShareTrading
     public static void UpcomingDividends()
     {
         // Get file for Dividends
-        string response = getFileName(string.Format("Upcoming Dividends for ASX Companies - Market Index.htm"));
+        string response = getFileName(string.Format("Upcoming Dividends for ASX Companies - Market Index.html"));
 
         if (response != null)
           parseUpcomingDividends(response);
@@ -891,6 +891,8 @@ namespace ShareTrading
               {
                 case 0:           //  ASX Code
                   rec.ASXCode = tdEntry.InnerText;
+                  if (rec.ASXCode == "CIM")
+                  { }
                   break;
                 case 1:           // Company
                   break;
@@ -939,18 +941,28 @@ namespace ShareTrading
                   rec.DateModified = DateTime.Now;
                   rec.DateDeleted = DateTime.MinValue;
                   rec.GrossDividend = rec.Amount + rec.FrankingCredit;
-
-                  // does record already exist and if not write it
-                  List<DBAccess.DividendHistory> divList = new List<DBAccess.DividendHistory>();
-                  if (!DBAccess.GetDividends(rec.ASXCode, rec.ExDividend, out divList, DBAccess.dirn.equals))
-                    DBAccess.DividendHistoryInsert(rec);
-                  else
+                  // if not paying a positive amount per share, don't bother 
+                  if (rec.Amount > 0M)
                   {
-                    rec.ID = divList[0].ID;
-                    DBAccess.DividendHistoryUpdate(rec);
+                    // does record already exist and if not write it
+                    List<DBAccess.DividendHistory> divList = new List<DBAccess.DividendHistory>();
+                    if (!DBAccess.GetDividends(rec.ASXCode, rec.ExDividend, out divList, DBAccess.dirn.equals))
+                    {
+                      rec.BooksClose = rec.ExDividend.AddDays(1);
+                      DBAccess.DividendHistoryInsert(rec);
+                    }
+                    else
+                    {
+                      rec.ID = divList[0].ID;
+                      if (DateTime.Compare(rec.BooksClose, DateTime.MinValue) == 0)
+                        rec.BooksClose = rec.ExDividend.AddDays(1);
+                      DBAccess.DividendHistoryUpdate(rec);
+                    }
+                    if (rec.ASXCode == "BXB")
+                    { }
+                    ImportDividendHistory.payDividend(rec);
                   }
-                  ImportDividendHistory.payDividend(rec);
-                    counter = 0;
+                    counter = -1;
                   break;
                 default:
                   break;

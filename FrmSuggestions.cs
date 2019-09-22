@@ -52,6 +52,8 @@ namespace ShareTrading
     private Boolean dividendPending(string ASXCode, int days1, int days2, out DBAccess.DividendHistory divHist)
     {
       divHist = new DBAccess.DividendHistory();
+      if (ASXCode == "CIM")
+      { }
       List<DBAccess.DividendHistory> divList = new List<DBAccess.DividendHistory>();
       string extraWhere = string.Empty;
       string orderBy = string.Empty;
@@ -1269,15 +1271,15 @@ namespace ShareTrading
         {
           case 0:
            
-            rec.qtr = getTradingProfit(startQtr, startQtr.AddMonths(3).AddDays(0));                   // Current Qtr Trading Profit
-            rec.ytd = getTradingProfit(startThisFY, startThisFY.AddMonths(12).AddDays(0));            // YTD Trading Profit
+            rec.qtr = getTradingProfit(startQtr, DateTime.Today.AddDays(1) /*startQtr.AddMonths(3).AddDays(0) */);                   // Current Qtr Trading Profit
+            rec.ytd = getTradingProfit(startThisFY, DateTime.Today.AddDays(1) /* startThisFY.AddMonths(12).AddDays(0) */);            // YTD Trading Profit
             rec.last7 = getTradingProfit(startLast7, DateTime.Today.AddDays(1));
             rec.today = getTradingProfit(DateTime.Today, DateTime.Today.AddDays(1));
             break;
           case 1:
             // Current Qtr Dividend
-            rec.qtr = getDividends(startQtr, startQtr.AddMonths(3).AddDays(0), out frCrQtr);
-            rec.ytd = getDividends(startThisFY, startThisFY.AddMonths(12).AddDays(0), out frCrYTD);         // YTD Dividends
+            rec.qtr = getDividends(startQtr, DateTime.Today.AddDays(1) /*startQtr.AddMonths(3).AddDays(0) */, out frCrQtr);
+            rec.ytd = getDividends(startThisFY, DateTime.Today.AddDays(1) /* startThisFY.AddMonths(12).AddDays(0) */, out frCrYTD);         // YTD Dividends
             rec.last7 = getDividends(startLast7, DateTime.Today.AddDays(1), out frCrLast7);         // YTD Dividends
             rec.today = getDividends(DateTime.Today, DateTime.Today.AddDays(1), out frCrToday);         // YTD Dividends
             break;

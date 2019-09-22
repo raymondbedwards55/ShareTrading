@@ -578,6 +578,8 @@ namespace ShareTrading
 
     public static  int CalculateSOHOnDivDate(DBAccess.DividendHistory divHistoryRec)
     {
+      if (divHistoryRec.ASXCode == "BXB")
+      { }
       int SOHonDividendDate = 0;
       // foreach Buy before the ex-Dividend date, add SOH to totalremainingStock (may be zero)
       List<DBAccess.TransRecords> buyList = null;
@@ -590,6 +592,8 @@ namespace ShareTrading
         foreach (DBAccess.TransRecords rec in buyList)
         {
           SOHonDividendDate += rec.SOH;
+          if (SOHonDividendDate > 1000)
+          { }
           //  get related Sell records and if Sell if after the ex Dividend Date, then add SOH to totalRemainingStock
           List<DBAccess.RelatedBuySellTrans> relatedList = new List<DBAccess.RelatedBuySellTrans>();
           if (DBAccess.GetAllRelated(rec.ID, 0, out relatedList))

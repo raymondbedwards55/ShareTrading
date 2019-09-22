@@ -1553,9 +1553,35 @@ namespace ShareTrading
     private const int TRADING_END_HR = 15;
     private const int TRADING_END_MIN = 30;
 
+    private void fixHistory()
+    {
+      DBAccess.DividendHistory divHist = new DBAccess.DividendHistory();
+      List<DBAccess.DividendHistory> divList = new List<DBAccess.DividendHistory>();
+      string extraWhere = string.Empty;
+      string orderBy = string.Empty;
+      List<PgSqlParameter> paramList = new List<PgSqlParameter>();
+      paramList = new List<PgSqlParameter>();
+      paramList.Add(new PgSqlParameter("@P1", DateTime.Today.AddDays(-100)));
+      extraWhere += " AND dvh_exdivdate > @P1 ";                           /*             " AND dvh_exdivdate BETWEEN @P2 AND @P3 "; */
+      orderBy += " ORDER BY dvh_exdivdate DESC ";
+      if (DBAccess.GetDividends(paramList, out divList, extraWhere, orderBy))
+      {
+        foreach(DBAccess.DividendHistory rec in divList)
+        {
+      // foreach company, run the paydividends bit to update the soh
+          ImportDividendHistory.payDividend(rec);
+        }
+      }
+      return;
+
+    }
 
     private void backgroundWorkerONight_DoWork(object sender, DoWorkEventArgs e)
     {
+      // get any companies with dividend history record where exdividenddate > '01-07-2019'
+//      fixHistory();
+      //MarketIndexScrape.UpcomingDividends();
+  //    return;
       Console.WriteLine("Starting Overnight Processing " + DateTime.Now.ToString());
       WorkState wsOnight = e.Argument as WorkState;
       wsOnight.startTime = DateTime.Today.Date;
